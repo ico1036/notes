@@ -58,16 +58,14 @@
     is the weakest available. Parallelism is sold on throughput: ten agents,
     ten times the work. But throughput is rarely the binding constraint in a
     research loop — the loop is bounded by how much it learns per attempt, not
-    by how many attempts it can issue per hour. Meanwhile a subagent buys
-    something a single context genuinely cannot obtain at any size: a reader who
-    has not seen what you saw. Anchoring is not a context-window problem. You
-    cannot un-know your own reasoning by allocating more tokens to it.
+    by how many attempts it can issue per hour. Optimising the wrong term buys
+    you failures faster.
   </p>
 
   <p>
-    So the question worth asking of any fan-out is not how much faster it is. It
-    is what each agent is prevented from knowing. What follows is what happened
-    when I built it the other way round first.
+    So the interesting question is what else a subagent could be for, and
+    whether that thing is worth its cost. This note is what I found by building
+    it the expensive way round first.
   </p>
 
   <h2>The proportions</h2>
