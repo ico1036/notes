@@ -13,29 +13,89 @@
 <div class="wrap">
 
 <header class="site">
-  <a class="site-name" href="../index.html">← Notes on Autonomous Research Loops</a>
+  <a class="site-name" href="../index.html">← JW Lab</a>
 </header>
 
 <article>
 
-  <p class="post-date">2026-08-10 · Harness principles · 4</p>
+  <p class="post-date">2026-08-10 · Loop for Quant Research · 4</p>
   <h1>Abstraction Layer, but Think First</h1>
 
   <p class="standfirst">
-    A research loop that learns "this column failed" starts from zero every
-    iteration. One that learns "this <em>kind</em> of thing fails for this
-    <em>reason</em>" covers a thousand cases with one lesson. That is the whole
-    compounding mechanism, and it is also the easiest thing in the world for a
-    language model to fake: it will assert a shared structure between any two
-    findings you put in front of it, fluently, and be right often enough that
-    you stop checking.
+    An automated search that records what failed learns nothing that transfers.
+    To compound, it has to record why a <em>kind</em> of thing fails — it has to
+    build abstractions over its own results. Which puts the load on the one
+    component least suited to carry it, because a language model will assert a
+    shared structure between any two findings you put in front of it, fluently,
+    and be right often enough that you stop checking.
   </p>
 
+  <h2>The loop, and why it needs to generalise</h2>
+
   <p class="lede">
-    So the abstraction has to be earned against data before it is allowed to
-    steer. This note is about what earning it looks like — four diagnostics that
-    actually discriminate — and then about the part I cannot make sound better
-    than it is: nothing mechanical here enforces any of it.
+    The system underneath this note searches for stock-market trading strategies
+    without supervision. Each iteration — a <strong>trial</strong> — writes an
+    economic hypothesis, writes code expressing it, replays sixteen years of
+    market history against that code, and scores the result. A campaign runs
+    somewhere around a thousand trials, and roughly four per cent of them are
+    kept. The other ninety-six per cent are the interesting inventory.
+  </p>
+
+  <p>
+    A loop that files those failures as <em>attempt 412 did not work</em> is
+    running a very expensive random search. Nothing carries forward. The search
+    space here is combinatorially large — thousands of candidate input fields
+    crossed with every way of combining them — so covering it by enumeration is
+    not a strategy, it is a way of spending a budget.
+  </p>
+
+  <p>
+    The only thing that changes that arithmetic is generalisation. If a failure
+    can be filed as <em>measures of this kind fail for this reason</em>, one
+    result closes a family. That is the entire mechanism by which a loop's
+    judgment improves rather than merely accumulates, and it is the difference
+    between a thousand trials and a thousand-and-first informed by them.
+  </p>
+
+  <h2>The component that has to do it is the wrong one</h2>
+
+  <p>
+    Here is the problem. Deciding that two findings share a mechanism is
+    irreducibly a judgment about meaning, so it goes to the model — there is no
+    rule to write. And a language model is extraordinarily good at producing
+    that judgment on demand. Show it any two results and it will name the
+    structure they share, in fluent, plausible, well-organised prose, whether or
+    not one exists.
+  </p>
+
+  <p>
+    Note what makes this worse than an ordinary reliability problem. If the
+    model were wrong most of the time you would stop trusting it within a week.
+    It is right often enough to be useful, and the invented connections are
+    indistinguishable in tone from the real ones, because they are produced by
+    the same process. Confidence carries no information here.
+  </p>
+
+  <p>
+    So the abstraction has to be <em>earned against data before it is allowed to
+    steer</em>. Not evaluated afterwards — a story told after the result is
+    unfalsifiable by construction, since whatever came back is what it explains.
+    Earned in advance, or it gets recorded and given no authority.
+  </p>
+
+  <p>
+    That is a design requirement, and it has two halves. You need tests that can
+    actually break a proposed abstraction, and you need something that makes
+    those tests happen. This note is about both. The first half went well. The
+    second is where I cannot make it sound better than it is.
+  </p>
+
+  <p>
+    One term, used throughout: a <strong>cross-sectional</strong> operation is
+    one taken across all instruments at a single point in time — a rank, a
+    median, a quantile computed down the column of everything you could have
+    held that day — as opposed to something computed along one instrument's
+    history. Most of what follows is about claims of that shape.
   </p>
 
   <h2>The habit the whole thing rests on</h2>
@@ -98,10 +158,19 @@
   <h2>Four diagnostics that discriminate</h2>
 
   <p>
-    These are the useful part of the note, so I present them as tests rather
-    than results — you cannot check my results, and you can use the tests. Each
-    takes a proposed common axis and tries to break it, and for each you settle
-    in advance what a pass and a fail would look like.
+    Each of the four is the same move made in a different dimension: take the
+    thing you believe is responsible, vary it, and state in advance which way
+    the result must move if you were right. Neutralise the dimension you are
+    blaming. Flip the sign. Change the weighting. Ask whether two measurement
+    channels see the same content. <strong>The examples below are financial; the
+    shapes are not.</strong>
+  </p>
+
+  <p>
+    I present them as tests rather than results for the same reason — you cannot
+    check my results, and you can use the tests. What makes each one a test
+    rather than an observation is the sentence written before it runs saying
+    what would count as a failure.
   </p>
 
   <h3>1. Neutralise the blamed dimension and watch the direction of travel</h3>
@@ -127,6 +196,42 @@
     high end of your measure is systematically the growthier firm inside every
     group, that bias sails straight through.
   </p>
+
+  <figure>
+    <div class="fig-scroll">
+      <svg viewBox="0 0 656 334" role="img" aria-label="Four outcomes of one neutralisation test, drawn on an axis of effect magnitude. Two outcomes move toward zero and mean different things; one moves away, falsifying the diagnosis; one does not move, which proves nothing.">
+      <line x1="30" y1="56" x2="296" y2="56" stroke="currentColor" stroke-width="1.2" opacity=".4"/>
+      <text x="30" y="46" font-size="14" fill="currentColor" opacity=".6" text-anchor="middle">0</text>
+      <line x1="180" y1="52" x2="180" y2="290" stroke="currentColor" stroke-width="1.2" stroke-dasharray="4 4" opacity=".5"/>
+      <text x="180" y="46" font-size="14" fill="currentColor" opacity=".75" text-anchor="middle">before the test</text>
+      <line x1="180" y1="92" x2="104" y2="92" stroke="currentColor" stroke-width="2"/>
+      <path d="M104 92 l-9 -5 l0 10 z" fill="currentColor"/>
+      <circle cx="180" cy="92" r="3" fill="currentColor"/>
+      <text x="306" y="89" font-size="14" font-weight="600" fill="currentColor">pass — it really was a cross-group tilt</text>
+      <text x="306" y="108" font-size="14" fill="currentColor" opacity=".65">the part you did not mean to bet on is gone</text>
+      <line x1="180" y1="146" x2="36" y2="146" stroke="currentColor" stroke-width="2"/>
+      <path d="M36 146 l-9 -5 l0 10 z" fill="currentColor"/>
+      <circle cx="180" cy="146" r="3" fill="currentColor"/>
+      <text x="306" y="143" font-size="14" font-weight="600" fill="currentColor">collapse — composition and nothing else</text>
+      <text x="306" y="162" font-size="14" fill="currentColor" opacity=".65">reads like the pass; no residual is left</text>
+      <line x1="180" y1="200" x2="282" y2="200" stroke="currentColor" stroke-width="2"/>
+      <path d="M282 200 l9 -5 l0 10 z" fill="currentColor"/>
+      <circle cx="180" cy="200" r="3" fill="currentColor"/>
+      <text x="306" y="197" font-size="14" font-weight="600" fill="currentColor">falsified — the carrier was within-group</text>
+      <text x="306" y="216" font-size="14" fill="currentColor" opacity=".65">stripping the group means concentrated it</text>
+      <circle cx="180" cy="254" r="4.5" fill="currentColor"/>
+      <text x="306" y="251" font-size="14" font-weight="600" fill="currentColor">survived — which proves nothing</text>
+      <text x="306" y="270" font-size="14" fill="currentColor" opacity=".65">a within-group gradient passes straight through</text>
+      </svg>
+    </div>
+    <figcaption>
+      The axis is the magnitude of the effect, not its sign. Note that two of
+      the four arrows travel the same direction and mean opposite things — one
+      says the unintended component is gone, the other says there was never
+      anything else. How far it moved is the only thing separating them, which
+      is why the naive reading of "it got smaller" is a coin flip.
+    </figcaption>
+  </figure>
 
   <p>
     Four outcomes, one test, and only one is the naive reading. I have hit all
@@ -222,10 +327,10 @@
     <span class="lbl">Scope of all of this</span>
     <p>
       Every claim above comes from one domain, one data vendor, one backtest
-      engine, one campaign. The diagnostics are general in form — neutralise,
-      flip, re-weight, compare channels — but the rules they produced are local,
-      and I have no evidence about how they transfer. Treat the tests as
-      portable and the conclusions as not.
+      engine, one campaign. The four shapes are stated as general at the head of
+      that section and I still believe that, but the <em>rules</em> they
+      produced are local and I have no evidence about how those transfer. Treat
+      the tests as portable and the conclusions as not.
     </p>
   </div>
 

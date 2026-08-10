@@ -13,47 +13,161 @@
 <div class="wrap">
 
 <header class="site">
-  <a class="site-name" href="../index.html">← Notes on Autonomous Research Loops</a>
+  <a class="site-name" href="../index.html">← JW Lab</a>
 </header>
 
 <article>
 
-  <p class="post-date">2026-08-10 · Harness principles · 3</p>
+  <p class="post-date">2026-08-10 · Loop for Quant Research · 3</p>
   <h1>Overfit and Dynamic</h1>
 
   <p class="standfirst">
-    A search loop scored by a fixed function will fit a moving market, given
-    enough attempts. The defence I borrowed comes from slime moulds: leave a
-    trail, and let it evaporate. It works — it demonstrably stops the loop
-    grinding one region. It also contains exactly the flaw the analogy predicts,
-    which is that a maze holds still and a market does not.
+    A search loop needs something to optimise against. In quantitative research
+    that something can only be built out of the past, and the thing the past
+    describes does not hold still. This note is the chain of reasoning that
+    starts from that mismatch and ends, several steps later, at a slime mould —
+    and then at the specific point where the borrowed mechanism stops working.
   </p>
 
+  <h2>The loop, and the object it verifies</h2>
+
   <p class="lede">
-    Two properties make automated strategy search dangerous in a way that
-    automated code search is not. The target moves: the relationship you are
-    looking for may have existed in 2014 and stopped existing in 2019, with
-    nothing announcing the transition. And the target is easy to hit by
-    accident: run a few thousand attempts against sixteen years of daily
-    returns and some will look excellent for no reason at all. A loop that runs
-    unattended is a machine for generating attempts, and therefore also a
-    machine for generating false positives, unless something in its design
-    pushes the other way.
+    The system underneath this note searches for stock-market trading
+    strategies without supervision. One iteration — a <strong>trial</strong> —
+    goes: state an economic hypothesis in plain language, write code expressing
+    it, run that code over sixteen years of historical market data, score the
+    result, decide whether the score means anything, and write down why so the
+    next iteration starts from there. It runs unattended, roughly a thousand
+    trials to a campaign.
   </p>
 
   <p>
-    The naive fix is statistical — correct the threshold for the number of
-    trials, or hold out more data. Both help and neither is sufficient, because
-    the deeper problem is not the score of any one trial. It is that a greedy
-    search concentrates: once a region pays off, every subsequent proposal
-    drifts toward it, and the loop spends its budget re-measuring one idea under
-    different names until a measurement clears the bar by luck. So the question
-    was not "how do I test a strategy more strictly", but "how does anything
-    search a space it cannot memorise, without collapsing onto the first thing
-    that works".
+    The middle step is the one that matters here. A <strong>strategy</strong> is
+    a function that decides, for each date, how much of the portfolio to hold in
+    each instrument. A <strong>backtest</strong> replays history against it: on
+    every simulated day it applies the weights the strategy would have chosen
+    using only information available on that day, and accumulates the returns
+    that would have followed. What comes out is a single equity curve, from
+    which you compute scores.
   </p>
 
-  <h2>What the slime mould does</h2>
+  <p>
+    This is a genuinely good property, and it is worth pausing on how unusual it
+    is. Most research does not get a verifiable object. Here you do: the
+    hypothesis is compiled into code, the code is executed against a fixed
+    dataset, and a number falls out. Two people running the same strategy over
+    the same window get the same number. The loop can be automated at all only
+    because of this — there is something for a script to check.
+  </p>
+
+  <p>
+    A few of the scores, since they recur below.
+    <strong>In-sample</strong> is the stretch of history the search is allowed
+    to optimise against; the <strong>holdout</strong> is a later stretch kept
+    back, whose numbers the model never sees. The
+    <strong>information ratio</strong> (IR) is the strategy's return in excess
+    of a market benchmark, divided by the volatility of that excess — how much
+    the strategy beat the market by, per unit of the risk it took doing so. The
+    <strong>gate</strong> is the pass/fail rule that decides whether a trial is
+    kept, and it is two IR comparisons and nothing else.
+  </p>
+
+  <h2>The object is verifiable, and it is also dynamical</h2>
+
+  <p>
+    Here is the mismatch the whole design is built around.
+  </p>
+
+  <p>
+    The object you verify is a simulation of a fixed past. The thing you are
+    trying to say something about is the future of a market. And a market is not
+    a fixed system being sampled — it is a system whose regularities are
+    consumed by the act of being exploited. A relationship can exist in 2014,
+    become widely known, be traded away, and stop existing by 2019, with nothing
+    announcing the transition. The verifiable object is a photograph of
+    something that moves.
+  </p>
+
+  <p>
+    That interacts badly with automation. Run a few thousand attempts against
+    sixteen years of daily returns and some will look excellent for no reason at
+    all — this is ordinary multiple comparisons, and every field that searches
+    has it. What makes the quantitative case worse is that the two problems
+    disguise each other. A strategy that fit noise and a strategy whose regime
+    ended produce the same evidence: a good historical score and a
+    disappointing future. Looked at from any single point in time, overfitting
+    is not merely easy, it is the default outcome of trying hard.
+  </p>
+
+  <p>
+    The obvious responses are statistical — correct the threshold for the number
+    of trials, hold out more data. Both help. Neither is sufficient, because
+    they treat the score of an individual trial and the problem is not there.
+    The problem is where the trials go. A greedy search concentrates: once a
+    region of the space pays off, every subsequent proposal drifts toward it,
+    and the loop spends its budget re-measuring one idea under different names
+    until some measurement clears the bar by luck. Tightening the bar does not
+    stop this. It just requires more attempts, which an unattended loop is happy
+    to supply.
+  </p>
+
+  <h2>So: define the problem as explore, not exploit</h2>
+
+  <p>
+    That reframing is the actual design decision, and everything mechanical
+    follows from it.
+  </p>
+
+  <p>
+    If the target were stationary, exploitation would be correct — find the good
+    region, work it out. Because the target is dynamical, the durable output of
+    a search is not a strategy, it is a <em>map</em>: which parts of the space
+    have been looked at, which paid, which are closed. A strategy decays. A map
+    of where you have already been does not, and it is what makes the next
+    campaign cheaper than the last. So the loop is built to cover ground, and
+    accepts a worse hit rate to do it.
+  </p>
+
+  <p>
+    But pure exploration is also wrong. A loop that samples uniformly from a
+    space this large learns nothing from its own results and wastes most of its
+    budget. Some exploitation has to be nudged back in — enough to bias the next
+    proposal toward ground that has recently paid, not enough to let it settle
+    there.
+  </p>
+
+  <p>
+    Two constraints on where that nudge could live. It had to sit at the
+    <em>data layer</em> — operating on which inputs the next trial reaches for,
+    rather than on the hypothesis itself, because the hypothesis is the part
+    that must stay the model's judgment. And it had to be <em>shallow</em>: a
+    hint the proposal step is free to ignore, not a controller. A deep optimiser
+    over trial history would be one more thing fitting the past, which is the
+    problem we started with.
+  </p>
+
+  <h2>And the nudge itself has to decay</h2>
+
+  <p>
+    A static memory of what paid would reintroduce the whole problem one level
+    up. If a region stays warm because it paid in 2015, the loop is being
+    steered by a fact about a market that no longer exists, and the steering
+    gets stronger the longer the run goes, because early successes accumulate
+    and nothing removes them. Any intelligence layer over a dynamical target has
+    to forget, or it becomes a record of the target's history rather than a
+    guide to its present.
+  </p>
+
+  <p>
+    So the requirement, written out: a shallow, non-binding, data-layer
+    preference that strengthens where results arrive and weakens everywhere
+    else, continuously, with no explicit expiry rule. I did not want to invent
+    that. Decay-based coordination is old and much-studied, so the question was
+    which existing mechanism has exactly these properties — shallow, local, no
+    central plan, and forgetting built into the substrate rather than bolted on.
+  </p>
+
+  <h2>Which is what a slime mould does</h2>
 
   <p>
     Ants and slime moulds solve this with stigmergy: coordination through marks
@@ -64,6 +178,17 @@
     it, a path has to keep paying to keep existing, and quiet ground cools back
     down and becomes explorable again.
   </p>
+
+  <p>
+    Every property on the requirement list is there, and none of them is an
+    add-on: the trail is shallow (a scalar, not a model), local (deposited where
+    the forager actually went), non-binding (a bias, not a route), and it
+    forgets by default rather than by rule. That last one is the reason to
+    borrow this rather than build a decaying cache — in stigmergy, persistence
+    is the thing that must be earned, and absence is the resting state.
+  </p>
+
+  <h2>The translation, and where it is exact</h2>
 
   <p>
     The loop implements a direct translation. Every visited point in the search
@@ -94,6 +219,52 @@
       set.
     </li>
   </ul>
+
+  <figure>
+    <div class="fig-scroll">
+      <svg class="plot" viewBox="0 0 656 250" role="img" aria-label="Two regions under a 0.95-per-trial fade. The region that stops producing decays below the deletion floor and is removed; the region that keeps producing persists at a low level.">
+      <g fill="none" stroke="currentColor" stroke-width="1" opacity=".22">
+      <line x1="46" y1="216.0" x2="644" y2="216.0"/>
+      <line x1="46" y1="166.0" x2="644" y2="166.0"/>
+      <line x1="46" y1="116.0" x2="644" y2="116.0"/>
+      <line x1="46" y1="66.0" x2="644" y2="66.0"/>
+      <line x1="46" y1="16.0" x2="644" y2="16.0"/>
+      </g>
+      <g fill="none" stroke="currentColor" stroke-width="1.4"><line x1="46" y1="16" x2="46" y2="216"/><line x1="46" y1="216" x2="644" y2="216"/></g>
+      <g stroke="currentColor" stroke-width="1.4" opacity=".55">
+      <line x1="61.9" y1="216" x2="61.9" y2="222"/>
+      <line x1="87.9" y1="216" x2="87.9" y2="222"/>
+      <line x1="113.8" y1="216" x2="113.8" y2="222"/>
+      </g>
+      <g stroke="currentColor" stroke-width="1.4" stroke-dasharray="2 2" opacity=".55">
+      <line x1="73.9" y1="216" x2="73.9" y2="222"/>
+      <line x1="169.6" y1="216" x2="169.6" y2="222"/>
+      <line x1="281.2" y1="216" x2="281.2" y2="222"/>
+      <line x1="390.8" y1="216" x2="390.8" y2="222"/>
+      <line x1="508.5" y1="216" x2="508.5" y2="222"/>
+      <line x1="612.1" y1="216" x2="612.1" y2="222"/>
+      </g>
+      <path d="M62 112 L64 117 L66 122 L68 126 L70 131 L72 135 L74 139 L76 143 L78 147 L80 150 L82 153 L84 157 L86 160 L88 83 L90 89 L92 96 L94 102 L96 107 L98 113 L100 118 L102 123 L104 127 L106 132 L108 136 L110 140 L112 144 L114 79 L116 86 L118 92 L120 99 L122 104 L124 110 L126 115 L128 120 L130 125 L132 130 L134 134 L136 138 L138 142 L140 146 L142 149 L144 153 L146 156 L148 159 L150 162 L152 164 L154 167 L156 169 L158 172 L160 174 L162 176 L164 178 L166 180 L168 182 L170 183 L172 185 L174 187 L176 188 L178 189 L180 191 L182 192 L184 193 L186 194 L188 195 L190 197 L192 197 L194 198 L196 199 L197 200 L199 201 L201 202 L203 202 L205 203 L207 204 L209 204 L211 205 L213 205 L215 206 L217 206 L219 207 L221 207 L223 208 L225 208 L227 209 L229 209 L231 209 L233 210 L235 210 L237 210 L239 211 L241 211 L243 211 L245 211 L247 212 L249 212 L251 212 L253 212 L255 212 L257 213 L259 213 L261 213 L263 213 L265 213 L267 213 L269 213 L271 214 L273 214 L275 214 L277 214 L279 214 L281 214 L283 214 L285 214 L287 214 L289 215 L291 215 L293 215 L295 215 L297 215 L299 215 L301 215 L303 215 L305 215 L307 215 L309 215 L311 215 L313 215 L315 215 L317 215 L319 215 L321 215 L323 215 L325 215 L327 215 L329 215 L331 215 L333 216 L335 216 L337 216 L339 216 L341 216 L343 216 L345 216 L347 216 L349 216 L351 216 L353 216 L355 216 L357 216 L359 216 L361 216 L363 216 L365 216 L367 216 L369 216 L371 216 L373 216 L375 216 L377 216 L379 216 L381 216 L383 216 L385 216 L387 216 L389 216 L391 216 L393 216 L395 216 L397 216 L399 216 L401 216 L403 216 L405 216 L407 216 L409 216 L411 216 L413 216 L415 216 L417 216 L419 216 L421 216 L423 216 L425 216 L427 216 L429 216 L431 216 L433 216 L435 216 L437 216 L439 216 L441 216 L443 216 L445 216 L447 216 L449 216 L451 216 L453 216 L455 216 L457 216 L459 216" fill="none" stroke="currentColor" stroke-width="2.2"/>
+      <path d="M74 159 L76 162 L78 165 L80 167 L82 170 L84 172 L86 174 L88 176 L90 178 L92 180 L94 182 L96 184 L98 185 L100 187 L102 188 L104 190 L106 191 L108 192 L110 193 L112 194 L114 196 L116 197 L118 198 L120 198 L122 199 L124 200 L126 201 L128 202 L130 202 L132 203 L134 204 L136 204 L138 205 L140 206 L142 206 L144 207 L146 207 L148 207 L150 208 L152 208 L154 209 L156 209 L158 209 L160 210 L162 210 L164 210 L166 211 L168 211 L170 154 L172 157 L174 160 L176 163 L178 166 L180 168 L182 171 L184 173 L186 175 L188 177 L190 179 L192 181 L194 183 L196 184 L197 186 L199 187 L201 189 L203 190 L205 191 L207 193 L209 194 L211 195 L213 196 L215 197 L217 198 L219 199 L221 200 L223 201 L225 201 L227 202 L229 203 L231 203 L233 204 L235 205 L237 205 L239 206 L241 206 L243 207 L245 207 L247 208 L249 208 L251 208 L253 209 L255 209 L257 210 L259 210 L261 210 L263 210 L265 211 L267 211 L269 211 L271 211 L273 212 L275 212 L277 212 L279 212 L281 159 L283 162 L285 165 L287 167 L289 170 L291 172 L293 174 L295 176 L297 178 L299 180 L301 182 L303 184 L305 185 L307 187 L309 188 L311 190 L313 191 L315 192 L317 193 L319 195 L321 196 L323 197 L325 198 L327 199 L329 199 L331 200 L333 201 L335 202 L337 203 L339 203 L341 204 L343 204 L345 205 L347 206 L349 206 L351 207 L353 207 L355 208 L357 208 L359 208 L361 209 L363 209 L365 209 L367 210 L369 210 L371 210 L373 211 L375 211 L377 211 L379 211 L381 212 L383 212 L385 212 L387 212 L389 212 L391 156 L393 159 L395 162 L397 164 L399 167 L401 169 L403 172 L405 174 L407 176 L409 178 L411 180 L413 182 L415 183 L417 185 L419 187 L421 188 L423 189 L425 191 L427 192 L429 193 L431 194 L433 195 L435 196 L437 197 L439 198 L441 199 L443 200 L445 201 L447 202 L449 202 L451 203 L453 204 L455 204 L457 205 L459 205 L461 206 L463 206 L465 207 L467 207 L469 208 L471 208 L473 209 L475 209 L477 209 L479 210 L481 210 L483 210 L485 211 L487 211 L489 211 L491 211 L493 212 L494 212 L496 212 L498 212 L500 212 L502 213 L504 213 L506 213 L508 160 L510 163 L512 165 L514 168 L516 170 L518 173 L520 175 L522 177 L524 179 L526 181 L528 182 L530 184 L532 186 L534 187 L536 189 L538 190 L540 191 L542 193 L544 194 L546 195 L548 196 L550 197 L552 198 L554 199 L556 200 L558 200 L560 201 L562 202 L564 203 L566 203 L568 204 L570 205 L572 205 L574 206 L576 206 L578 207 L580 207 L582 208 L584 208 L586 208 L588 209 L590 209 L592 209 L594 210 L596 210 L598 210 L600 211 L602 211 L604 211 L606 211 L608 212 L610 212 L612 155 L614 158 L616 161 L618 164 L620 166 L622 169 L624 171 L626 173 L628 176 L630 178 L632 180 L634 181 L636 183 L638 185 L640 186 L642 188 L644 189" fill="none" stroke="currentColor" stroke-width="2.2" stroke-dasharray="6 4"/>
+      <line x1="466.6" y1="110.0" x2="458.6" y2="210.0" stroke="currentColor" stroke-width="1" opacity=".45"/>
+      <circle cx="458.6" cy="216.0" r="3.4" fill="currentColor"/>
+      <text x="468.6" y="104.0" font-size="14" fill="currentColor">deleted at trial 207</text>
+      <text x="133.7" y="76.0" font-size="14" fill="currentColor">stops producing</text>
+      <text x="345.0" y="144.0" font-size="14" fill="currentColor">keeps producing</text>
+      <text x="46" y="242" font-size="14" fill="currentColor" opacity=".6">trials →</text>
+      <text x="6" y="26" font-size="14" fill="currentColor" opacity=".6">score</text>
+      </svg>
+    </div>
+    <figcaption>
+      The fade, run out to 300 trials with the real constants. Solid: a region
+      that clears the gate three times early and then stops — it crosses the
+      1e-4 deletion floor at trial 207 and is removed from the map entirely.
+      Dashed: a region clearing the gate roughly every sixty trials, which is
+      enough to persist but not enough to dominate. Ticks on the baseline are
+      deposits. Nothing here has an expiry rule; persistence is simply what a
+      region gets for continuing to produce.
+    </figcaption>
+  </figure>
 
   <p>
     The second bullet was not the original design. An earlier version also

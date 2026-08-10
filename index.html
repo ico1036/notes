@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Notes on Autonomous Research Loops</title>
-<meta name="description" content="Notes on building research systems that run themselves — where to put an agent, where not to, and how to keep the conclusions checkable.">
+<title>JW Lab</title>
+<meta name="description" content="Notes on building research systems that run themselves — where to put an agent, where not to, and how to keep the conclusions checkable. Drawn from an unsupervised search for stock-market trading strategies.">
 <link rel="stylesheet" href="./style.css">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%23fff'/%3E%3Crect x='2' y='2' width='4' height='4'/%3E%3Crect x='10' y='6' width='4' height='4'/%3E%3Crect x='2' y='10' width='4' height='4'/%3E%3C/svg%3E">
 </head>
@@ -13,101 +13,102 @@
 <div class="wrap">
 
 <header class="site">
-  <a class="site-name" href="./index.html">Notes on Autonomous Research Loops</a>
+  <a class="site-name" href="./index.html">JW Lab</a>
   <p class="site-sub">
-    Working notes on research systems that run themselves — forming their own
-    hypotheses, testing them against data, and writing down why each one failed.
-    Mostly about the parts that are not the model.
+    Working notes on research systems that run themselves. The one these are
+    drawn from searches for stock-market trading strategies unsupervised —
+    forming its own hypotheses, testing them against sixteen years of market
+    data, and writing down why each one failed. Mostly about the parts that are
+    not the model.
   </p>
 
   <canvas class="ca" id="ca" aria-hidden="true"></canvas>
   <p class="ca-note">
-    Rule 110, seeded at random on every load. The rule is fixed and the seed is not,
-    which is the whole subject of <a href="./posts/deterministic-and-probabilistic.html">Deterministic
-    and Probabilistic</a>.
+    Rule 110, seeded at random on every load. The rule is fixed; the seed is not.
   </p>
 </header>
 
-<main>
+<main class="shell">
 
-  <section class="cat">
-    <h2 class="cat-name">Harness principles</h2>
-    <p class="cat-sub">
-      Five principles I settled on while building a quant research harness — an
-      agent loop that proposes strategies, backtests them, and decides what it
-      learned. Each one is written against the code rather than from memory, and
-      each carries at least one thing it does not cover.
-    </p>
-  </section>
+  <nav class="board" aria-label="categories">
+    <span class="board-lbl">Categories</span>
+    <ul>
+      <li>
+        <a href="#loop-for-quant-research" aria-current="true">
+          Loop for Quant Research<span class="n">5</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
 
-  <ol class="list">
+  <ol class="list" id="loop-for-quant-research">
 
     <li>
-      <span class="entry-date">2026-08-10 · Harness principles</span>
+      <span class="entry-date">2026-08-10 · Loop for Quant Research</span>
       <a class="entry-title" href="./posts/deterministic-and-probabilistic.html">
         Deterministic and Probabilistic
       </a>
       <p class="entry-sub">
-        Everything that can be a script should be a script. In this loop, zero of
-        the fifty-eight files that run the pipeline call a model — and the one gate
-        that claims to make a judgment it does not make is the most interesting
-        thing in the codebase.
+        Which of a system's decisions are allowed to be a sample from a
+        distribution? Here, zero of the fifty-eight files that run the pipeline
+        call a model. The interesting part is the failure that leaves: a gate
+        documented as doing something it does not do.
       </p>
       <p class="entry-tags mono">agent design · gates · the honest failure</p>
     </li>
 
     <li>
-      <span class="entry-date">2026-08-10 · Harness principles</span>
+      <span class="entry-date">2026-08-10 · Loop for Quant Research</span>
       <a class="entry-title" href="./posts/fat-skill-thin-agents.html">
         Fat Skill, Thin Multi-Agents
       </a>
       <p class="entry-sub">
-        Two thousand lines of procedure against eighty-five lines of orchestration.
-        Fanning out ten drafts sounds like ten bets and is often one bet written
-        ten ways — the orthogonality is enforced by a syntax check that a competent
-        fan-out can satisfy while producing copies.
+        Two thousand lines of resident procedure against eighty-five lines of
+        orchestration, and an ablation showing the procedure is worth +2.4 on a
+        ten-point judgment task. Meanwhile the fan-out's diversity guarantee is a
+        syntax check that a competent fan-out satisfies while producing copies.
       </p>
       <p class="entry-tags mono">skills · multi-agent · information hiding</p>
     </li>
 
     <li>
-      <span class="entry-date">2026-08-10 · Harness principles</span>
+      <span class="entry-date">2026-08-10 · Loop for Quant Research</span>
       <a class="entry-title" href="./posts/overfit-and-dynamic.html">
         Overfit and Dynamic
       </a>
       <p class="entry-sub">
-        Markets move and are trivially easy to overfit. The anti-convergence
-        mechanism here is borrowed from slime mould: a trail that evaporates and a
-        forced jump to cold ground. It works, and it cannot tell a dead idea from a
-        changed world.
+        You can only build a verifiable target out of the past, and the thing the
+        past describes keeps moving. Following that mismatch to its conclusion
+        arrives at a slime mould — and then at the exact point where a borrowed
+        mechanism stops working, because a maze never becomes obsolete.
       </p>
       <p class="entry-tags mono">search · stigmergy · nonstationarity</p>
     </li>
 
     <li>
-      <span class="entry-date">2026-08-10 · Harness principles</span>
+      <span class="entry-date">2026-08-10 · Loop for Quant Research</span>
       <a class="entry-title" href="./posts/abstraction-but-think-first.html">
         Abstraction Layer, but Think First
       </a>
       <p class="entry-sub">
-        Raising the coordinate system is how a loop stops starting from zero. But a
-        language model will assert a shared structure between any two findings you
-        put in front of it, and nothing in this repository checks whether that
-        structure is real. Grep the commit path for the word: zero matches.
+        A search that records what failed learns nothing that transfers; it has
+        to record why a kind of thing fails. But the component that generalises
+        will assert a shared structure between any two findings, fluently. Four
+        tests that break a bad one — and nothing mechanical that runs them.
       </p>
       <p class="entry-tags mono">ontology · falsifiers · what is not enforced</p>
     </li>
 
     <li>
-      <span class="entry-date">2026-08-10 · Harness principles</span>
+      <span class="entry-date">2026-08-10 · Loop for Quant Research</span>
       <a class="entry-title" href="./posts/lookahead-and-path-dependency.html">
         Look-Ahead Bias and Path Dependency
       </a>
       <p class="entry-sub">
-        A backtest leaks the future through channels no amount of care inside the
-        strategy can close. You close them from outside, by running the same code
-        over shifted windows and demanding the weights be identical. The first
-        version of that check passed a strategy that was cheating.
+        How do you test a program when you cannot state what its output should
+        be? You assert a relation between two runs instead of a value from one.
+        That is metamorphic testing, and the first version of it here passed a
+        program written to cheat.
       </p>
       <p class="entry-tags mono">backtesting · integrity · blind spots</p>
     </li>

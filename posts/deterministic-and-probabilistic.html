@@ -13,42 +13,78 @@
 <div class="wrap">
 
 <header class="site">
-  <a class="site-name" href="../index.html">← Notes on Autonomous Research Loops</a>
+  <a class="site-name" href="../index.html">← JW Lab</a>
 </header>
 
 <article>
 
-  <p class="post-date">2026-08-10 · Harness principles · 1</p>
+  <p class="post-date">2026-08-10 · Loop for Quant Research · 1</p>
   <h1>Deterministic and Probabilistic</h1>
 
   <p class="standfirst">
-    Put an agent only where you must. In the research loop I have been running,
-    the pipeline that decides whether a strategy lives or dies is fifty-eight
-    Python files, and not one of them calls a model. The interesting part is not
-    that discipline held — it is the single place where it did not, and how long
-    that went unnoticed.
+    Every system built around a language model has to answer one question before
+    any other: which of its decisions are allowed to be a sample from a
+    distribution? Answer it loosely and you get a system that cannot be
+    debugged. Answer it well and you get a different problem, which is the
+    subject of the second half of this note.
   </p>
+
+  <h2>The loop</h2>
 
   <p class="lede">
-    The system this note is about does one thing on a loop: it forms an economic
-    hypothesis about equity markets, writes code expressing that hypothesis,
-    backtests it over sixteen years, decides whether the result means anything,
-    and writes down what it learned so the next iteration starts from there. It
-    runs unattended. Over one campaign it completed 1,203 of these iterations.
+    The system underneath this note searches for stock-market trading strategies
+    without supervision. One iteration — a <strong>trial</strong> — forms an
+    economic hypothesis in plain language, writes code expressing it, replays
+    sixteen years of market history against that code (a
+    <strong>backtest</strong>), scores the result, decides whether the score
+    means anything, and writes down what it learned so the next iteration starts
+    from there. Over one campaign it completed 1,203 of these, unattended.
   </p>
 
   <p>
-    The obvious way to build that is to make everything an agent. A proposer
-    agent, a coder agent, a reviewer agent, a judge. It is obvious, it demos
-    well, and it produces a system whose failures you cannot debug, because
-    every component's behaviour is a sample from a distribution and no two runs
-    are the same.
+    Two scores decide whether a trial is kept. The
+    <strong>in-sample</strong> score is computed on the first fourteen years,
+    which the loop is allowed to optimise against; the
+    <strong>holdout</strong> score is computed on the last two, which the model
+    never sees. Both are an <strong>information ratio</strong> (IR) — the
+    strategy's return in excess of a market benchmark, divided by the volatility
+    of that excess. The <strong>gate</strong> is the rule that reads those two
+    numbers and returns a verdict.
+  </p>
+
+  <h2>What nondeterminism costs, and where</h2>
+
+  <p>
+    The obvious way to build a loop like this is to make everything an agent. A
+    proposer agent, a coder agent, a reviewer agent, a judge. It is obvious, it
+    demos well, and it produces a system whose failures you cannot debug.
   </p>
 
   <p>
-    The design principle I settled on instead is written at the top of the
-    project's instructions, and it is the shortest useful thing in the whole
-    repository:
+    The reason is worth stating precisely, because "nondeterminism is bad" is
+    not the reason and is not even true. A sampled component is fine in
+    isolation; you run it again and get a different answer, which is sometimes
+    exactly what you want. The cost appears when sampled components are
+    <em>composed</em>. A failure in a chain of them cannot be attributed,
+    because re-running the chain does not reproduce the failure, and changing
+    one link does not isolate it — the other links moved too. You lose the
+    ability to say <em>this component did the wrong thing</em>, which is the
+    ability every debugging technique is built on.
+  </p>
+
+  <p>
+    So the question is not how much nondeterminism to have. It is which
+    decisions genuinely need it. And there is a clean test: a decision needs a
+    model exactly when you cannot write down the rule. If you can state the
+    threshold, the retry budget, the schema, the ordering — you have already
+    made the decision, and handing it to a model means paying sampling variance
+    for a choice you had made anyway.
+  </p>
+
+  <p>
+    That is one direction of failure. The other is less discussed and it is the
+    one that actually bit me. The design principle at the top of the project's
+    instructions names both:
   </p>
 
   <blockquote>
@@ -63,9 +99,11 @@
   </blockquote>
 
   <p>
-    Note that it names two failure directions, not one. Most writing on this
-    subject only warns about the first. The second is the one that actually bit
-    me.
+    Read the second half again. Most writing on this subject warns only about
+    judgment absorbing determinism — the agent asked to keep a counter in its
+    head. The mirror case, determinism encroaching on judgment, is the one this
+    note ends on, and it is harder to see because it does not look like
+    anything.
   </p>
 
   <h2>Where the model is, exactly</h2>
@@ -82,6 +120,55 @@
     import, or subprocess call to a language model returns exactly one hit, and
     it is inside a docstring.
   </p>
+
+  <figure>
+    <div class="fig-scroll">
+      <svg viewBox="0 0 656 438" role="img" aria-label="One iteration drawn as two lanes. The model lane holds three steps: stating a hypothesis, writing the strategy code, and writing the causal story afterwards. The script lane holds the six pipeline stages that decide whether the result is kept. Every pass or fail verdict sits in the script lane.">
+      <text x="197" y="34" font-size="14" font-weight="700" fill="currentColor" text-anchor="middle">sampled</text>
+      <text x="197" y="54" font-size="14" fill="currentColor" opacity=".6" text-anchor="middle">the model decides</text>
+      <text x="459" y="34" font-size="14" font-weight="700" fill="currentColor" text-anchor="middle">computed</text>
+      <text x="459" y="54" font-size="14" fill="currentColor" opacity=".6" text-anchor="middle">a script decides</text>
+      <rect x="74" y="66" width="246" height="312" fill="currentColor" opacity=".05"/>
+      <rect x="336" y="66" width="246" height="312" fill="currentColor" opacity=".05"/>
+      <rect x="86" y="74" width="222" height="26" rx="3" fill="currentColor" fill-opacity=".16" stroke="currentColor" stroke-width="2.4"/>
+      <text x="197" y="92" font-size="14" fill="currentColor" text-anchor="middle">states a hypothesis</text>
+      <rect x="86" y="108" width="222" height="26" rx="3" fill="currentColor" fill-opacity=".16" stroke="currentColor" stroke-width="2.4"/>
+      <text x="197" y="126" font-size="14" fill="currentColor" text-anchor="middle">writes the strategy code</text>
+      <line x1="197" y1="100" x2="197" y2="108" stroke="currentColor" stroke-width="1.2" opacity=".55"/>
+      <rect x="348" y="142" width="222" height="26" rx="3" fill="none" stroke="currentColor" stroke-width="1.2"/>
+      <text x="459" y="160" font-size="14" fill="currentColor" text-anchor="middle">lint</text>
+      <path d="M197 134 L197 138 L459 138 L459 142" fill="none" stroke="currentColor" stroke-width="1.2" opacity=".55"/>
+      <rect x="348" y="176" width="222" height="26" rx="3" fill="none" stroke="currentColor" stroke-width="1.2"/>
+      <text x="459" y="194" font-size="14" fill="currentColor" text-anchor="middle">duplicate check</text>
+      <line x1="459" y1="168" x2="459" y2="176" stroke="currentColor" stroke-width="1.2" opacity=".55"/>
+      <rect x="348" y="210" width="222" height="26" rx="3" fill="none" stroke="currentColor" stroke-width="1.2"/>
+      <text x="459" y="228" font-size="14" fill="currentColor" text-anchor="middle">execute</text>
+      <line x1="459" y1="202" x2="459" y2="210" stroke="currentColor" stroke-width="1.2" opacity=".55"/>
+      <rect x="348" y="244" width="222" height="26" rx="3" fill="none" stroke="currentColor" stroke-width="1.2"/>
+      <text x="459" y="262" font-size="14" fill="currentColor" text-anchor="middle">gate</text>
+      <line x1="459" y1="236" x2="459" y2="244" stroke="currentColor" stroke-width="1.2" opacity=".55"/>
+      <rect x="348" y="278" width="222" height="26" rx="3" fill="none" stroke="currentColor" stroke-width="1.2"/>
+      <text x="459" y="296" font-size="14" fill="currentColor" text-anchor="middle">integrity</text>
+      <line x1="459" y1="270" x2="459" y2="278" stroke="currentColor" stroke-width="1.2" opacity=".55"/>
+      <rect x="348" y="312" width="222" height="26" rx="3" fill="none" stroke="currentColor" stroke-width="1.2"/>
+      <text x="459" y="330" font-size="14" fill="currentColor" text-anchor="middle">analyze</text>
+      <line x1="459" y1="304" x2="459" y2="312" stroke="currentColor" stroke-width="1.2" opacity=".55"/>
+      <rect x="86" y="346" width="222" height="26" rx="3" fill="currentColor" fill-opacity=".16" stroke="currentColor" stroke-width="2.4"/>
+      <text x="197" y="364" font-size="14" fill="currentColor" text-anchor="middle">writes the causal story</text>
+      <path d="M459 338 L459 342 L197 342 L197 346" fill="none" stroke="currentColor" stroke-width="1.2" opacity=".55"/>
+      <path d="M197 372 L197 398 L34 398 L34 87 L84 87" fill="none" stroke="currentColor" stroke-width="1.2" opacity=".55" stroke-dasharray="5 4"/>
+      <path d="M84 87 l-7 -4 l0 8 z" fill="currentColor" opacity=".55"/>
+      <text x="116" y="418" font-size="14" fill="currentColor" opacity=".6" text-anchor="middle">next iteration</text>
+      </svg>
+    </div>
+    <figcaption>
+      One iteration, by who decides. The model states the hypothesis, writes the
+      code, and afterwards writes the explanation. Everything between those
+      three is a script, and every pass-or-fail verdict lives there. The lanes
+      are drawn the same width so the difference you see is occupancy, not
+      framing.
+    </figcaption>
+  </figure>
 
   <div class="measured">
     <span class="lbl">Measured</span>

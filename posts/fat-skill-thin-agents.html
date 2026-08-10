@@ -13,12 +13,12 @@
 <div class="wrap">
 
 <header class="site">
-  <a class="site-name" href="../index.html">← Notes on Autonomous Research Loops</a>
+  <a class="site-name" href="../index.html">← JW Lab</a>
 </header>
 
 <article>
 
-  <p class="post-date">2026-08-10 · Harness principles · 2</p>
+  <p class="post-date">2026-08-10 · Loop for Quant Research · 2</p>
   <h1>Fat Skill, Thin Multi-Agents</h1>
 
   <p class="standfirst">
@@ -30,13 +30,42 @@
     volume, I got correlated work and paid for it.
   </p>
 
+  <h2>The loop, and the question about it</h2>
+
   <p class="lede">
-    The system is the research loop from the previous note: it forms an economic
-    hypothesis about equity markets, writes code expressing it, backtests it over
-    sixteen years, and records what it learned. The question here is how the
-    model's side of that — the third of the system that thinks — is organised.
-    Almost all of it is resident instruction read by a single agent. A very small
-    part is a swarm.
+    The system underneath this note searches for stock-market trading strategies
+    without supervision. One iteration — a <strong>trial</strong> — writes an
+    economic hypothesis, writes code expressing it, replays sixteen years of
+    market history against that code (a <strong>backtest</strong>), scores the
+    result, and records what it learned. A separate script decides pass or fail;
+    the model never sees the score it would be graded on. Roughly a thousand
+    trials to a campaign, about four per cent kept.
+  </p>
+
+  <p>
+    This note is about one design question inside that: the model's side of the
+    loop has to hold a great deal of accumulated method — what to read first,
+    what counts as evidence, which mistakes to avoid — and there are two places
+    to put it. You can write it down as <strong>resident instruction</strong>
+    that one agent reads every iteration. Or you can distribute it across
+    <strong>subagents</strong>, each with its own brief and its own context.
+  </p>
+
+  <p>
+    The two are not interchangeable, and the usual argument for the second one
+    is the weakest available. Parallelism is sold on throughput: ten agents,
+    ten times the work. But throughput is rarely the binding constraint in a
+    research loop — the loop is bounded by how much it learns per attempt, not
+    by how many attempts it can issue per hour. Meanwhile a subagent buys
+    something a single context genuinely cannot obtain at any size: a reader who
+    has not seen what you saw. Anchoring is not a context-window problem. You
+    cannot un-know your own reasoning by allocating more tokens to it.
+  </p>
+
+  <p>
+    So the question worth asking of any fan-out is not how much faster it is. It
+    is what each agent is prevented from knowing. What follows is what happened
+    when I built it the other way round first.
   </p>
 
   <h2>The proportions</h2>
@@ -210,6 +239,157 @@
     the whole interface between the thinking third of the system and the
     counting two-thirds. Its narrowness is deliberate.
   </p>
+
+  <h2>Does the resident procedure actually do anything?</h2>
+
+  <p>
+    Everything above is a description of a design. It is not evidence that the
+    design works, and a 24:1 ratio is only impressive if the 2,009 lines are
+    carrying something. So the documents were ablated.
+  </p>
+
+  <p>
+    The test approximates one iteration's judgment as a selection problem. Rewind
+    a real run to a point in its history, hand over only the records that existed
+    at that moment, and show forty candidate strategies that were in fact tried
+    next — as code only, comments stripped. Then ask where to spend ten backtest
+    slots. The answer key is what those forty candidates actually scored when
+    they were run, so the metric is: how many of your ten picks cleared the gate.
+    Same model in every arm. The arms differ only in which documents the model
+    was given.
+  </p>
+
+  <figure>
+    <div class="fig-scroll">
+      <svg viewBox="0 0 656 530" role="img" aria-label="Two panels. In both, the number of gate-passing candidates a model picks out of ten rises as harness documents are added: bare model, then plus the plan, then plus the rejection ledger. Both panels climb the same two steps, and the panel where the code alone gives less away shows the larger lift.">
+      <g transform="translate(0,0)">
+      <text x="0" y="20" font-size="14" font-weight="600" fill="currentColor">Terrain A — code alone already carries some signal</text>
+      <g stroke="currentColor" stroke-width="1" opacity=".18">
+      <line x1="48" y1="170.8" x2="560" y2="170.8"/>
+      <line x1="48" y1="139.6" x2="560" y2="139.6"/>
+      <line x1="48" y1="108.4" x2="560" y2="108.4"/>
+      <line x1="48" y1="77.2" x2="560" y2="77.2"/>
+      <line x1="48" y1="46.0" x2="560" y2="46.0"/>
+      </g>
+      <g font-size="14" fill="currentColor" opacity=".55" text-anchor="end">
+      <text x="40" y="207.0">0</text>
+      <text x="40" y="175.8">2</text>
+      <text x="40" y="144.6">4</text>
+      <text x="40" y="113.4">6</text>
+      <text x="40" y="82.2">8</text>
+      <text x="40" y="51.0">10</text>
+      </g>
+      <line x1="48" y1="156.8" x2="560" y2="156.8" stroke="currentColor" stroke-width="1.2" stroke-dasharray="5 4" opacity=".85"/>
+      <text x="569" y="153.8" font-size="14" fill="currentColor" opacity=".7">chance</text>
+      <text x="569" y="170.8" font-size="14" fill="currentColor" opacity=".7">2.9</text>
+      <line x1="48" y1="202" x2="560" y2="202" stroke="currentColor" stroke-width="1.5"/>
+      <rect x="87.3" y="116.2" width="92" height="85.8" fill="none" stroke="currentColor" stroke-width="1.6"/>
+      <g stroke="currentColor" stroke-width="1.4" opacity=".7"><line x1="133.3" y1="80.3" x2="133.3" y2="152.1"/><line x1="125.3" y1="80.3" x2="141.3" y2="80.3"/><line x1="125.3" y1="152.1" x2="141.3" y2="152.1"/></g>
+      <text x="133.3" y="70.3" font-size="14" font-weight="700" fill="currentColor" text-anchor="middle">5.5</text>
+      <text x="133.3" y="225" font-size="14" fill="currentColor" text-anchor="middle">bare model</text>
+      <rect x="258.0" y="99.0" width="92" height="103.0" fill="currentColor" opacity=".28"/>
+      <g stroke="currentColor" stroke-width="1.4" opacity=".7"><line x1="304.0" y1="67.8" x2="304.0" y2="130.2"/><line x1="296.0" y1="67.8" x2="312.0" y2="67.8"/><line x1="296.0" y1="130.2" x2="312.0" y2="130.2"/></g>
+      <text x="304.0" y="57.8" font-size="14" font-weight="700" fill="currentColor" text-anchor="middle">6.6</text>
+      <text x="304.0" y="225" font-size="14" fill="currentColor" text-anchor="middle">+ plan</text>
+      <rect x="428.7" y="88.1" width="92" height="113.9" fill="currentColor" opacity=".80"/>
+      <g stroke="currentColor" stroke-width="1.4" opacity=".7"><line x1="474.7" y1="60.0" x2="474.7" y2="116.2"/><line x1="466.7" y1="60.0" x2="482.7" y2="60.0"/><line x1="466.7" y1="116.2" x2="482.7" y2="116.2"/></g>
+      <text x="474.7" y="50.0" font-size="14" font-weight="700" fill="currentColor" text-anchor="middle">7.3</text>
+      <text x="474.7" y="225" font-size="14" fill="currentColor" text-anchor="middle">+ rejection ledger</text>
+      <text x="48" y="250" font-size="14" fill="currentColor" opacity=".55">passes among 10 picks · n = 55 per condition</text>
+      </g>
+      <g transform="translate(0,278)">
+      <text x="0" y="20" font-size="14" font-weight="600" fill="currentColor">Terrain B — the call rests on code alone</text>
+      <g stroke="currentColor" stroke-width="1" opacity=".18">
+      <line x1="48" y1="170.8" x2="560" y2="170.8"/>
+      <line x1="48" y1="139.6" x2="560" y2="139.6"/>
+      <line x1="48" y1="108.4" x2="560" y2="108.4"/>
+      <line x1="48" y1="77.2" x2="560" y2="77.2"/>
+      <line x1="48" y1="46.0" x2="560" y2="46.0"/>
+      </g>
+      <g font-size="14" fill="currentColor" opacity=".55" text-anchor="end">
+      <text x="40" y="207.0">0</text>
+      <text x="40" y="175.8">2</text>
+      <text x="40" y="144.6">4</text>
+      <text x="40" y="113.4">6</text>
+      <text x="40" y="82.2">8</text>
+      <text x="40" y="51.0">10</text>
+      </g>
+      <line x1="48" y1="163.0" x2="560" y2="163.0" stroke="currentColor" stroke-width="1.2" stroke-dasharray="5 4" opacity=".85"/>
+      <text x="569" y="160.0" font-size="14" fill="currentColor" opacity=".7">chance</text>
+      <text x="569" y="177.0" font-size="14" fill="currentColor" opacity=".7">2.5</text>
+      <line x1="48" y1="202" x2="560" y2="202" stroke="currentColor" stroke-width="1.5"/>
+      <rect x="87.3" y="145.8" width="92" height="56.2" fill="none" stroke="currentColor" stroke-width="1.6"/>
+      <g stroke="currentColor" stroke-width="1.4" opacity=".7"><line x1="133.3" y1="117.8" x2="133.3" y2="173.9"/><line x1="125.3" y1="117.8" x2="141.3" y2="117.8"/><line x1="125.3" y1="173.9" x2="141.3" y2="173.9"/></g>
+      <text x="133.3" y="107.8" font-size="14" font-weight="700" fill="currentColor" text-anchor="middle">3.6</text>
+      <text x="133.3" y="225" font-size="14" fill="currentColor" text-anchor="middle">bare model</text>
+      <rect x="258.0" y="114.6" width="92" height="87.4" fill="currentColor" opacity=".28"/>
+      <g stroke="currentColor" stroke-width="1.4" opacity=".7"><line x1="304.0" y1="72.5" x2="304.0" y2="156.8"/><line x1="296.0" y1="72.5" x2="312.0" y2="72.5"/><line x1="296.0" y1="156.8" x2="312.0" y2="156.8"/></g>
+      <text x="304.0" y="62.5" font-size="14" font-weight="700" fill="currentColor" text-anchor="middle">5.6</text>
+      <text x="304.0" y="225" font-size="14" fill="currentColor" text-anchor="middle">+ plan</text>
+      <rect x="428.7" y="94.4" width="92" height="107.6" fill="currentColor" opacity=".80"/>
+      <g stroke="currentColor" stroke-width="1.4" opacity=".7"><line x1="474.7" y1="50.7" x2="474.7" y2="138.0"/><line x1="466.7" y1="50.7" x2="482.7" y2="50.7"/><line x1="466.7" y1="138.0" x2="482.7" y2="138.0"/></g>
+      <text x="474.7" y="40.7" font-size="14" font-weight="700" fill="currentColor" text-anchor="middle">6.9</text>
+      <text x="474.7" y="225" font-size="14" fill="currentColor" text-anchor="middle">+ rejection ledger</text>
+      <text x="48" y="250" font-size="14" fill="currentColor" opacity=".55">passes among 10 picks · n = 44 per condition</text>
+      </g>
+      </svg>
+    </div>
+    <figcaption>
+      Two starting points from the run's history, chosen because they differ in
+      how much the code alone gives away. Bars are means over independent
+      repetitions; whiskers are one standard deviation; the dashed line is what
+      random picking scores. Both panels climb the same two steps, and the panel
+      where code alone tells you less is the panel where the documents matter
+      more.
+    </figcaption>
+  </figure>
+
+  <div class="measured">
+    <span class="lbl">Measured</span>
+    <p>
+      Pairing the two terrains' timepoints and running a sign-flip permutation
+      test: adding the plan is worth <strong>+1.4</strong> picks
+      (<span class="mono">p = 0.012</span>), adding the rejection ledger on top
+      of it a further <strong>+1.0</strong> (<span class="mono">p = 0.016</span>),
+      and the two together <strong>+2.4</strong>
+      (<span class="mono">p = 0.004</span>). Every arm ran on
+      <span class="mono">claude-fable-5</span>, so this is not a model
+      comparison — it is the same model reading different documents.
+    </p>
+  </div>
+
+  <p>
+    Two things in there are worth separating. The plan is the larger single
+    step, and the plan is mostly <em>definitions</em> — what counts as a pass,
+    what the bar is, what the loop is for. The rejection ledger is a record of
+    what has already failed, and it adds a further step on top of a model that
+    already knows the objective. Knowing the target helps more than knowing the
+    history; knowing the history still helps, on top.
+  </p>
+
+  <p>
+    The gap between the panels is the more interesting half. Where the code
+    alone carries signal, the bare model already starts well above chance and
+    the documents add less. Where it does not, the bare model sits at chance and
+    the documents carry nearly all of the lift. Resident procedure is not a
+    uniform multiplier on capability. It is worth the most exactly where the
+    problem is least legible from the artefact in front of you — which is also
+    where an unassisted agent's confidence is least warranted.
+  </p>
+
+  <div class="caveat">
+    <span class="lbl">What this measurement is not</span>
+    <p>
+      It scores <em>selection</em> from a fixed menu, and the real loop
+      <em>generates</em> its candidates. Choosing from forty is the easier task,
+      so treat these as an upper bound on the documents' contribution rather
+      than an estimate of it. The metric also counts only harvesting — picks
+      that cleared the gate — and the running system deliberately spends part of
+      its budget on exploration that is expected to fail, which is the subject
+      of the next note. A number that rewards only hits cannot see that spending
+      and would mark it as error.
+    </p>
+  </div>
 
   <h2>The one place it fans out</h2>
 

@@ -13,52 +13,119 @@
 <div class="wrap">
 
 <header class="site">
-  <a class="site-name" href="../index.html">← Notes on Autonomous Research Loops</a>
+  <a class="site-name" href="../index.html">← JW Lab</a>
 </header>
 
 <article>
 
-  <p class="post-date">2026-08-10 · Harness principles · 5</p>
+  <p class="post-date">2026-08-10 · Loop for Quant Research · 5</p>
   <h1>Look-Ahead Bias and Path Dependency</h1>
 
   <p class="standfirst">
-    You cannot audit a backtest for look-ahead by reading the strategy. The
-    leaks that survive review are in the plumbing, not the logic, and the
-    strategy author cannot see them even in principle. So the check has to run
-    from outside the strategy — and then it has to publish the things it still
-    cannot see.
+    There is a class of program whose output you cannot check, because you have
+    no idea what the right answer is. A simulation of the past is one of them.
+    This note is about what testing looks like when the usual move —
+    <em>assert that the output equals the expected value</em> — is unavailable,
+    and about the two bugs that survived the first attempt.
   </p>
+
+  <h2>The loop, and the thing it cannot check</h2>
 
   <p class="lede">
-    The method is unglamorous. Run the identical strategy three times over
-    deliberately different windows and demand the weights agree where they must.
-    Two comparisons fall out of that, one per failure mode, each proving
-    something specific for a reason worth stating precisely. The interesting
-    part of this note is not the two green verdicts. It is the bug that made the
-    first version green for the wrong reason, and the one leak class that
-    neither the check nor the linter can catch.
-  </p>
-
-  <h2>Why the check has to be external</h2>
-
-  <p>
-    Every serious backtester has the same problem: the strategy is a small piece
-    of code sitting on top of a large amount of machinery, and the future can
-    enter through any of it. A loader that rebuilds its data panel to the end of
-    the requested window. A fill rule. A universe constructed with hindsight. A
-    helper three call frames down that reindexes in the wrong direction. None of
-    these are visible in the expression the researcher thinks of as "the
-    strategy", and all of them will happily produce a beautiful Sharpe.
+    The system underneath this note searches for stock-market trading strategies
+    without supervision. A <strong>strategy</strong> is a function that decides,
+    for each date, how much of a portfolio to hold in each instrument. A
+    <strong>backtest</strong> replays history against it — for every simulated
+    day it applies the weights that strategy would have chosen using only the
+    information available on that day, and accumulates the returns that would
+    have followed. Out comes a score. The loop writes a strategy, backtests it,
+    keeps it if the score clears a bar, and repeats, unattended.
   </p>
 
   <p>
-    Reading code for look-ahead is therefore a losing game, because the thing
-    you are looking for is usually not in the code you are reading. Treat the
-    whole stack as a black box instead and impose a property on it from outside.
-    The property is causality: a weight assigned on a given date must be a
-    function only of information available on that date. That is a statement
-    about the box's behaviour under a change of inputs, and it is testable
-    without understanding a line of what is inside.
+    Everything in that arrangement rests on one clause: <em>using only the
+    information available on that day</em>. Violate it and the machine still
+    runs, still produces a score, and the score is better. There is no crash, no
+    exception, no anomaly — a simulation allowed to see the future is not a
+    broken simulation, it is a very successful one. The failure mode of this
+    program is to look like it is working unusually well.
+  </p>
+
+  <h2>You cannot state the expected output</h2>
+
+  <p>
+    Here is the testing problem, and it is not specific to finance.
+  </p>
+
+  <p>
+    An ordinary unit test names an input and the output it should produce. That
+    requires you to know the answer independently of the program. For a
+    simulation of sixteen years of market history, you do not. Nobody has the
+    correct portfolio weights for an arbitrary Tuesday in 2014 sitting in a
+    fixture file; if such a thing existed you would not have needed the
+    simulator. The program is the only source of the answer it is being asked
+    for. Testing software in this position — scientific simulations, compilers,
+    search engines, machine-learning pipelines — runs straight into what the
+    testing literature calls the <strong>oracle problem</strong>: there is no
+    oracle to compare against.
+  </p>
+
+  <p>
+    Reading the code instead is a losing game, and worse than it looks. The
+    strategy is a small expression sitting on a large stack, and the future can
+    enter through any layer of it: a loader that rebuilds its data panel out to
+    the end of whatever window you asked for, a fill rule, a universe assembled
+    with hindsight, a helper three call frames down that reindexes in the wrong
+    direction. None of those live in the thing the researcher thinks of as "the
+    strategy". The person best placed to review the logic is structurally unable
+    to see the leak, and in this framework is not even permitted to read the
+    layers where it lives.
+  </p>
+
+  <h2>So state a relation instead of a value</h2>
+
+  <p>
+    The move that works when you cannot name the correct output is to name a
+    <em>relation between outputs</em>. Run the program twice on inputs that
+    differ in a controlled way, and assert how the two results must relate — not
+    what either one is. You never need to know the right answer; you only need
+    to know how the right answer would have to change, or fail to change, under
+    that particular perturbation.
+  </p>
+
+  <p>
+    This is <strong>metamorphic testing</strong>, and it is the standard answer
+    to the oracle problem. The familiar example is a search engine: you cannot
+    say what results a query <em>should</em> return, but you can say that adding
+    a restrictive term must not increase the number of hits. The assertion is on
+    the relation, and it holds without anyone knowing the correct result set.
+  </p>
+
+  <p>
+    So the question becomes: which perturbation, and which relation? For a
+    causal simulation there is an obvious one. The property we actually care
+    about is causality — <em>a weight assigned on a given date must be a
+    function only of information available on that date</em>. Restated as a
+    metamorphic relation: <strong>deleting data from after that date must not
+    change the weight.</strong> That is checkable without knowing what the
+    weight should have been, and without understanding a single line of the
+    stack it came from.
+  </p>
+
+  <p>
+    A second perturbation falls out of the same reasoning. If the weights at
+    time <em>t</em> depend only on a bounded window ending at <em>t</em>, then
+    <strong>where the simulation started ought not to matter</strong> once the
+    windows have warmed up. Two runs beginning on different dates must converge.
+    Where they do not, today's book depends on the arbitrary choice of a start
+    date, which is an artefact rather than an edge.
+  </p>
+
+  <p>
+    Two relations, two perturbations, one program treated as a black box
+    throughout. The rest of this note is what happened when they were
+    implemented — including the version that reported PASS on a strategy written
+    to fail.
   </p>
 
   <h2>Three runs of the same strategy</h2>
@@ -75,6 +142,43 @@
     <li><strong>D</strong>, identical to B except that it <strong>starts 250
       trading days later</strong>, ending on the same date.</li>
   </ul>
+
+  <figure>
+    <div class="fig-scroll">
+      <svg viewBox="0 0 656 348" role="img" aria-label="Three runs of one strategy drawn as windows on a shared timeline. B is the full window. A ends early. D starts late. The region B and A share must be identical; the region B and D share, after a burn-in, must converge.">
+      <line x1="92" y1="56" x2="636" y2="56" stroke="currentColor" stroke-width="1" opacity=".3"/>
+      <text x="92" y="46" font-size="14" fill="currentColor" opacity=".6">start of data</text>
+      <text x="636" y="46" font-size="14" fill="currentColor" opacity=".6" text-anchor="end">end of data</text>
+      <rect x="92" y="82" width="544" height="24" fill="currentColor" opacity=".14"/>
+      <rect x="92" y="82" width="544" height="24" fill="none" stroke="currentColor" stroke-width="1.4"/>
+      <text x="78" y="99" font-size="14" font-weight="700" fill="currentColor" text-anchor="end">B</text>
+      <text x="102" y="99" font-size="14" fill="currentColor" opacity=".72">the full window</text>
+      <rect x="92" y="132" width="448" height="24" fill="currentColor" opacity=".14"/>
+      <rect x="92" y="132" width="448" height="24" fill="none" stroke="currentColor" stroke-width="1.4"/>
+      <text x="78" y="149" font-size="14" font-weight="700" fill="currentColor" text-anchor="end">A</text>
+      <text x="102" y="149" font-size="14" fill="currentColor" opacity=".72">last 60 trading days cut off the end</text>
+      <rect x="224" y="244" width="412" height="24" fill="currentColor" opacity=".14"/>
+      <rect x="224" y="244" width="412" height="24" fill="none" stroke="currentColor" stroke-width="1.4"/>
+      <text x="78" y="261" font-size="14" font-weight="700" fill="currentColor" text-anchor="end">D</text>
+      <text x="298" y="261" font-size="14" fill="currentColor" opacity=".72">starts 250 trading days later</text>
+      <g stroke="currentColor" stroke-width="1.4" opacity=".85"><line x1="92" y1="178" x2="540" y2="178"/><line x1="92" y1="173" x2="92" y2="183"/><line x1="540" y1="173" x2="540" y2="183"/></g>
+      <text x="316" y="198" font-size="14" font-weight="600" fill="currentColor" text-anchor="middle">B and A must be bit-identical here</text>
+      <text x="316" y="216" font-size="14" fill="currentColor" opacity=".65" text-anchor="middle">look-ahead · max difference · tolerance 1e-10</text>
+      <g stroke="currentColor" stroke-width="1.4" opacity=".85"><line x1="286" y1="292" x2="636" y2="292"/><line x1="286" y1="287" x2="286" y2="297"/><line x1="636" y1="287" x2="636" y2="297"/></g>
+      <text x="461" y="312" font-size="14" font-weight="600" fill="currentColor" text-anchor="middle">B and D must converge here</text>
+      <text x="461" y="330" font-size="14" fill="currentColor" opacity=".65" text-anchor="middle">path dependency · mean difference · tolerance 0.01</text>
+      <rect x="224" y="244" width="62" height="24" fill="currentColor" opacity=".30"/>
+      <text x="255" y="236" font-size="14" fill="currentColor" opacity=".6" text-anchor="middle">burn-in</text>
+      </svg>
+    </div>
+    <figcaption>
+      Schematic, not to scale. The cuts are 60 and roughly 250 trading days out
+      of about 4,085; drawn honestly they would be a 1.5% sliver and a 6%
+      sliver, and the point of the figure is which region each assertion
+      covers. Neither assertion says what a weight should be. Each says how two
+      runs must relate.
+    </figcaption>
+  </figure>
 
   <p>
     <strong>B against A detects look-ahead.</strong> A and B start on the same

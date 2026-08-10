@@ -15,6 +15,12 @@
   --rule-2:#c8c8c8;
   --mark:#f0f0f0;
   --measure:44rem;
+
+  /* The drawing width every figure's viewBox is authored at: the measure
+     (44rem = 704px) minus the wrap's 24px of padding each side. Changing
+     --measure without redrawing the figures to match will rescale them and
+     shrink their labels with them, so the two values move together. */
+  --fig-w:656px;
 }
 
 @media (prefers-color-scheme: dark){
@@ -73,22 +79,39 @@ header.site{padding:56px 0 0}
   font-size:12px; color:var(--ink-3); margin-top:8px; line-height:1.6;
 }
 
-/* ── category ─────────────────────────────────────────────
-   Posts are grouped by category so a new subject gets its own
-   heading rather than being appended to a closed set.
+/* ── two-column shell ─────────────────────────────────────
+   Left: a category board that grows as subjects are added.
+   Right: the posts. One column on a phone, board first.
    ------------------------------------------------------- */
 
-.cat{margin:46px 0 0}
-.cat-name{
-  font-family:"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
-  font-size:13px; font-weight:700; letter-spacing:.14em;
-  text-transform:uppercase; margin:0 0 10px;
+.shell{
+  display:grid; grid-template-columns:190px 1fr; gap:52px;
+  align-items:start; margin:40px 0 0;
 }
-.cat-sub{color:var(--ink-2); font-size:16px; margin:0}
+
+.board{position:sticky; top:36px}
+.board-lbl{
+  font-family:"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+  font-size:11px; font-weight:700; letter-spacing:.16em;
+  text-transform:uppercase; color:var(--ink-3);
+  padding-bottom:8px; border-bottom:1px solid var(--rule); display:block;
+}
+.board ul{list-style:none; margin:0; padding:0}
+.board li{margin:0; border-bottom:1px solid var(--rule)}
+.board a{
+  display:block; padding:11px 0; text-decoration:none;
+  font-size:15px; line-height:1.4; color:var(--ink);
+}
+.board a:hover{text-decoration:underline; text-underline-offset:3px}
+.board .n{
+  font-family:"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+  font-size:12px; color:var(--ink-3); margin-left:6px;
+}
 
 /* ── index post list ──────────────────────────────────── */
 
-.list{margin:26px 0 0; list-style:none}
+.list{margin:0; list-style:none}
+.list li:first-child{border-top:none; padding-top:0}
 .list li{
   padding:26px 0; border-top:1px solid var(--rule);
 }
@@ -180,6 +203,26 @@ td.num{
 
 hr{border:none; border-top:1px solid var(--rule); margin:38px 0}
 
+/* ── figures ──────────────────────────────────────────────
+   Diagrams are inline SVG drawn in `currentColor`, so they take the ink
+   value and invert with the theme without a second asset.
+
+   They are drawn at --fig-w so the viewBox scale is 1 and a user unit is
+   a CSS pixel. That is what makes the `font-size` attributes inside the
+   SVG mean what they say. Below that width the figure SCROLLS rather than
+   scaling: scaling the viewBox shrinks every label with it, which is how
+   an earlier version of this shipped 14px labels that rendered at four
+   and a half pixels on a phone.
+   ------------------------------------------------------- */
+
+figure{margin:30px 0}
+.fig-scroll{overflow-x:auto; overflow-y:hidden}
+figure svg{display:block; width:var(--fig-w); height:auto; color:var(--ink)}
+figcaption{
+  font-family:"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+  font-size:12px; color:var(--ink-3); line-height:1.6; margin-top:10px;
+}
+
 /* a claim the reader can check, set apart from the prose around it */
 .measured{
   border:1px solid var(--rule-2); padding:16px 18px; margin:24px 0;
@@ -233,6 +276,9 @@ footer.site a{color:var(--ink-2)}
   body{font-size:16px}
   .wrap{padding:0 18px}
   header.site{padding-top:36px}
+  .shell{grid-template-columns:1fr; gap:34px}
+  .board{position:static}
+  .list li:first-child{border-top:1px solid var(--rule); padding-top:26px}
   h1{font-size:26px}
   h2{font-size:19px}
   .standfirst{font-size:17px}
@@ -241,7 +287,8 @@ footer.site a{color:var(--ink-2)}
   pre code{font-size:14px}
   table{font-size:14px}
   .site-name,.ca-note,.entry-date,.entry-tags,.post-date,
-  .cat-name,.measured .lbl,.caveat .lbl,th,footer.site{font-size:14px}
+  .board-lbl,.board .n,.measured .lbl,.caveat .lbl,th,
+  figcaption,footer.site{font-size:14px}
 
   /* `code` is .87em, which lands at 13.92px against a 16px body — under the
      floor by eight hundredths of a pixel. Pin it rather than nudging the
