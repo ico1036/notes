@@ -80,6 +80,13 @@ header.site{padding:56px 0 0}
   text-transform:uppercase; color:var(--ink);
   text-decoration:none; display:inline-block;
 }
+
+/* On the front page the wordmark is the wordmark; everywhere else the same
+   element is a back-link and has to stay out of the way. Tracking loosens
+   as size drops, so it tightens here to keep the letterfit even. */
+.site-name.home{
+  font-size:1.75rem; letter-spacing:.10em; line-height:1.1;
+}
 /* The positioning line. Sits directly under the wordmark and reads as
    part of it, which is why it repeats the wordmark's tracking rather
    than the body's. */
