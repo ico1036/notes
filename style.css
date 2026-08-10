@@ -312,12 +312,6 @@ figcaption{
 }
 .measured p:last-child{margin-bottom:0}
 
-/* The same object in the masthead: one checkable number under the claim
-   it supports. Held to the sub-heading's measure so the header reads as
-   one block, and never wider — a full-bleed statistic on a front page is
-   an advertisement, not a citation. */
-.measured.mast{max-width:34rem; margin:20px 0 0; font-size:0.9375rem}
-
 /* the thing I got wrong, or the thing this does not cover */
 .caveat{
   border-left:2px solid var(--ink); padding:2px 0 2px 18px; margin:24px 0;
