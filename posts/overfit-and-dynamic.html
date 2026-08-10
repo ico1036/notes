@@ -35,23 +35,20 @@
   <h2>The loop, and the object it verifies</h2>
 
   <p class="lede">
-    The system underneath this note searches for stock-market trading
-    strategies without supervision. One iteration — a <strong>trial</strong> —
-    goes: state an economic hypothesis in plain language, write code expressing
-    it, run that code over sixteen years of historical market data, score the
-    result, decide whether the score means anything, and write down why so the
-    next iteration starts from there. It runs unattended, roughly a thousand
-    trials to a campaign.
+    Start with the thing being optimised, because everything below is a
+    consequence of what it is. A <strong>strategy</strong> is a function that
+    decides, for each date, how much of a portfolio to hold in each stock. A
+    <strong>backtest</strong> replays history against it: on every simulated day
+    it applies the weights that strategy would have chosen using only
+    information available on that day, and accumulates the returns that would
+    have followed. Out comes a single equity curve, and from the curve, scores.
   </p>
 
   <p>
-    The middle step is the one that matters here. A <strong>strategy</strong> is
-    a function that decides, for each date, how much of the portfolio to hold in
-    each instrument. A <strong>backtest</strong> replays history against it: on
-    every simulated day it applies the weights the strategy would have chosen
-    using only information available on that day, and accumulates the returns
-    that would have followed. What comes out is a single equity curve, from
-    which you compute scores.
+    Writing those strategies is automated. A hypothesis is stated in plain
+    language, compiled into code, backtested, scored, and the reason it worked
+    or failed is written down for the next attempt to start from. One pass is a
+    <strong>trial</strong>; a campaign is roughly a thousand of them, unattended.
   </p>
 
   <p>
@@ -477,7 +474,16 @@
 
   <p>
     The output of one campaign is a composite of six strategies, with mean
-    pairwise correlation 0.26 between members. Three windows:
+    pairwise return correlation 0.26 between members. Three windows:
+  </p>
+
+  <p>
+    Every figure below is <strong>gross</strong>. This framework has no
+    slippage model and no borrow cost, and the fee parameter was left at zero,
+    so nothing here is net of trading. The book is long-only and rebalances
+    monthly, which is the cheap end of the range — but the haircut has not been
+    measured, and an unmeasured haircut is not a small one, it is an unknown
+    one.
   </p>
 
   <table>

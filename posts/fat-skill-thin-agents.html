@@ -36,13 +36,13 @@
   <h2>The loop, and the question about it</h2>
 
   <p class="lede">
-    The system underneath this note searches for stock-market trading strategies
-    without supervision. One iteration — a <strong>trial</strong> — writes an
-    economic hypothesis, writes code expressing it, replays sixteen years of
-    market history against that code (a <strong>backtest</strong>), scores the
-    result, and records what it learned. A separate script decides pass or fail;
-    the model never sees the score it would be graded on. Roughly a thousand
-    trials to a campaign, about four per cent kept.
+    Some background, then the question. The loop behind this note hunts for
+    stock-market trading strategies with nobody supervising it. Each pass — a
+    <strong>trial</strong> — writes an economic hypothesis, writes the code for
+    it, replays sixteen years of market history against that code (a
+    <strong>backtest</strong>), and records what it learned. A script decides
+    pass or fail, and the model never sees the score it is being graded on.
+    Roughly a thousand trials to a campaign, about four per cent kept.
   </p>
 
   <p>
@@ -348,20 +348,41 @@
   <div class="measured">
     <span class="lbl">Measured</span>
     <p>
-      Pairing the two terrains' timepoints and running a sign-flip permutation
-      test: adding the plan is worth <strong>+1.4</strong> picks
-      (<span class="mono">p = 0.012</span>), adding the rejection ledger on top
-      of it a further <strong>+1.0</strong> (<span class="mono">p = 0.016</span>),
-      and the two together <strong>+2.4</strong>
-      (<span class="mono">p = 0.004</span>). Every arm ran on
-      <span class="mono">claude-fable-5</span>, so this is not a model
+      Nine timepoints across the two terrains, paired, and a sign-flip
+      permutation test over the paired differences: adding the plan is worth
+      <strong>+1.4</strong> picks (<span class="mono">p = 0.012</span>), adding
+      the rejection ledger on top of it a further <strong>+1.0</strong>
+      (<span class="mono">p = 0.016</span>), and the two together
+      <strong>+2.4</strong> (<span class="mono">p = 0.004</span>). Every arm
+      ran on <span class="mono">claude-fable-5</span>, so this is not a model
       comparison — it is the same model reading different documents.
     </p>
   </div>
 
   <p>
-    Two things in there are worth separating. The plan is the larger single
-    step, and the plan is mostly <em>definitions</em> — what counts as a pass,
+    Read the p-values against what the test can produce. Nine paired
+    differences give <span class="mono">2^9 = 512</span>
+    sign assignments, so the smallest attainable p is
+    <span class="mono">1/512 ≈ 0.002</span> and
+    <span class="mono">0.004</span> is two of them. That is the floor, not a
+    coincidence, and it is the honest ceiling on how strong this evidence can
+    be: nine timepoints is a small paired design, and three p-values are
+    reported here without any correction for reporting three.
+  </p>
+
+  <p>
+    It was also expensive. Three conditions over the two terrains at 55 and 44
+    repetitions each is <strong>297 graded runs</strong>, every one of them a
+    full judgment over forty candidates on a frontier model. That is why this
+    was run once as a set-piece rather than standing as a regression check —
+    and it is most of the reason local models are now being evaluated for the
+    grading arm. A check you cannot afford to repeat is a measurement, not a
+    guardrail.
+  </p>
+
+  <p>
+    Two things in the result are worth separating. The plan is the larger
+    single step, and the plan is mostly <em>definitions</em> — what counts as a pass,
     what the bar is, what the loop is for. The rejection ledger is a record of
     what has already failed, and it adds a further step on top of a model that
     already knows the objective. Knowing the target helps more than knowing the

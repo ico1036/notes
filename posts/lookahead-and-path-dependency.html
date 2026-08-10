@@ -35,14 +35,14 @@
   <h2>The loop, and the thing it cannot check</h2>
 
   <p class="lede">
-    The system underneath this note searches for stock-market trading strategies
-    without supervision. A <strong>strategy</strong> is a function that decides,
-    for each date, how much of a portfolio to hold in each instrument. A
-    <strong>backtest</strong> replays history against it — for every simulated
-    day it applies the weights that strategy would have chosen using only the
-    information available on that day, and accumulates the returns that would
-    have followed. Out comes a score. The loop writes a strategy, backtests it,
-    keeps it if the score clears a bar, and repeats, unattended.
+    The program in question is a market simulator. Feed it a
+    <strong>strategy</strong> — a function that says, for each date, how much of
+    a portfolio to hold in each stock — and it replays sixteen years of history
+    against that function, applying on every simulated day the weights the
+    strategy would have chosen from the information available on that day, and
+    accumulating the returns that would have followed. Out comes a score. Around
+    it sits a loop that writes strategies, runs them through, keeps the ones
+    that clear a bar, and repeats without supervision.
   </p>
 
   <p>
