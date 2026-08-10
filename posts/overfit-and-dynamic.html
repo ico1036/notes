@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Overfit and Dynamic</title>
+<meta name="description" content="A search loop with a fixed score will fit a moving market given enough attempts. The defence I borrowed is stigmergy — a trail that evaporates. It works, and it contains the flaw the analogy itself predicts: the maze never changes shape.">
+<link rel="stylesheet" href="../style.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%23fff'/%3E%3Crect x='2' y='2' width='4' height='4'/%3E%3Crect x='10' y='6' width='4' height='4'/%3E%3Crect x='2' y='10' width='4' height='4'/%3E%3C/svg%3E">
+</head>
+<body>
+
+<div class="wrap">
+
+<header class="site">
+  <a class="site-name" href="../index.html">← Notes on Autonomous Research Loops</a>
+</header>
+
+<article>
+
+  <p class="post-date">2026-08-10 · Harness principles · 3</p>
+  <h1>Overfit and Dynamic</h1>
+
+  <p class="standfirst">
+    A search loop scored by a fixed function will fit a moving market, given
+    enough attempts. The defence I borrowed comes from slime moulds: leave a
+    trail, and let it evaporate. It works — it demonstrably stops the loop
+    grinding one region. It also contains exactly the flaw the analogy predicts,
+    which is that a maze holds still and a market does not.
+  </p>
+
+  <p class="lede">
+    Two properties make automated strategy search dangerous in a way that
+    automated code search is not. The target moves: the relationship you are
+    looking for may have existed in 2014 and stopped existing in 2019, with
+    nothing announcing the transition. And the target is easy to hit by
+    accident: run a few thousand attempts against sixteen years of daily
+    returns and some will look excellent for no reason at all. A loop that runs
+    unattended is a machine for generating attempts, and therefore also a
+    machine for generating false positives, unless something in its design
+    pushes the other way.
+  </p>
+
+  <p>
+    The naive fix is statistical — correct the threshold for the number of
+    trials, or hold out more data. Both help and neither is sufficient, because
+    the deeper problem is not the score of any one trial. It is that a greedy
+    search concentrates: once a region pays off, every subsequent proposal
+    drifts toward it, and the loop spends its budget re-measuring one idea under
+    different names until a measurement clears the bar by luck. So the question
+    was not "how do I test a strategy more strictly", but "how does anything
+    search a space it cannot memorise, without collapsing onto the first thing
+    that works".
+  </p>
+
+  <h2>What the slime mould does</h2>
+
+  <p>
+    Ants and slime moulds solve this with stigmergy: coordination through marks
+    left in the environment rather than a central plan. A forager deposits a
+    trail on a productive path, other foragers are biased toward strong trails,
+    and the trail <em>evaporates</em>. Evaporation is the whole trick. Without
+    it the first path found becomes permanent and the colony stops looking. With
+    it, a path has to keep paying to keep existing, and quiet ground cools back
+    down and becomes explorable again.
+  </p>
+
+  <p>
+    The loop implements a direct translation. Every visited point in the search
+    space carries a score — call it a pheromone level — and when the model is
+    about to propose the next experiment, it asks the map for a suggestion. The
+    mechanics are worth stating exactly, because the interesting properties all
+    live in the details:
+  </p>
+
+  <ul>
+    <li>
+      Every committed trial multiplies <strong>all</strong> region scores by
+      <strong>0.95</strong>. That is the evaporation constant. Note the unit: it
+      is per <em>trial</em>, not per unit of time.
+    </li>
+    <li>
+      Only a trial that passes the quality gate thickens its own region. Merely
+      running to completion earns nothing.
+    </li>
+    <li>
+      Any region whose score falls below <strong>1e-4</strong> is deleted
+      outright, rather than lingering as a near-zero attractor.
+    </li>
+    <li>
+      <strong>25%</strong> of the map's suggestions are a forced jump. Instead
+      of naming a warm region, the map returns the twenty busiest data columns
+      in the run's history and instructs the agent to try something outside that
+      set.
+    </li>
+  </ul>
+
+  <p>
+    The second bullet was not the original design. An earlier version also
+    warmed a region for any trial that merely completed, and the reason recorded
+    for removing that is the clearest sentence in the module: it "turned the
+    field into a recency ramp instead of a productivity map."
+  </p>
+
+  <p>
+    That distinction is the difference between a working stigmergy and a
+    decorative one. If activity deposits pheromone, the map converges on
+    wherever the agent has recently been — a function of the agent's own
+    attention, not of the world. The map then tells the agent to go where it has
+    been going, and the feedback loop closes with no information entering from
+    outside. Only paying for <em>results</em> keeps the map measuring something
+    external. A productivity map can go cold everywhere, which is uncomfortable
+    and correct; a recency ramp never can, which is comfortable and useless.
+  </p>
+
+  <p>
+    The suggestion is also explicitly non-binding. The module's own description
+    calls it "a soft pull, not a command: the thesis still leads. An empty map
+    means propose exactly as before." That matters for the division of labour —
+    the hypothesis is still the model's job, and the map is one more input to
+    it, not a controller.
+  </p>
+
+  <h2>A map, and a picture of a map</h2>
+
+  <p>
+    There is a structural point here I got wrong in my own head for a while, and
+    it is worth being unsentimental about. A region's identity is a hash: a SHA1
+    over the sorted set of data columns
+    the strategy touches, plus a serialisation of its scoring function's syntax
+    tree, truncated to sixteen hex characters. That is a perfectly good
+    <em>lookup key</em>. It is not a <em>position</em>. Two regions any
+    researcher would call adjacent — the same idea with one extra input, or the
+    same inputs combined slightly differently — land at unrelated points in the
+    hash space. No metric, no neighbourhood, no gradient.
+  </p>
+
+  <p>
+    Which means "explore near a warm region" is not a computable instruction
+    here. It exists only as prose advice to the model, which can reason about
+    proximity because it understands what the columns mean. The map can say
+    <em>this exact configuration paid</em> and <em>these columns are
+    over-worked</em>. It cannot say <em>go two steps left</em>.
+  </p>
+
+  <p>
+    A human looking at the run sees a force-directed graph of these regions, and
+    it looks like a landscape. It is not one; the layout is an artefact of the
+    drawing algorithm and distance on that screen encodes nothing. Real
+    stigmergy is spatial — the ant's trail is embedded in the same metric space
+    the ant walks through, which is why following a gradient works. Strip the
+    space out and you keep the evaporation and lose the navigation. What remains
+    is a decay-weighted table of visited configurations: genuinely useful, and
+    considerably less than the picture suggests.
+  </p>
+
+  <div class="measured">
+    <span class="lbl">Measured</span>
+    <p>
+      Live state of one campaign: <strong>2</strong> warm regions surviving
+      across <strong>535</strong> trials, scored 0.184 and 0.116. With a 0.95
+      fade per trial and only a handful of gate-passers to deposit anything, the
+      field is almost entirely evaporated. That is the mechanism working exactly
+      as designed. It is also a picture of a search that has run out of road.
+    </p>
+  </div>
+
+  <h2>The overfitting defences are structural, not statistical</h2>
+
+  <p>
+    None of the anti-overfitting machinery in this system is a significance
+    correction. All of it works by removing choices from the agent.
+  </p>
+
+  <p>
+    The evaluation window is frozen in the execution slot, not chosen by the
+    trial: sixteen years, split into a fourteen-year in-sample block and a
+    two-year holdout. Whatever dates a strategy file declares, the runner
+    ignores them, so every trial is measured on the same ground and none can
+    quietly pick a flattering period.
+  </p>
+
+  <p>
+    The holdout numbers are then stripped out of what the model sees. A frozen
+    key set is removed from the result record, along with anything whose name
+    ends in <code>_os</code>, so a two-year holdout reaches the model as exactly
+    one boolean. The gate reads the real numbers. The model reads pass or fail.
+    You cannot fit to a bit you receive once per trial, or at least you can fit
+    to it only very slowly.
+  </p>
+
+  <p>
+    A third component is often mistaken for another defence, and its own
+    docstring goes out of its way to say it is not. A hook intercepts writes to
+    strategy files and rewrites any date literal beyond the data ceiling. That
+    is <em>not</em> a leak guard; it only blocks references to dates beyond
+    available data. Nothing in the code prevents a signal from referencing the
+    holdout span. Agent discipline does that, and only agent discipline.
+  </p>
+
+  <h2>Forced novelty, with teeth</h2>
+
+  <p>
+    The 25% jump is a nudge — the map suggests, the model decides. In one mode
+    the jump is enforced: the loop samples some number of previously untouched
+    data columns, pins them to a file, and the linter <em>rejects</em> any trial
+    that does not reference at least one of them. There is no reasoning around
+    it; a strategy that stays on familiar ground does not run.
+  </p>
+
+  <p>
+    The part I find most interesting is a prompt instruction rather than a
+    mechanism: in that mode the agent is told to skip reading the belief wiki
+    entirely, because inherited beliefs anchor you onto already-mined ground and
+    the point is to leave it. It is deliberate, scoped amnesia — the accumulated
+    intuition that makes the loop efficient is exactly what makes it
+    conservative, so the exploration mode switches it off. Every other mode
+    reads the wiki first.
+  </p>
+
+  <h2>Exhaustion, and how the loop noticed</h2>
+
+  <p>
+    Over one campaign of 536 trials, the frontier — the family of data the
+    sampler draws from — was re-pointed three times as each family was mined
+    out. The escalation pattern is more interesting than the fact.
+  </p>
+
+  <p>
+    The first family produced three consecutive near-barren offers, then a note
+    that the remaining unmined columns were dominated by memo lines and
+    non-equity entities, that the family was "approaching exhaustion", and a
+    switch. Clean.
+  </p>
+
+  <p>
+    The second degraded far more slowly and was flagged repeatedly: at eight
+    consecutive barren offers, then again at ten, then eleven, then at "zero
+    non-dead columns" with an explicit escalation addressed to a human operator.
+    The eight-consecutive flag sat unactioned for roughly forty trials. The
+    reason is mundane and general: the escalation channel is prose in a markdown
+    file, and nothing in the code reads it. A warning written to a document that
+    only a model and a human ever open gets acted on when one of them looks.
+  </p>
+
+  <p>
+    The third reached six consecutive fully-dead offer sets, then seven. All
+    three families ended exhausted. The run terminated on budget rather than on
+    target — the goal was fifty qualifying strategies and it banked seven.
+  </p>
+
+  <p>
+    Here is the part that surprised me: there is no threshold constant anywhere
+    in the code for any of this. No maximum-consecutive-barren, no exhaustion
+    rule, nothing. Every re-pointing decision was made by the model counting
+    barren offers in prose, comparing the pattern against a named earlier
+    precedent, and then either editing the plan file itself or escalating to a
+    human. For a system whose stated principle is that counting belongs to
+    scripts, that is judgment absorbing determinism — the counter carried in the
+    agent's head.
+  </p>
+
+  <p>
+    Twice the log names the missing feature precisely, which is the most useful
+    thing in it. The column sampler lacks a population check at the trading
+    universe's size, and lacks a screen against already-rejected sibling names,
+    so it keeps offering columns that are empty for the stocks actually traded
+    and columns from families already closed. The loop diagnosed its own tooling
+    gap correctly and repeatedly, and again, nothing downstream reads a
+    diagnosis.
+  </p>
+
+  <h2>Did any of it work</h2>
+
+  <p>
+    Hit rate, meaning the fraction of trials that clear the gate, across four
+    campaigns: <span class="mono">11.36%</span> over 679 trials,
+    <span class="mono">7.08%</span> over 1,090, <span class="mono">4.43%</span>
+    over 1,246, and <span class="mono">1.31%</span> over 536 — the last being
+    the forced-novelty sweep.
+  </p>
+
+  <p>
+    Note the ordering. The mode that forces exploration hardest has the lowest
+    hit rate, by a factor of five against the least constrained one. I would
+    rather state that plainly than bury it: coverage costs yield. A sweep
+    mechanically prevented from returning to productive ground spends most of
+    its trials on ground that is not productive, which is what "unexplored"
+    means. Its output is not strategies, it is a map of where not to look, and
+    529 failures is a reasonable price for knowing three data families are
+    closed.
+  </p>
+
+  <p>
+    A related number I find more reassuring than any hit rate: one campaign's
+    belief archive holds 233 blocks marked refuted against 169 marked as having
+    hit a ceiling, alongside 492 one-line rejection bullets. Refutation
+    outnumbers confirmation. A search that mostly kills things is working; the
+    failure mode to fear is the archive that fills up with successes.
+  </p>
+
+  <h2>The forward record</h2>
+
+  <p>
+    The output of one campaign is a composite of six strategies, with mean
+    pairwise correlation 0.26 between members. Three windows:
+  </p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Segment</th><th>Days</th><th>IR</th><th>Sharpe</th>
+        <th>Max drawdown</th><th>Alpha t-stat</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>In-sample</td><td class="num">3,521</td><td class="num">1.06</td>
+        <td class="num">0.99</td><td class="num">−35.3%</td><td class="num">3.57</td>
+      </tr>
+      <tr>
+        <td>Holdout</td><td class="num">564</td><td class="num">1.11</td>
+        <td class="num">1.26</td><td class="num">−21.9%</td><td class="num">1.17</td>
+      </tr>
+      <tr>
+        <td>Live-forward</td><td class="num">85</td><td class="num">1.62</td>
+        <td class="num">2.79</td><td class="num">−10.1%</td>
+        <td class="num"><strong>0.0024</strong></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>
+    Read the live column carefully, because it is the column designed to mislead
+    you. A Sharpe of 2.79 looks superb and means almost nothing here. The book
+    runs at a beta of 1.70, the alpha t-statistic is 0.0024, and 85 trading days
+    cannot separate skill from luck under any test. The entire live return is
+    market exposure — the composite went up because the market went up, levered.
+    Of the three t-statistics, the in-sample 3.57 is the only one that clears
+    anything, and it is in-sample, which is where a t-statistic is worth the
+    least. The honest summary is that the holdout is consistent with the
+    in-sample result without confirming it, and the live record is too short to
+    say anything at all.
+  </p>
+
+  <div class="caveat">
+    <span class="lbl">The holdout is not as clean as it looks</span>
+    <p>
+      A single fixed two-year block was reused as the pass/fail check for
+      roughly 2,900 trials. The project's own copy elsewhere says that "the
+      moment you select for the holdout score, that window is contaminated too"
+      — and 2,900 pass/fail queries against one window is a multiple-comparison
+      problem by exactly that logic, even if each query returns only a bit. The
+      stated answer is that the real evidence is the live record. The live
+      record is 85 days long.
+    </p>
+  </div>
+
+  <h2>Where the analogy breaks</h2>
+
+  <p>
+    Everything above is the stigmergy working. Here is what it does not do — and
+    the failures are one failure seen from different sides.
+  </p>
+
+  <p>
+    <strong>The map fades per trial, not per calendar day.</strong> A region
+    found six years ago and one found last week decay at the same rate, and both
+    decay because <em>other trials happened</em>. Elapsed time does not enter
+    the calculation. In a slime mould that is fine: the maze is not going
+    anywhere, and the only reason to forget a path is that better paths exist.
+    Here, staleness in the world is what you most need to represent, and it is
+    the one thing the field cannot express.
+  </p>
+
+  <p>
+    <strong>The scoring function is frozen for the life of the run.</strong>
+    Sixteen years of one particular mix of regimes is the target being optimised
+    against, unchanged from the first trial to the last. Whatever a strategy
+    learns, it learns about that mixture.
+  </p>
+
+  <p>
+    <strong>The gate is regime-blind.</strong> Two scalars over two fixed
+    blocks: no per-year stability requirement, no rolling consistency test, no
+    structural-break test anywhere in the gate path. A strategy that earned
+    everything in one eighteen-month stretch and nothing since passes
+    identically to one that earned steadily throughout.
+  </p>
+
+  <p>
+    <strong>Regime appears as diagnosis, never as control.</strong> The analysis
+    stage computes a per-year return fingerprint, the model is asked whether it
+    matches the story it told, and the model can log a regime tag. Nothing
+    downstream reads those tags. No region cools because a regime tag changed;
+    no proposal is discouraged because the regime it depends on has not appeared
+    in four years. The system can say "this worked because rates were falling"
+    and then do nothing whatsoever with the sentence.
+  </p>
+
+  <p>
+    <strong>The one genuinely adaptive component sits outside the loop.</strong>
+    A drift monitor, with watch and explain thresholds, runs on deployed books.
+    It is real and it works, and it monitors a portfolio that has already been
+    chosen. It cannot re-point the frontier, fade a region, or veto a thesis.
+    Adaptation here exists strictly downstream of search.
+  </p>
+
+  <p>
+    And the consequence, observed rather than predicted: when the pheromone had
+    fully evaporated — two warm regions, both under 0.19, across 535 trials —
+    the loop did not re-explore. It kept drawing dead columns from a sampler
+    that, by its own logged complaint, was missing the two screens it needed. An
+    empty map is supposed to mean "propose freely". An empty map plus a broken
+    sampler means "propose from a bad list, forever", and nothing in the design
+    distinguishes those two states.
+  </p>
+
+  <div class="caveat">
+    <span class="lbl">The assumption underneath all of it</span>
+    <p>
+      Every defence described here — the frozen window, the withheld holdout,
+      the evaporating field — assumes the relationship being searched for is
+      stationary over the evaluation period, and that a fourteen-year fit
+      therefore says something about next year. That assumption is not tested
+      anywhere in the pipeline, or even stated in it. If a relationship held for
+      twelve of the fourteen years and then stopped, the gate reports a pass,
+      the map deposits pheromone, and the belief wiki records a confirmed
+      thesis.
+    </p>
+  </div>
+
+  <h2>One word for two things</h2>
+
+  <p>
+    The pheromone evaporates, but the maze never changes shape. That is the
+    whole limitation, and it is not a bug in the implementation — it is
+    inherited from the organism the design was copied from. A slime mould's
+    forgetting solves <em>congestion</em>: do not let the colony pile onto the
+    first adequate path. It does not solve <em>obsolescence</em>, because in a
+    maze nothing becomes obsolete. A market does, constantly. So the loop's map
+    decays over trial count while the thing it maps decays over calendar time,
+    and those two clocks are unrelated.
+  </p>
+
+  <p>
+    Which leaves the loop unable to make one distinction it needs badly. When a
+    region stops paying there are two possible reasons: the idea was never right
+    and the measurement finally caught up with it, or the idea was right and the
+    regime it depended on ended. Those call for opposite responses. The first
+    says abandon the thesis. The second says keep it and wait, because the
+    conditions will come back.
+  </p>
+
+  <p>
+    The loop has one word for both, and the word is <code>dead</code>.
+  </p>
+
+  <div class="post-nav">
+    Next: <a href="./abstraction-but-think-first.html">Abstraction Layer, but Think First</a> —
+    a model will happily invent a connection that is not there.
+  </div>
+
+</article>
+
+<footer class="site">
+  <div><a href="../index.html">← all notes</a></div>
+  <div>
+    <a href="mailto:jkimak1124@gmail.com">jkimak1124@gmail.com</a> ·
+    <a href="https://github.com/ico1036" rel="noopener">GitHub</a> ·
+    <a href="https://www.linkedin.com/in/jiwoong-kim-b9934417a" rel="noopener">LinkedIn</a>
+  </div>
+</footer>
+
+</div>
+
+</body>
+</html>

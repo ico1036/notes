@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Look-Ahead Bias and Path Dependency</title>
+<meta name="description" content="A backtest leaks the future through channels no amount of care inside the strategy can close. You close them from outside, by running the same code over shifted windows and demanding the weights be identical. The first version of that check passed a strategy that was cheating.">
+<link rel="stylesheet" href="../style.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%23fff'/%3E%3Crect x='2' y='2' width='4' height='4'/%3E%3Crect x='10' y='6' width='4' height='4'/%3E%3Crect x='2' y='10' width='4' height='4'/%3E%3C/svg%3E">
+</head>
+<body>
+
+<div class="wrap">
+
+<header class="site">
+  <a class="site-name" href="../index.html">← Notes on Autonomous Research Loops</a>
+</header>
+
+<article>
+
+  <p class="post-date">2026-08-10 · Harness principles · 5</p>
+  <h1>Look-Ahead Bias and Path Dependency</h1>
+
+  <p class="standfirst">
+    You cannot audit a backtest for look-ahead by reading the strategy. The
+    leaks that survive review are in the plumbing, not the logic, and the
+    strategy author cannot see them even in principle. So the check has to run
+    from outside the strategy — and then it has to publish the things it still
+    cannot see.
+  </p>
+
+  <p class="lede">
+    The method is unglamorous. Run the identical strategy three times over
+    deliberately different windows and demand the weights agree where they must.
+    Two comparisons fall out of that, one per failure mode, each proving
+    something specific for a reason worth stating precisely. The interesting
+    part of this note is not the two green verdicts. It is the bug that made the
+    first version green for the wrong reason, and the one leak class that
+    neither the check nor the linter can catch.
+  </p>
+
+  <h2>Why the check has to be external</h2>
+
+  <p>
+    Every serious backtester has the same problem: the strategy is a small piece
+    of code sitting on top of a large amount of machinery, and the future can
+    enter through any of it. A loader that rebuilds its data panel to the end of
+    the requested window. A fill rule. A universe constructed with hindsight. A
+    helper three call frames down that reindexes in the wrong direction. None of
+    these are visible in the expression the researcher thinks of as "the
+    strategy", and all of them will happily produce a beautiful Sharpe.
+  </p>
+
+  <p>
+    Reading code for look-ahead is therefore a losing game, because the thing
+    you are looking for is usually not in the code you are reading. Treat the
+    whole stack as a black box instead and impose a property on it from outside.
+    The property is causality: a weight assigned on a given date must be a
+    function only of information available on that date. That is a statement
+    about the box's behaviour under a change of inputs, and it is testable
+    without understanding a line of what is inside.
+  </p>
+
+  <h2>Three runs of the same strategy</h2>
+
+  <p>
+    The check runs the same strategy function three times with nothing changed
+    but the window.
+  </p>
+
+  <ul>
+    <li><strong>B</strong>, the baseline, over the full window.</li>
+    <li><strong>A</strong>, identical to B except that the last <strong>60
+      trading days are cut off the end</strong>.</li>
+    <li><strong>D</strong>, identical to B except that it <strong>starts 250
+      trading days later</strong>, ending on the same date.</li>
+  </ul>
+
+  <p>
+    <strong>B against A detects look-ahead.</strong> A and B start on the same
+    day and see the same inputs up to A's end. The only difference is that B was
+    additionally <em>shown</em> the final 60 days. If the weight on some earlier
+    date depends only on information available on that date, deleting data from
+    after that date cannot change it — so every cell the two runs share must be
+    bit-identical. A nonzero difference is not a warning sign or a statistical
+    anomaly; it is direct evidence that a weight was computed from its own
+    future.
+  </p>
+
+  <p>
+    That is why the tolerance is <span class="mono">1e-10</span> rather than
+    some reasonable-looking band. No legitimate mechanism produces a nonzero
+    difference here, so the tolerance is not a judgment about how much error is
+    acceptable — it is a declaration that only floating-point noise is
+    admissible and anything else is a defect.
+  </p>
+
+  <p>
+    <strong>B against D detects path dependency.</strong> D begins 250 trading
+    days later and ends on the same date. If the strategy is stateless — if the
+    weights at time <em>t</em> are a function of a bounded window ending at
+    <em>t</em> — then once D's rolling windows have warmed up the two runs must
+    converge on the shared tail. The first 60 days after D's start are excluded
+    as burn-in for that reason. If the two still differ after that, today's book
+    depends on where you happened to begin the simulation, which is an artefact
+    rather than an edge. The tolerance here is <span class="mono">0.01</span> on
+    the mean absolute weight difference, and it is not zero for reasons that are
+    the substance of the second half of this note.
+  </p>
+
+  <h2>The comparison grid, and the bug in it</h2>
+
+  <p>
+    Having decided what to compare, you have to decide <em>where</em> to compare
+    it, and this is where the first version was wrong.
+  </p>
+
+  <p>
+    The obvious implementation intersects the two runs' rebalance dates and
+    compares the rebalance matrices on the overlap. It reads as the careful
+    choice — only compare what both runs actually produced — and it is the
+    opposite of careful. A rebalance date present in one run and missing in the
+    other does not mean "no comparison available"; it means the strategy
+    <em>held something different that day</em>, which is precisely the evidence
+    the check exists to find. And a rebalance goes missing for one specific
+    reason: the signal came out all-NaN in one run and the row dropped. An
+    intersection join discards exactly the rows where the evidence lives.
+  </p>
+
+  <p>
+    The consequence is the sentence this section is built around: <strong>the
+    leaky test fixture passed because of that bug.</strong> The repository keeps
+    a synthetic strategy that deliberately peeks twenty days into the future,
+    whose entire job is to be caught. It was not caught. The check reported PASS
+    on a strategy written to fail, and did so while comparing plenty of honest
+    rows, because the dishonest ones had been filtered out of the join.
+  </p>
+
+  <p>
+    The fix changes what is compared, not how strictly. Take the <em>union</em>
+    of both runs' rebalance dates and of their instrument columns, forward-fill
+    each run's standing book onto that grid, and compare the positions actually
+    held rather than the rebalance instructions issued. A date only one run
+    rebalanced on is now a real row: one side shows the new book, the other
+    shows what it was still carrying.
+  </p>
+
+  <p>
+    The incident is pinned by a regression test that does not touch the
+    database. It builds a three-row frame, deletes the middle rebalance from one
+    copy, and asserts that the comparison still reports three rows and a maximum
+    difference of 1.0. Under the old join it reported two rows and no
+    difference. Four lines of fixture and two assertions are the only thing
+    standing between the current implementation and a silent return to a rubber
+    stamp.
+  </p>
+
+  <h2>The measurement</h2>
+
+  <p>
+    Run against the deployed composite over a sixteen-year window, the three
+    runs cover 4,085, 4,025 and 3,834 trading days and produce 196, 193 and 184
+    rebalances, compared across 7,237 instruments.
+  </p>
+
+  <div class="measured">
+    <span class="lbl">Measured</span>
+    <table>
+      <thead>
+        <tr>
+          <th>Check</th><th>Statistic</th><th>Value</th>
+          <th>Tolerance</th><th>Rows</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Look-ahead</td>
+          <td>max absolute weight difference</td>
+          <td class="num"><strong>0.0</strong></td>
+          <td class="num">1e-10</td>
+          <td class="num">192</td>
+        </tr>
+        <tr>
+          <td>Path dependency</td>
+          <td>mean absolute weight difference</td>
+          <td class="num"><strong>4.04e-07</strong></td>
+          <td class="num">0.01</td>
+          <td class="num">181</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>
+    Twelve of those 181 path-dependency rows are dates the baseline rebalanced
+    on and the late-starting run did not. Under the intersection join they would
+    not have been rows at all.
+  </p>
+
+  <div class="caveat">
+    <span class="lbl">The two rows are not the same kind of claim</span>
+    <p>
+      The look-ahead leg is a <em>maximum</em> over roughly 1.4 million cells
+      against a tolerance of 1e-10. That is an exact-match assertion, and it
+      returned exact zero — one cell out of place anywhere in sixteen years
+      would have failed it. The path-dependency leg is a <em>mean</em> over
+      roughly 1.3 million cells against 0.01, and a mean is a far weaker
+      instrument: a single instrument mispositioned at full weight moves it by
+      about 1e-7, which is the order of the number actually observed. The
+      measured value sits about four orders of magnitude under tolerance, so the
+      verdict is not marginal. But the first row is proof of a property; the
+      second is an aggregate that would absorb a handful of genuine
+      disagreements without noticing.
+    </p>
+  </div>
+
+  <h2>Why the path tolerance is not zero</h2>
+
+  <p>
+    Because this engine holds positions between rebalances. A name not
+    explicitly re-stated on a rebalance date stays in the book at its existing
+    weight; only an explicit zero closes it. That one convention makes the book
+    at any moment a function of the entire rebalance history rather than of
+    today's signal.
+  </p>
+
+  <p>
+    D never takes the positions B took during the first 250 days. Anything B
+    entered in that period and carried forward is simply absent from D's book
+    for as long as B holds it. Stops and forced liquidations that fired on
+    B-only positions never fire in D, because the positions were never opened.
+    Demanding exact equality on the shared tail would fail every honest strategy
+    that uses hold semantics, which in this framework is all of them.
+  </p>
+
+  <p>
+    The asymmetry with the other leg is not a double standard. Zero is
+    defensible for look-ahead because no legitimate mechanism produces a
+    difference; it is indefensible here because several do.
+  </p>
+
+  <p>
+    What is path-dependent here, concretely: unstated positions persist, and
+    forgetting to write an explicit zero is the most common bug in the
+    framework; positions carry between rebalances by forward-fill; a holding
+    that becomes untradeable is force-liquidated at the previous bar's close,
+    which the strategy did not request and cannot observe; and the strategy
+    cannot read engine state at all — no realised fill price, no cash balance,
+    no liquidation notice.
+  </p>
+
+  <p>
+    That last item is the argument for testing from outside, in one line. A
+    strategy cannot compensate for path effects even in principle, because the
+    interface does not let it see them.
+  </p>
+
+  <h2>The static half, and the form neither half catches</h2>
+
+  <p>
+    The re-run is one of two instruments. The other is a linter that walks the
+    syntax tree before the strategy is executed and rejects four things: a
+    change-or-difference computation with a negative period, a centred rolling
+    window, backward-fill and interpolation, and a fill method of backfill. It
+    separately bans manual shifting of the weight matrix — not because shifting
+    looks forward, but because the engine already applies a one-bar execution
+    delay and a manual shift would double it.
+  </p>
+
+  <p>
+    The two are scoped to each other's blind spots, deliberately. The re-run
+    catches leaks of <em>unbounded</em> reach with certainty: a full-window
+    statistic, an expanding window, a ranking along the time axis. Any of those
+    changes when you delete the last sixty days, everywhere, so the comparison
+    lights up. The linter does not attempt to catch time-axis aggregation at
+    all, and its own comment says why: the reach is unbounded so the re-run is
+    guaranteed to get it, and a syntactic rule broad enough to flag it would
+    kill legitimate row-wise operations too.
+  </p>
+
+  <p>
+    The linter's job is the complement — <em>finite</em> forward windows, the
+    ones that differ from a correct expression by a sign. And here is the
+    strongest thing in the codebase, which the project states plainly in its own
+    golden rules: the linter <em>cannot</em> catch a hand-rolled forward slice.
+    A lag helper written with raw array slicing has a correct form that assigns
+    from the past into the present, and an inverted form that drags the future
+    into the present. The inverted form invalidates the entire backtest. It is
+    not syntactically distinguishable from the correct one by any rule the
+    linter applies — and the golden rules go on to say that the re-run cannot
+    catch it either.
+  </p>
+
+  <p>
+    The stated reason is precise. A forward window of <em>k</em> bars leaves a
+    footprint only in the final <em>k</em> bars of the run, because everywhere
+    else there is real data on both sides. At that boundary the forward slice
+    has nothing to read, so the value does not come out <em>wrong</em> — it
+    comes out <em>absent</em>. The row becomes all-NaN, drops out of the
+    rebalance set, and never enters the comparison. The leak disguises itself as
+    a missing row, which is the one thing a comparison of values cannot see.
+  </p>
+
+  <div class="caveat">
+    <span class="lbl">Not verified</span>
+    <p>
+      That explanation was written against the intersection join. Its own
+      wording describes the leaked row being dropped from the intersection —
+      which is the behaviour that was fixed. Whether the current union-grid
+      version still misses a hand-rolled forward slice is not established
+      anywhere in the repository, and I have not tested it. What I can say is
+      that the system's own documentation states the re-run cannot catch this
+      form, and that the two artefacts are no longer consistent about the
+      mechanism. Take the gap as open rather than closed in either direction.
+    </p>
+  </div>
+
+  <p>
+    Either way the shape is the point: two instruments, each written with the
+    other's blind spot in mind, and the residual gap recorded rather than
+    papered over.
+  </p>
+
+  <h2>The other channels, briefly</h2>
+
+  <p>
+    Four more places the future could enter, closed by construction rather than
+    by testing:
+  </p>
+
+  <ul>
+    <li>
+      Fundamentals carry a fixed four-month publication offset applied at load,
+      so a filing becomes visible four calendar months after its fiscal date.
+      Strategies must therefore not add a lag of their own, which is the other
+      half of why manual shifting is banned.
+    </li>
+    <li>
+      Execution is delayed one bar by the engine, and the fill price is the next
+      bar's close. The strategy expresses intent; it does not choose a price.
+    </li>
+    <li>
+      The evaluation window is fixed in the execution slot regardless of what
+      the trial file asks for, so every trial shares one holdout and one stable
+      universe. A strategy cannot quietly select a flattering period, because
+      its declared dates are ignored.
+    </li>
+    <li>
+      A pre-write hook rewrites any date literal beyond the data ceiling before
+      the file is written to disk. Its own docstring insists it is a
+      post-history guard and <em>not</em> an in-sample/holdout leak guard. That
+      distinction is worth praising: a tool that overstates its own coverage is
+      more dangerous than one that has none, because people stop watching the
+      thing it claimed to be watching.
+    </li>
+  </ul>
+
+  <h2>A check that detected the wrong thing</h2>
+
+  <p>
+    All three runs are pinned to a single fundamentals snapshot. That line looks
+    like a configuration detail and is actually the most instructive part of the
+    implementation.
+  </p>
+
+  <p>
+    Without the pin, the loader rebuilds its data panel out to each window's
+    end. Vendors restate past figures. A restatement landing between the windows
+    is applied retroactively to a past date in one run and not in another — so
+    the same historical day carries different fundamentals in B and in A, the
+    weights differ, and the check reports a look-ahead failure that has nothing
+    to do with the strategy. This is not hypothetical. It happened, and the
+    footprint was three cells across two income-statement columns.
+  </p>
+
+  <p>
+    Pinning one snapshot across all three runs fixes it. The price is exact:
+    restatements themselves become undetectable, because now all three runs see
+    the same restated values. A real form of historical contamination has been
+    traded away for the ability to measure the one the check is about. That is
+    the right trade, and it is only defensible if you say so.
+  </p>
+
+  <h2>Publishing what you did not check</h2>
+
+  <p>
+    So the checker emits, alongside its two verdicts, a list of what it does not
+    cover. Two entries. Contamination uniform across the whole window — a window
+    comparison sees only differences, so if all three runs are wrong in the same
+    way the difference is zero and the check is blind by construction. And
+    vendor restatement, for the reason above.
+  </p>
+
+  <p>
+    Marking either as PASS would be a lie. Omitting them would be a quieter lie,
+    the kind that reads as a clean bill of health. So they go out in the result
+    object next to the verdicts, are displayed wherever the verdicts are, and a
+    regression test asserts the list is present rather than swallowed. A
+    verification tool that ships a list of what it does not verify is doing the
+    thing this whole series is about: the value of a check is bounded by how
+    honestly its scope is stated.
+  </p>
+
+  <h2>One more leak, and it is not about time</h2>
+
+  <p>
+    A separate sweep applies one of the linter's predicates across every
+    strategy file in the archive. The predicate looks for a cross-sectional
+    operation — a rank, a median, a quantile taken across instruments —
+    performed <em>before</em> the tradable universe has been applied.
+  </p>
+
+  <div class="measured">
+    <span class="lbl">Measured</span>
+    <p>
+      <strong>243 flagged, 294 clean, 537 scanned</strong> — 45.3% of every
+      strategy ever written in this archive contains at least one cross-sectional
+      operation that runs before gating.
+    </p>
+  </div>
+
+  <p>
+    This is a correctness bug, not a style preference. A cross-sectional rank is
+    a function of the entire cross-section by definition, so including names you
+    could never have traded changes the percentile of every name you could. Rank
+    over four thousand instruments when three thousand are tradable and the
+    denominator of your top decile is wrong; the book you build from it is not
+    the book the thesis describes. Unlike a look-ahead leak this one has nothing
+    to do with time — it is a leak of the untradeable — and it survives any
+    amount of downstream masking, because masking the output does not repair a
+    score already computed from the wrong population.
+  </p>
+
+  <div class="caveat">
+    <span class="lbl">A smell, not a proof</span>
+    <p>
+      The sweep is a syntactic test: it asks whether a universe mask is
+      referenced in the enclosing scope of the cross-sectional call, not whether
+      the values flowing into that call were actually gated. A strategy gating
+      through a variable defined elsewhere can be flagged while correct, and a
+      sufficiently indirect one could pass while wrong. 45.3% is a strong smell
+      across the population, not a count of proven defects, and nobody has
+      hand-audited the flagged set.
+    </p>
+  </div>
+
+  <h2>Close</h2>
+
+  <p>
+    The leaks that matter are not in the strategy. They are in the loader, the
+    fill rule, the hold semantics, the vendor's revision history — layers the
+    person writing the signal did not write, cannot see, and in this framework
+    is forbidden from reading. That is not a flaw in the interface; it is what
+    makes the interface usable. But it does mean no amount of care applied
+    inside the strategy can establish that the strategy is clean.
+  </p>
+
+  <p>
+    So the check lives outside and imposes a property on the whole stack rather
+    than inspecting any part of it. Two comparisons, two tolerances — one exact
+    because nothing legitimate can move it, one a band because several things
+    can. And then the part that is easy to skip: a written list of what the
+    check does not cover, emitted with the verdicts, so that a PASS means the
+    specific thing it means and not the general thing a reader would like it to
+    mean.
+  </p>
+
+  <div class="post-nav">
+    <a href="../index.html">← all notes</a>
+  </div>
+
+</article>
+
+<footer class="site">
+  <div><a href="../index.html">← all notes</a></div>
+  <div>
+    <a href="mailto:jkimak1124@gmail.com">jkimak1124@gmail.com</a> ·
+    <a href="https://github.com/ico1036" rel="noopener">GitHub</a> ·
+    <a href="https://www.linkedin.com/in/jiwoong-kim-b9934417a" rel="noopener">LinkedIn</a>
+  </div>
+</footer>
+
+</div>
+
+</body>
+</html>

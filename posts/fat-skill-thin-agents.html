@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fat Skill, Thin Multi-Agents</title>
+<meta name="description" content="Two thousand lines of resident procedure against eighty-five lines of fan-out orchestration. The rule that fell out of it: fan out for information hiding, never for throughput.">
+<link rel="stylesheet" href="../style.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%23fff'/%3E%3Crect x='2' y='2' width='4' height='4'/%3E%3Crect x='10' y='6' width='4' height='4'/%3E%3Crect x='2' y='10' width='4' height='4'/%3E%3C/svg%3E">
+</head>
+<body>
+
+<div class="wrap">
+
+<header class="site">
+  <a class="site-name" href="../index.html">← Notes on Autonomous Research Loops</a>
+</header>
+
+<article>
+
+  <p class="post-date">2026-08-10 · Harness principles · 2</p>
+  <h1>Fat Skill, Thin Multi-Agents</h1>
+
+  <p class="standfirst">
+    The easy claim is that one thick skill beats a swarm. The evidence in this
+    system says something narrower and more useful: <strong>fan out for
+    information hiding, never for throughput.</strong> Everywhere a subagent
+    genuinely earned its keep here, the reason was that a fresh context cannot
+    see something the main context cannot un-see. Everywhere I fanned out for
+    volume, I got correlated work and paid for it.
+  </p>
+
+  <p class="lede">
+    The system is the research loop from the previous note: it forms an economic
+    hypothesis about equity markets, writes code expressing it, backtests it over
+    sixteen years, and records what it learned. The question here is how the
+    model's side of that — the third of the system that thinks — is organised.
+    Almost all of it is resident instruction read by a single agent. A very small
+    part is a swarm.
+  </p>
+
+  <h2>The proportions</h2>
+
+  <p>
+    Two skills carry the research procedure. The one that generates the next
+    hypothesis and writes the strategy file is 532 lines. The one that interprets
+    the backtest and writes the reflection is 353. Around them sit the loop's
+    step-by-step procedure file and the domain document describing the
+    backtester's API and its correctness invariants.
+  </p>
+
+  <div class="measured">
+    <span class="lbl">Measured</span>
+    <p>
+      <strong>2,009 lines</strong> of resident single-agent procedure — the whole
+      instruction surface an agent has in front of it on a normal iteration —
+      against <strong>85 lines</strong> of fan-out orchestration. Roughly
+      <strong>24:1</strong>. The two research skills alone are 885 of those
+      lines.
+    </p>
+  </div>
+
+  <p>
+    That ratio was not planned. It is what a year of trimming the fan-out and
+    growing the skills converged to.
+  </p>
+
+  <h2>What "fat" means here</h2>
+
+  <p>
+    It is not length. A 532-line skill spent describing the API would be a
+    manual. What makes the proposal skill fat is that judgment is pre-loaded —
+    decisions a competent agent would otherwise re-derive from scratch, badly and
+    differently, every iteration.
+  </p>
+
+  <p>
+    <strong>It fixes the read-set as literal shell commands.</strong> The agent
+    does not decide what context it needs; it runs the commands and reads what
+    comes back. Improvised orientation is the largest source of run-to-run
+    variance I have seen in an agent loop, because the agent's sense of "what
+    matters here" is itself sampled.
+  </p>
+
+  <p>
+    <strong>It defines a closed verdict vocabulary and makes some verdicts
+    binding.</strong> Each hypothesis in the running catalogue carries a status.
+    A thesis marked <span class="mono">dead — thesis is ceiling</span> or
+    <span class="mono">dead — refuted</span> is a hard self-block: the next
+    proposal may not continue that thesis. <span class="mono">live — expression
+    leaky</span> keeps it open, because the idea might be right and the code
+    wrong. <span class="mono">suspect — no story</span> means do not refine it —
+    refining something you cannot explain is score-chasing with extra steps.
+    Four words, and they constrain the next move more tightly than any amount of
+    encouragement to "be rigorous".
+  </p>
+
+  <p>
+    <strong>It names a specific failure mode and pre-declares the
+    defence.</strong> The skill tells the model, in the second person, that its
+    own spontaneous ideas come from its training prior, that the prior
+    over-represents famous published anomalies, and that an anomaly published
+    fifteen years ago has been arbitraged for fifteen years. The gate kills those
+    correctly; each one still costs a full batch. Two counter-rules follow, both
+    defined as <em>file reads</em> rather than things to remember — "not a
+    counter to track in your head — read it off the file." The same boundary as
+    the previous note, applied inside the prompt.
+  </p>
+
+  <p>
+    <strong>It bakes a worked failure incident into a procedure step.</strong>
+    One step exists because a specific past trial went wrong in a specific way,
+    and the skill says so. It is justified rather than asserted, which matters
+    because an agent that understands why a step exists will apply it to the case
+    its literal wording does not cover.
+  </p>
+
+  <p>
+    <strong>It partitions the code surface explicitly.</strong> The 73-line
+    template the agent fills in carries a comment marking the surrounding
+    skeleton as <span class="mono">correctness invariants ONLY — the book above
+    is yours; this plumbing is not</span>. Freedom is scoped, in-line, at the
+    point of temptation.
+  </p>
+
+  <p>
+    <strong>It repeats one clause verbatim in three places</strong>, because
+    examples degrade into menus. The clause is: the parenthetical is an example,
+    not a menu — "because it is simple", "because it is common", "because it was
+    in the example" are not reasons. Written once, it is decoration. Written at
+    each of the three points where the agent is about to pick off a list, it
+    changes behaviour.
+  </p>
+
+  <p>
+    And the skill states what it deliberately does <em>not</em> mechanise. On
+    when to stop refining an idea, it says plainly that this gate is judgment,
+    not a counter: no refinement-depth ceiling and no "did the score improve
+    enough?" threshold, because either would collapse the loop into
+    variant-climbing. A fat skill is not one that automates everything. It is one
+    that has decided, per decision, which side of the line that decision sits on.
+  </p>
+
+  <h2>The analysis skill, and the moment it protects</h2>
+
+  <p>
+    The interpretation skill is shorter and, I think, the better piece of
+    writing, because almost all of it is about one moment. It forces a read order
+    first: re-read your own code before looking at any metric, so the
+    interpretation is grounded in what the code does rather than
+    reverse-engineered from the Sharpe ratio. Reading the score first
+    contaminates everything after it; the agent will find a story that fits the
+    number, and it will be a good story.
+  </p>
+
+  <p>
+    Then it names the highest-value moment in the whole loop — the moment when
+    what you expected and what you observed disagree — and pre-labels two of the
+    three available responses as errors. Rejecting the observation ("noise")
+    loses the discovery. Rejecting the prior ("the literature is wrong") throws
+    away accumulated knowledge. The remaining move, the one it marks correct, is
+    to assume both are true and go looking for the distinction you did not know
+    existed. Almost every genuinely new thing this system has learned came out of
+    that third branch, and it is not the branch a model takes by default, because
+    the first two are cheaper and both feel like resolution.
+  </p>
+
+  <p>
+    Against self-deception it gives a concrete test rather than an exhortation:
+    write the falsifiable sentence. If you cannot produce a sentence of the form
+    <em>"if this were merely repackaged momentum, this specific number would look
+    different, and it does not"</em> — then the story is not pinned. Mark it
+    overfit-suspect and do not refine it. Worked examples of good and bad output
+    follow, the bad ones labelled "black box" and "fabricated" — more instructive
+    than any rubric.
+  </p>
+
+  <p>
+    It also argues against its own extension. Any internal confidence score, it
+    points out, even one you later collapse to a boolean, becomes an
+    optimisation target — so there is no scale. A story is pinned or it is not.
+  </p>
+
+  <h2>Free prose, five hard fields</h2>
+
+  <p>
+    None of this would survive contact with a loop if the output were prose all
+    the way down. The reflection is free text, but five fields in it are
+    validated by a script at commit time.
+  </p>
+
+  <table>
+    <thead>
+      <tr><th>Field</th><th>Requirement</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Thesis identifier</td><td class="num">non-empty string</td></tr>
+      <tr><td>Natural-language claim</td><td class="num">required when the thesis is new</td></tr>
+      <tr><td>Reflection summary</td><td class="num">non-empty</td></tr>
+      <tr><td>Next-iteration constraint flag</td><td class="num">boolean</td></tr>
+      <tr><td>Observed failure modes</td><td class="num">list of strings</td></tr>
+    </tbody>
+  </table>
+
+  <p>
+    Validation failure refuses the commit outright. And exactly one structured
+    bit — that boolean — feeds a deterministic downstream policy that forces the
+    following iteration onto a different data family. One bit of judgment,
+    escaping into machinery that acts on it without further interpretation, is
+    the whole interface between the thinking third of the system and the
+    counting two-thirds. Its narrowness is deliberate.
+  </p>
+
+  <h2>The one place it fans out</h2>
+
+  <p>
+    There is a workflow for taking a single hypothesis and covering it broadly.
+    One agent decomposes the thesis into N orthogonal expression angles, ten by
+    default. Then N drafters are spawned, each shown only its own angle and not
+    the others — blind to each other by construction. Two JSON schemas constrain
+    both tiers, and the drafters are told plainly that a draft violating the code
+    contract is discarded.
+  </p>
+
+  <p>
+    The workflow's own description forbids the obvious use of it: this is
+    coverage, <em>not</em> a tournament — never pick a winner to chase. The
+    procedure file repeats it from the other side: write one synthesis reflection
+    covering all the drafts, never crown a single winner. I wrote that twice
+    because the pull towards treating ten parallel results as a leaderboard is
+    strong, and a leaderboard over ten samples of one idea is a machine for
+    manufacturing overfit.
+  </p>
+
+  <p>
+    Note how little of the pipeline is actually parallel. Decomposition is one
+    agent. Only drafting fans out. Execution is strictly sequential — the
+    runner's comment says sequential execution <em>is</em> the concurrency
+    barrier and is therefore CPU-safe, and that drafting was the only thing
+    parallelised. Synthesis is one reflection; the thesis is registered exactly
+    once. The swarm is a thin band in an otherwise serial process.
+  </p>
+
+  <h2>And its central guarantee does not hold</h2>
+
+  <p>
+    The fan-out's value rests entirely on the drafts differing from each other,
+    and the system checks that with the duplicate gate. The duplicate gate parses
+    only the scoring function. It never looks at the portfolio-construction
+    function.
+  </p>
+
+  <p>
+    So drafts that differ only in how the book is built collapse as clones
+    <em>before execution</em>. They consume the batch's slots and produce
+    nothing. The methodology log records this five separate times across roughly
+    1,180 trials: first as an observation, then twice more, then promoted to a
+    validated lesson after three independent recurrences — and then it claimed
+    another victim on a case that had been explicitly declared in advance.
+    Writing the lesson down did not stop the lesson recurring.
+  </p>
+
+  <div class="measured">
+    <span class="lbl">Measured</span>
+    <p>
+      One batch lost <strong>five of nine</strong> registered cells to
+      construction-only duplication, pre-execution. The same gate also
+      false-positives in the other direction: two trials whose scoring functions
+      were both the same one-line expression were collapsed as duplicates even
+      though their portfolios were opposite objects — one a concentrated
+      equal-weighted book, the other a broad capitalisation-weighted one.
+    </p>
+  </div>
+
+  <p>
+    That is a fixable bug. The next fact is not.
+  </p>
+
+  <p>
+    One batch produced four structurally different syntax trees — a median
+    threshold, a descending rank count, a log-z cutoff, a rank fraction — that
+    were bet-identical. The log's summary is the sharpest sentence in the whole
+    methodology record: <em>syntax-tree variation defeats the duplicate gate but
+    not the bet.</em> Elsewhere, five drafts from one batch all landed at residual
+    correlation between 0.986 and 0.997 against already-banked strategies.
+  </p>
+
+  <p>
+    So the fan-out's diversity is enforced by a syntactic check, and a competent
+    fan-out satisfies that check while producing ten expressions of one idea.
+    Diversity of expression is not diversity of bet, and only one of the two is
+    measurable before you have spent the compute. You can improve the check; you
+    cannot make it into the thing you wanted, because the thing you wanted — are
+    these ten bets economically distinct? — is the research question itself.
+  </p>
+
+  <h2>Where subagents earn their keep</h2>
+
+  <p>
+    Here is the turn. The system asks for subagents in three other places, all
+    outside the fan-out, and every one gives the same justification — which has
+    nothing to do with work per hour.
+  </p>
+
+  <p>
+    <strong>Verifying your own draft.</strong> The skill's reasoning: you are
+    anchored on your own draft, and a verifier that has not seen your reasoning
+    catches what you cannot. It then restricts what the verifier gets — the code
+    file, the plan, the one-sentence claim, and explicitly <em>not</em> the
+    proposer's reasoning. The restriction is the mechanism. A verifier handed the
+    justification will verify the justification.
+  </p>
+
+  <p>
+    <strong>Refuting your own story.</strong> After the causal explanation is
+    written, a refutation agent is spawned with a fresh context, on the stated
+    grounds that a same-context re-read shares its blind spots. Its brief is
+    adversarial by design: find the strongest fact-based refutation, attack
+    rather than assess plausibility. "Does this seem reasonable?" returns yes.
+  </p>
+
+  <p>
+    <strong>Escaping the shared prior.</strong> When the search must go outside
+    what the model already knows, several agents are dispatched at different
+    angles — because, in the skill's words, the web is the only participant that
+    does not share your weights.
+  </p>
+
+  <p>
+    None of those three is about throughput. All three construct a reader who
+    cannot see what you saw — something a single agent cannot do for itself at
+    any context size, and the real, narrow case for multi-agent design. The
+    fan-out is the one place this system uses parallelism for volume, and also
+    the one place the parallelism does not reliably deliver what it promises.
+  </p>
+
+  <h2>Where the fat skill is straining</h2>
+
+  <p>
+    The post would be dishonest if it stopped there. The fat skill is visibly
+    failing at four things a swarm would handle.
+  </p>
+
+  <p>
+    <strong>532 lines cannot stop the model re-treading ground.</strong>
+    Avoidance of explored territory was deliberately left to judgment rather than
+    mechanised. The log records the model licensing an experiment on the grounds
+    that the question had not yet been measured, when it had been measured about
+    a hundred trials earlier — and the new results landed at residual correlation
+    1.0 against the old ones. Judgment over a long history degrades in a way a
+    lookup does not. The build-order lesson above recurred five times for the
+    same reason.
+  </p>
+
+  <p>
+    <strong>A cheap critic would have paid for itself many times over.</strong>
+    A dedicated pre-flight critic whose only job was to ask "does any draft in
+    this batch differ solely in portfolio construction?" would have cost about
+    one cheap call per batch and saved at least fifteen named drafts. That is a
+    subagent used for neither throughput nor information hiding, but for
+    <em>attention</em> — a check nobody in the main context is going to run,
+    because everyone in the main context is busy.
+  </p>
+
+  <p>
+    <strong>The swarm created integration debt in single-agent
+    machinery.</strong> A component that maintained the search coverage map
+    processed only the last committed result, since it was written when there was
+    only ever one. Batch drafts bypassed it entirely. Adding parallelism to a
+    serial system is never only an addition.
+  </p>
+
+  <p>
+    <strong>And the sharpest one, which cuts both ways.</strong> The 85-line thin
+    workflow carried a stale description of the backtester's API for months,
+    instructing drafters to write code shapes the linter rejects — a mistake the
+    532-line fat skill had already corrected. Thin components drift precisely
+    because nobody reads them; there is no daily pressure keeping them true. That
+    argues for consolidation. It also shows what consolidation costs: the fat
+    skill is now a single point of truth with no redundancy, and nothing would
+    catch it being wrong either.
+  </p>
+
+  <h2>The rule, restated</h2>
+
+  <p>
+    The denominator all of this runs against: one campaign ran 1,203 trials and
+    banked 48 strategies. Four per cent. Most of what such a search does is fail
+    informatively, and the design question is only ever how much you learn per
+    failure.
+  </p>
+
+  <div class="caveat">
+    <span class="lbl">What this does not establish</span>
+    <p>
+      One system, one domain, one author. The fan-out here was built for coverage
+      of an expression space and then measured against a duplicate gate it was
+      never designed around — so "fan-out produces correlated work" may be a fact
+      about this fan-out rather than about fan-out. And "fan out for information
+      hiding, never for throughput" is a hypothesis I have not tested against a
+      design that deliberately does the opposite. I have not run the
+      counterfactual where a well-built throughput swarm gets the same budget.
+      Until someone does, the rule is a generalisation from four data points and
+      one bad batch.
+    </p>
+  </div>
+
+  <p>
+    So: put procedure where it is read every time, and put agents where a second
+    pair of eyes is otherwise impossible to obtain. The ratio here ended up at
+    24:1 not because thick prompts beat orchestration, but because most of what I
+    wanted from orchestration — consistency, accumulated judgment, not repeating
+    yesterday's mistake — turned out to be procedure, and procedure is cheaper
+    resident than distributed. What was left was small, and all of it had one
+    shape: a reader who has not seen what I have seen.
+  </p>
+
+  <p>
+    If you are about to spawn ten agents, the question worth asking first is not
+    whether they will be faster. It is what each of them is prevented from
+    knowing. If the answer is nothing, you have bought ten copies of one opinion
+    and a bill.
+  </p>
+
+  <div class="post-nav">
+    Next: <a href="./overfit-and-dynamic.html">Overfit and Dynamic</a> —
+    what nature uses to search a space that keeps moving.
+  </div>
+
+</article>
+
+<footer class="site">
+  <div><a href="../index.html">← all notes</a></div>
+  <div>
+    <a href="mailto:jkimak1124@gmail.com">jkimak1124@gmail.com</a> ·
+    <a href="https://github.com/ico1036" rel="noopener">GitHub</a> ·
+    <a href="https://www.linkedin.com/in/jiwoong-kim-b9934417a" rel="noopener">LinkedIn</a>
+  </div>
+</footer>
+
+</div>
+
+</body>
+</html>

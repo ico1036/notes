@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Deterministic and Probabilistic</title>
+<meta name="description" content="Everything that can be a script should be a script. Zero of the fifty-eight files that run this research pipeline call a model — and the one gate that claims a judgment it does not make is the most instructive thing in the codebase.">
+<link rel="stylesheet" href="../style.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%23fff'/%3E%3Crect x='2' y='2' width='4' height='4'/%3E%3Crect x='10' y='6' width='4' height='4'/%3E%3Crect x='2' y='10' width='4' height='4'/%3E%3C/svg%3E">
+</head>
+<body>
+
+<div class="wrap">
+
+<header class="site">
+  <a class="site-name" href="../index.html">← Notes on Autonomous Research Loops</a>
+</header>
+
+<article>
+
+  <p class="post-date">2026-08-10 · Harness principles · 1</p>
+  <h1>Deterministic and Probabilistic</h1>
+
+  <p class="standfirst">
+    Put an agent only where you must. In the research loop I have been running,
+    the pipeline that decides whether a strategy lives or dies is fifty-eight
+    Python files, and not one of them calls a model. The interesting part is not
+    that discipline held — it is the single place where it did not, and how long
+    that went unnoticed.
+  </p>
+
+  <p class="lede">
+    The system this note is about does one thing on a loop: it forms an economic
+    hypothesis about equity markets, writes code expressing that hypothesis,
+    backtests it over sixteen years, decides whether the result means anything,
+    and writes down what it learned so the next iteration starts from there. It
+    runs unattended. Over one campaign it completed 1,203 of these iterations.
+  </p>
+
+  <p>
+    The obvious way to build that is to make everything an agent. A proposer
+    agent, a coder agent, a reviewer agent, a judge. It is obvious, it demos
+    well, and it produces a system whose failures you cannot debug, because
+    every component's behaviour is a sample from a distribution and no two runs
+    are the same.
+  </p>
+
+  <p>
+    The design principle I settled on instead is written at the top of the
+    project's instructions, and it is the shortest useful thing in the whole
+    repository:
+  </p>
+
+  <blockquote>
+    <p>
+      Thresholds, retry budgets, chain orchestration, schema validation are
+      scripts. Hypothesis generation, code writing, narrative, and intuition are
+      agent. When the boundary is violated — determinism encroaching on judgment
+      (rule-list bloat) or judgment absorbing determinism (counters carried in
+      the agent's head) — the system degrades toward either rigid exploration or
+      unreliable execution.
+    </p>
+  </blockquote>
+
+  <p>
+    Note that it names two failure directions, not one. Most writing on this
+    subject only warns about the first. The second is the one that actually bit
+    me.
+  </p>
+
+  <h2>Where the model is, exactly</h2>
+
+  <p>
+    Three places. The model writes a hypothesis in natural language; it writes
+    the strategy code that expresses the hypothesis; and after the backtest it
+    writes the causal story explaining the result. That is the entire surface.
+  </p>
+
+  <p>
+    Everything else is a script. I checked this rather than assuming it —
+    grepping the two mechanical directories for any model invocation, SDK
+    import, or subprocess call to a language model returns exactly one hit, and
+    it is inside a docstring.
+  </p>
+
+  <div class="measured">
+    <span class="lbl">Measured</span>
+    <p>
+      <strong>0 of 58</strong> Python files across the orchestration and adapter
+      directories call a model. Every pass/fail decision in the pipeline is an
+      AST predicate, a set-overlap ratio, or a float comparison.
+    </p>
+  </div>
+
+  <p>
+    The pipeline runs a fixed sequence on every iteration. Each stage's decision
+    rule is worth stating precisely, because precision is the point:
+  </p>
+
+  <table>
+    <thead>
+      <tr><th>Stage</th><th>Decides</th><th>How</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Lint</td>
+        <td>Is the code contractually valid, and does it look into the future?</td>
+        <td class="num">AST walk, nine tags</td>
+      </tr>
+      <tr>
+        <td>Duplicate check</td>
+        <td>Have we already run this?</td>
+        <td class="num">column Jaccard ≥ 0.8 ∧ identical <code>signal()</code> AST</td>
+      </tr>
+      <tr>
+        <td>Execute</td>
+        <td>Does it run, and what does it score?</td>
+        <td class="num">subprocess status</td>
+      </tr>
+      <tr>
+        <td>Gate</td>
+        <td>Is it good enough to keep?</td>
+        <td class="num">in-sample IR &gt; 0.5 ∧ holdout IR &gt; 0</td>
+      </tr>
+      <tr>
+        <td>Integrity</td>
+        <td>Is the score real, or is it leaking?</td>
+        <td class="num">exact-value replay comparison</td>
+      </tr>
+      <tr>
+        <td>Analyze</td>
+        <td>—</td>
+        <td class="num">extracts facts, gates nothing</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>
+    That last row matters. The analysis stage computes per-year returns, factor
+    regressions, holdings statistics, correlations against previously banked
+    strategies — and then makes no decision at all. Its own source says so:
+    <em>information only, no gate, no threshold; interpretation lives in the
+    agent's methodology.</em> Facts are cheap and mechanical. Meaning is not, so
+    meaning is the model's job and only the model's job.
+  </p>
+
+  <h2>The agent does not count</h2>
+
+  <p>
+    The clearest test of whether you have drawn the boundary correctly is: who
+    holds the counters?
+  </p>
+
+  <p>
+    When a trial crashes or turns out to be a duplicate, it gets retried. The
+    budget is three attempts. That number does not live in a prompt. It is a
+    module constant, and the count is written to a JSON file on disk on every
+    single increment — which means it survives the agent's process dying, a
+    session restarting, or the model simply forgetting. On the third failure the
+    orchestrator emits a different status, and a separate script sees that
+    status, synthesises a placeholder reflection, marks the trial abandoned, and
+    moves on without ever asking the model what it thinks.
+  </p>
+
+  <p>
+    The outer loop is the same shape. It decides whether an iteration made
+    progress by counting lines in the trial log — not by reading the agent's
+    self-report, and not by trusting its exit code. The runner's own comment on
+    that is blunt: <em>the model's return code is advisory only.</em> Three
+    consecutive iterations with no new log line and the loop aborts itself.
+  </p>
+
+  <p>
+    I did not get this right the first time. An early version fired a
+    consolidation job every <em>N</em> iterations, where <em>N</em> was counted
+    in a shell variable that reset whenever the loop restarted. One campaign ran
+    279 trials and triggered that job twice. The model spent hundreds of
+    iterations reading a stale snapshot of what had already been discovered, and
+    nothing broke loudly enough to notice. A counter in a volatile scope does
+    not throw; it just quietly starves whatever depends on it.
+  </p>
+
+  <h2>The firewall</h2>
+
+  <p>
+    There is one more thing the deterministic layer does that no amount of
+    prompt instruction could achieve: it withholds information from the model.
+  </p>
+
+  <p>
+    Every strategy is scored on two windows — an in-sample period the loop is
+    allowed to optimise against, and an out-of-sample period it is not. The
+    out-of-sample numbers exist. The gate reads them. The model never sees them.
+    A frozen set of keys is stripped from the record before it reaches the
+    agent, along with anything whose name ends in <code>_os</code>, so a
+    fourteen-year backtest and a two-year holdout collapse, from the model's
+    point of view, into a handful of in-sample figures and one boolean.
+  </p>
+
+  <p>
+    This is not politeness. If the model could read the holdout score it would
+    optimise against it — not by cheating, but by doing exactly what it is for,
+    which is noticing what correlates with success. The only way to keep a
+    holdout clean across two thousand queries is to make it structurally
+    unreadable.
+  </p>
+
+  <div class="caveat">
+    <span class="lbl">Where this is weaker than it sounds</span>
+    <p>
+      The full record, out-of-sample figures included, is written to disk for
+      bookkeeping. The firewall is enforced by the agent being told not to open
+      that file — not by file permissions. It is a rule, not a wall. I know of
+      no instance of it being breached, and I also have no mechanism that would
+      tell me if it were.
+    </p>
+  </div>
+
+  <h2>The gate that lies</h2>
+
+  <p>
+    Now the part worth the reader's time.
+  </p>
+
+  <p>
+    The duplicate check is meant to stop the loop degenerating into a parameter
+    sweep. A research loop that can tweak a lookback from 126 days to 252 days
+    and call it a new experiment will do that forever, because it is easy and it
+    occasionally works. So the gate blocks a trial whose column set overlaps a
+    previous trial by 80% or more <em>and</em> whose scoring function is
+    structurally identical.
+  </p>
+
+  <p>
+    Three separate places in the codebase describe this gate as blocking pure
+    parameter tweaks. One of them is the project's own architecture
+    documentation.
+  </p>
+
+  <p>
+    It does not block them. The structural comparison is a serialisation of the
+    function's syntax tree, and that serialisation includes the value of every
+    numeric literal. Change 126 to 252 and the serialisation differs, the
+    equality check fails, and the verdict comes back <strong>novel</strong>.
+    Same columns, complete overlap, one digit changed — and the loop treats it
+    as new science. Renaming a local variable defeats it too.
+  </p>
+
+  <p>
+    So it is a copy-paste detector documented as a parameter-sweep detector.
+    That would be a minor wart, except for what was built on top of it. An
+    earlier version of the pipeline had a second mechanism — a lineage
+    classifier that tracked whether each trial was a fresh idea or a refinement
+    of a previous one, plus a plateau rule that intervened when refinements
+    stopped paying. Both were deleted. The stated reason for deleting them was
+    that they were redundant, <em>because the duplicate gate blocks parameter
+    tweaks upstream</em>.
+  </p>
+
+  <p>
+    It does not. The removal rests on a premise the code does not satisfy.
+  </p>
+
+  <p>
+    I want to be precise about the size of this. In practice the loop does run
+    almost entirely on structural novelty — the same commit that removed the
+    plateau rule noted that across 391 accepted trials the classifier had fired
+    zero times. The mechanism was removed because it was never triggering, and
+    it was probably never triggering because the model was not, in fact, trying
+    to sweep parameters. So the practical damage is likely nil. But the
+    <em>reasoning</em> was wrong, and the reasoning is what I would have relied
+    on if the model's behaviour had drifted.
+  </p>
+
+  <p>
+    This is the first of the two failure directions the principle warns about,
+    and it is the more insidious one. Rule-list bloat is visible: you can see
+    the rules pile up. Determinism <em>over-claiming</em> looks like nothing at
+    all. A gate that quietly does less than its docstring says is worse than no
+    gate, because you stop watching the thing it was supposed to be watching.
+  </p>
+
+  <h2>Two smaller ones, for calibration</h2>
+
+  <p>
+    The retry budget is keyed on the trial's file number. The remedy the agent
+    is told to apply after a duplicate rejection is to revise and rerun — and
+    the next trial number is defined as one above the highest existing file. So
+    writing the revision as a new file resets the counter to one, and the cap of
+    three never binds. The only real backstop is the outer no-progress check,
+    which measures committed results rather than attempts.
+  </p>
+
+  <p>
+    And there is a script making a judgment call it should not. A regex flags a
+    strategy as long/short if it finds a negative numeric literal after an
+    equals sign, an opening bracket, or a comma. A perfectly ordinary
+    <code>.clip(-0.9, 0.9)</code> trips it. The project knows: the look-ahead
+    linter's source cites this regex <em>by name</em> as the cautionary
+    precedent for why its own checks were scoped narrowly to specific methods
+    and arguments. The lesson was learned, written down, applied to the new
+    code — and never applied back to the old code.
+  </p>
+
+  <h2>What the discipline actually buys</h2>
+
+  <p>
+    Reproducibility, mostly, and a debuggable failure surface. When an iteration
+    goes wrong I can tell within a minute whether the problem is in the third of
+    the system that thinks or the two-thirds that counts, because the two-thirds
+    that counts produces the same output for the same input every time.
+  </p>
+
+  <p>
+    But the sharper benefit is that it forces you to say what you actually
+    believe. Writing a threshold into a script requires committing to a number.
+    Writing it into a prompt lets you write "reasonably good", and a system full
+    of reasonably-good is a system nobody can check — including you.
+  </p>
+
+  <p>
+    The corollary is the part people skip. If the deterministic layer is where
+    your commitments live, then <em>the deterministic layer has to be right</em>,
+    and it earns exactly as much trust as it has been tested for. Three
+    docstrings agreeing with each other is not a test. I found the duplicate
+    gate's real behaviour by running it on two files that differed by one digit,
+    which took under a minute, and which nobody had done — because the code
+    looked obviously correct and the comment above it was reassuring.
+  </p>
+
+  <p>
+    Put the agent only where you must. Then go and check that the rest of it
+    does what you think.
+  </p>
+
+  <div class="post-nav">
+    Next: <a href="./fat-skill-thin-agents.html">Fat Skill, Thin Multi-Agents</a> —
+    two thousand lines of procedure against eighty-five lines of orchestration.
+  </div>
+
+</article>
+
+<footer class="site">
+  <div><a href="../index.html">← all notes</a></div>
+  <div>
+    <a href="mailto:jkimak1124@gmail.com">jkimak1124@gmail.com</a> ·
+    <a href="https://github.com/ico1036" rel="noopener">GitHub</a> ·
+    <a href="https://www.linkedin.com/in/jiwoong-kim-b9934417a" rel="noopener">LinkedIn</a>
+  </div>
+</footer>
+
+</div>
+
+</body>
+</html>

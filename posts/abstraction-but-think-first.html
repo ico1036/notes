@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Abstraction Layer, but Think First</title>
+<meta name="description" content="Raising the abstraction of your coordinate system is the only thing that makes a research loop compound. A language model will assert a shared structure between any two findings you show it — so the abstraction has to be earned against data before it is allowed to steer, and almost nothing mechanical makes that happen.">
+<link rel="stylesheet" href="../style.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%23fff'/%3E%3Crect x='2' y='2' width='4' height='4'/%3E%3Crect x='10' y='6' width='4' height='4'/%3E%3Crect x='2' y='10' width='4' height='4'/%3E%3C/svg%3E">
+</head>
+<body>
+
+<div class="wrap">
+
+<header class="site">
+  <a class="site-name" href="../index.html">← Notes on Autonomous Research Loops</a>
+</header>
+
+<article>
+
+  <p class="post-date">2026-08-10 · Harness principles · 4</p>
+  <h1>Abstraction Layer, but Think First</h1>
+
+  <p class="standfirst">
+    A research loop that learns "this column failed" starts from zero every
+    iteration. One that learns "this <em>kind</em> of thing fails for this
+    <em>reason</em>" covers a thousand cases with one lesson. That is the whole
+    compounding mechanism, and it is also the easiest thing in the world for a
+    language model to fake: it will assert a shared structure between any two
+    findings you put in front of it, fluently, and be right often enough that
+    you stop checking.
+  </p>
+
+  <p class="lede">
+    So the abstraction has to be earned against data before it is allowed to
+    steer. This note is about what earning it looks like — four diagnostics that
+    actually discriminate — and then about the part I cannot make sound better
+    than it is: nothing mechanical here enforces any of it.
+  </p>
+
+  <h2>The habit the whole thing rests on</h2>
+
+  <p>
+    The project's instructions open with what they call the one habit above all,
+    to be read first, every session. Translated: always dig once more into
+    whether two phenomena that look different are the same underneath, and
+    whether two that look alike are actually different. It claims this is the
+    single mechanism by which the loop's judgment improves — not one clever
+    hypothesis, but the habit of seeing common structure beneath the surface,
+    which makes hundreds of attempts compound instead of accumulate.
+  </p>
+
+  <p>
+    Two reflexes follow. The first: when expectation and observation disagree,
+    do not discard either. Rejecting the observation as noise is laziness, and
+    so is rejecting the prior because the literature must be wrong. Assume both
+    are true and find the distinction you did not know existed. The worked
+    example in the instructions is real. A freshness measurement — how recently
+    a thing had happened — amplified the signal in one corporate-action context
+    and killed it in another. Both results were correct. The distinction hiding
+    underneath was whether the quantity measured was a <em>behaviour</em> or a
+    <em>state</em>, which nobody had articulated until the contradiction forced
+    it out.
+  </p>
+
+  <p>
+    The second: when several surface-different findings arrive together, suspect
+    a common axis beneath them — and symmetrically, suspect that two findings
+    which look identical are orthogonal. Then the sentence this post hangs on.
+    Whether the distinction or the common axis you have imagined is
+    <em>real</em> is settled with data: do the two sides of the line actually
+    separate, are the residuals actually orthogonal. Stop at a blunt distinction
+    and you begin from zero every time. Find the real structure and one lesson
+    applies in a thousand places.
+  </p>
+
+  <h2>What the machine actually knows</h2>
+
+  <p>
+    Against that ambition, the mechanical coordinate system is deliberately,
+    almost comically shallow. A trial's machine-readable position is two things:
+    the set of data fields it touches, and a serialisation of its scoring
+    function's syntax tree. A set of strings and a hash. Themes are resolved by
+    a hardcoded nine-bucket dictionary of well-known factor families — a lookup
+    table, with no model behind it at any point.
+  </p>
+
+  <p>
+    This is the load-bearing observation of the note. <strong>Every genuinely
+    interesting abstraction in this system lives one level above the machine's
+    coordinates, in model-written prose, with no script behind it.</strong> The
+    machine knows two trials touch overlapping fields. It cannot know that two
+    findings are the same bet wearing different clothes. The shallow layer is
+    fast and honest about its scope — but the compounding mechanism sits above
+    it, in a layer whose only quality control is method.
+  </p>
+
+  <h2>Four diagnostics that discriminate</h2>
+
+  <p>
+    These are the useful part of the note, so I present them as tests rather
+    than results — you cannot check my results, and you can use the tests. Each
+    takes a proposed common axis and tries to break it, and for each you settle
+    in advance what a pass and a fail would look like.
+  </p>
+
+  <h3>1. Neutralise the blamed dimension and watch the direction of travel</h3>
+
+  <p>
+    Suppose you blame a result on a tilt along some grouping you did not intend
+    to bet on. The test is to remove that component: subtract each group's mean,
+    keep the within-group variation, re-run. If the effect really was a
+    cross-group tilt, the result should move <em>toward zero</em>. That is the
+    pass, and stating it in advance is what makes the test worth running.
+  </p>
+
+  <p>
+    Three other things can happen. The result can get <em>worse</em> — more
+    negative, not less — which falsifies the diagnosis outright: the carrier was
+    within-group all along, and stripping the group means concentrated it. It
+    can <em>collapse</em> to near-zero, which sounds like the pass but is a
+    different finding: the effect was group composition and the within-firm
+    residual is nothing, so there is no clean signal to recover. Or it can
+    <em>survive intact</em>, and that is the trap, because survival invites a
+    victory lap. Surviving does not prove a clean residual: removing cross-group
+    composition leaves any within-group <em>gradient</em> untouched, so if the
+    high end of your measure is systematically the growthier firm inside every
+    group, that bias sails straight through.
+  </p>
+
+  <p>
+    Four outcomes, one test, and only one is the naive reading. I have hit all
+    four. The fourth is the one that cost me something: a result that survived
+    the neutralisation almost untouched and sat just under the acceptance
+    threshold, which reads exactly like a clean within-group effect that needs
+    one more turn of the handle to clear the bar. It was not. Reading the
+    year-by-year pattern instead of the headline showed the growth-tilt
+    fingerprint underneath, and the only reason it did not get banked is that
+    somebody looked at a dimension the summary statistic had collapsed.
+  </p>
+
+  <h3>2. Flip the sign</h3>
+
+  <p>
+    Take a directional signal that lost money and bet the opposite tail instead.
+    Pass: the result flips to a roughly mirror-image gain. The effect was real
+    and you had the sign backwards — embarrassing, easily fixed.
+  </p>
+
+  <p>
+    Fail, and the informative kind: the result stays in the <em>same</em> losing
+    band, with a year-by-year curve you can nearly superimpose on the original.
+    Then neither tail was the signal. Both tails hold the same basket — the
+    ranking selects membership in some structural cohort, and any tilt computed
+    on that data selects the same cohort regardless of direction. That is
+    un-fixable by re-signing, re-scaling, or neutralising; the response is to
+    abandon the measure and find a different carrier. I have watched this
+    outcome close an entire family of related quantities in a single trial.
+  </p>
+
+  <h3>3. Change the weighting scheme</h3>
+
+  <p>
+    A genuine cross-sectional <em>ranking</em> effect is a statement about
+    order, not about size. Re-weighting the portfolio — from size-weighted
+    toward equal-weighted, or anything between — changes how much the claim is
+    worth, but not whether it is true. So pass is the sign holding; the
+    magnitude can move freely, and usually does.
+  </p>
+
+  <p>
+    Fail is a sign flip, and it is a hard falsifier rather than a soft warning.
+    A result positive under size-weighting and negative under equal-weighting
+    was never the effect claimed; it was a handful of very large firms carrying
+    the whole thing while the broad cross-section said the opposite. Large-cap
+    masking, not alpha. There is no repair, only a retraction.
+  </p>
+
+  <h3>4. Ask whether two channels measure the same content</h3>
+
+  <p>
+    Many quantities are observable through two channels: a stock and a flow — a
+    balance-sheet level and the income-statement line that feeds it. When one
+    channel is dead it is tempting to try the other and hope for an escape. The
+    rule that emerged is sharper than "sometimes it works". The two channels
+    <em>diverge into distinct effects only when they measure different economic
+    content</em>. When they are one content sampled at two points in a lifecycle
+    they collapse onto one carrier, and the second test re-derives the first
+    result at the cost of an iteration.
+  </p>
+
+  <p>
+    Both cases are on record. One pair diverged sharply: one channel captured
+    things acquired from outside the firm, the other things built inside it —
+    different economic objects landing in adjacent ledger lines. Another pair
+    collapsed completely, two views of one compensation phenomenon producing
+    indistinguishable failures with the same year-by-year shape. That closed the
+    axis on both channels at once, but cost a trial a two-minute argument about
+    content would have saved. So the test is a question you answer before
+    spending compute: does the content actually differ?
+  </p>
+
+  <h2>Read the fingerprint, not the headline</h2>
+
+  <p>
+    Across all four diagnostics the headline number is the least informative
+    thing on the page. Three unrelated failure causes in this loop landed within
+    a narrow band of each other on the summary statistic and were, at that
+    resolution, indistinguishable. What told them apart was the year-by-year
+    return pattern — specifically the sign in two particular years when market
+    leadership was unusually narrow. Three mechanisms, one headline, three
+    completely different year curves.
+  </p>
+
+  <p>
+    That generalises past this domain: a summary statistic makes distinct
+    mechanisms look like one, and what disambiguates them is usually in a
+    dimension you collapsed to produce the summary.
+  </p>
+
+  <div class="caveat">
+    <span class="lbl">Scope of all of this</span>
+    <p>
+      Every claim above comes from one domain, one data vendor, one backtest
+      engine, one campaign. The diagnostics are general in form — neutralise,
+      flip, re-weight, compare channels — but the rules they produced are local,
+      and I have no evidence about how they transfer. Treat the tests as
+      portable and the conclusions as not.
+    </p>
+  </div>
+
+  <h2>Falsifiers, written before the test</h2>
+
+  <p>
+    Several diagnoses here are on record with the prediction committed in
+    advance, which matters because the failure mode of an abstraction is not
+    that it is wrong but that it is <em>unfalsifiable in retrospect</em> —
+    whatever comes back, the story accommodates it. Two examples, in structure
+    only. One said: if this effect were specific to
+    the structural feature claimed, it would post a positive result <em>and</em>
+    its worst years would not coincide with a particular monetary-tightening
+    calendar. It shared that calendar exactly — generic market exposure wearing
+    a structural label, and the pre-written prediction is what made that
+    unarguable. Another said a real operating effect would not crater
+    specifically in refinancing-stress years. It cratered in exactly those
+    years, so the carrier was refinancing exposure and the operating story was
+    decoration.
+  </p>
+
+  <p>
+    Usefully, one falsifier <em>failed to fire</em> — the predicted
+    disconfirming pattern did not appear — and that is what let a different,
+    more specific diagnosis survive and go on to steer later trials. A
+    pre-registered prediction that does not fire is evidence too, and a system
+    that records only the kills throws away half the information.
+  </p>
+
+  <h2>The falsifier that was badly designed</h2>
+
+  <p>
+    The most honest entry in the record is a falsifier that was simply built
+    wrong. The statistic used to rank names was a mean taken over, at most, two
+    observations per name — dominated by the dispersion of those two draws, so a
+    variance selector rather than a measure of the quantity it was named after.
+    The registered falsifier was therefore testing something other than what it
+    claimed, and the kill it produced was void — not a marginal result, a result
+    about a different question.
+  </p>
+
+  <p>
+    Two rules were written down afterwards. De-magnitude the ranker before
+    registering a falsifier on it — if the ordering can be driven by scale or
+    sampling noise rather than content, the falsifier measures the artefact. And
+    pair every tail you intend to read with its own placebo, because a null on
+    one side of a distribution does not bound the other. Voiding your own kill
+    is unpleasant; not noticing you should have is worse.
+  </p>
+
+  <h2>Prediction prepayment</h2>
+
+  <p>
+    Out of that came the strongest rule in the system, and it is procedural
+    rather than computational. To claim a theory that explains a result, you
+    must <em>simultaneously register a falsifiable prediction about an
+    experiment you have not run yet</em> — before the result is revealed. An
+    explanation offered without a prediction is still recorded but carries no
+    weight in any later decision: a note, not a belief. Two consecutive missed
+    predictions kill the theory, and the corpse is preserved with the reason,
+    because a refutation is knowledge and deleting it means someone rediscovers
+    the dead end later. The same rule governs changes to the machinery: the
+    prediction is committed before the edit, and a miss reverts it. This is the
+    part I would keep if I had to throw everything else away.
+  </p>
+
+  <p>
+    A worked example: a family-level theory — one mechanism claimed across a
+    whole group of related measures — was registered with nine experiments
+    staked on it against a threshold declared in advance. It went zero for nine,
+    and was declared dead with the reason attached. Expensive, and far cheaper
+    than a theory that quietly explains every outcome forever.
+  </p>
+
+  <h2>The named-abstraction ledger</h2>
+
+  <p>
+    When several distinct hypotheses start to look like expressions of one
+    mechanism, the model may create a block one level up: a named family. Only
+    under a rule worth quoting in translation, though, because it states this
+    post's thesis better than I have:
+  </p>
+
+  <blockquote>
+    <p>
+      A name is not free. It can exist only if it stakes a prediction on an
+      untried target. After-the-fact fitting is always available to a language
+      model, so the value of a name can only be proven by a prediction that
+      hits.
+    </p>
+  </blockquote>
+
+  <p>
+    The ledger counts three things, and the definitions are where the care is. A
+    <em>predicted hit</em> requires all of: a trial that declared membership
+    <em>before</em> it ran, that passed the quality gate, and whose return
+    residual actually differs from existing members. That third clause does the
+    work — if the year-by-year fingerprint matches and the holdings overlap, it
+    is the same flesh under a new label and the hit is void. An <em>annexed</em>
+    member is added after the fact, once the result was known; it is recorded
+    and grants exactly zero steering authority. A <em>miss</em> is a declared
+    membership that did not pan out. Two consecutive misses is a death verdict,
+    with a standard phrasing: the essence is narrower than the claim.
+  </p>
+
+  <p>
+    That distinction — predicted hit versus annexation — is the whole difference
+    between an abstraction and a story. Both feel identical from the inside.
+  </p>
+
+  <h2>The loop inventing a connection, and paying for it</h2>
+
+  <p>
+    Now the counter-evidence. The loop has a forced-novelty mode in which it
+    deliberately skips reading its own belief wiki before proposing. The
+    reasoning is sound: inherited beliefs anchor the model onto ground already
+    mined, and cutting that anchor is how it reaches new territory. The cost is
+    precise, and it has been paid. A field that looks freshly unmined by
+    identifier — but which is the pretax twin of an after-tax line already
+    mapped dead — slips straight through the novelty check, and a full batch of
+    five parallel drafts gets spent re-deriving a known result.
+  </p>
+
+  <p>
+    The diagnosis written afterwards is the sentence this note needs: sibling
+    identifiers defeat an unmined-by-identifier heuristic, because the
+    <em>economics</em>, not the identifier, is what has already been mined. The
+    system hard-enforces novelty at the level of the string and nothing at the
+    level of the meaning.
+  </p>
+
+  <p>
+    There is more in the same direction. A near-miss where reusing a family name
+    almost overwrote a live block of beliefs. A family that needed four separate
+    rediscoveries before anyone wrote down that it was dead. Two entries in the
+    belief graph explicitly marked as <em>corrections</em> of earlier
+    abstractions — the loop grading its own generalisation and finding it wrong.
+    Those last two are the most encouraging artefacts in the record, and also
+    proof that generalisations were made faster than they were checked.
+  </p>
+
+  <h2>What enforces any of this</h2>
+
+  <p>
+    All of the above — the family mechanism, the registered prediction, the
+    falsifier, the ledger and its three counters — lives in text blocks written
+    by the model at commit time. So I went looking for the code that reads them.
+  </p>
+
+  <div class="measured">
+    <span class="lbl">Measured</span>
+    <p>
+      <strong>Zero matches.</strong> Grepping the entire commit path for the
+      keywords that carry the family mechanism, the registered prediction, the
+      falsifier, and the ledger counters returns nothing. No script parses those
+      blocks. No script increments the counters. No script enforces the
+      two-misses rule. No script blocks a trial that omits a pre-declared
+      falsifier. The aggregation tooling that would do it is listed as deferred
+      future work in the project's own to-do file.
+    </p>
+  </div>
+
+  <p>
+    So what enforces "verify the axis before it steers"? Two things. First, the
+    declaration must be committed <em>before</em> execution, and it is
+    non-retroactive: you cannot decide after the fact which family a result
+    belonged to — or rather you can, and the ledger has a name for it and grants
+    it no authority. That constraint is enforced by the ordering of writes
+    rather than by a check. Second, the final verdict is a number behind a
+    firewall the model cannot read and therefore cannot tune toward.
+  </p>
+
+  <p>
+    Everything between the abstraction and that number is honour-system prose,
+    executed by the same model that proposed the abstraction.
+  </p>
+
+  <h2>Why this might be as good as it gets</h2>
+
+  <p>
+    The temptation is to file that as a defect with an obvious fix: write the
+    script. The fix does not exist. Mechanising the check would require a script
+    that can decide whether two economic stories are the same story — not a
+    missing feature but the hard problem itself, restated. Every substitute is a
+    proxy.
+  </p>
+
+  <p>
+    The best proxy is residual correlation between return streams: if two
+    strategies are the same bet, their returns after removing common exposures
+    should move together. That test exists here and is useful. But it sits in
+    the wrong place — a duplicate check <em>after</em> the compute is spent, not
+    a family-membership test before it.
+  </p>
+
+  <div class="caveat">
+    <span class="lbl">What the proxy does not prove</span>
+    <p>
+      Low residual correlation between two return streams is evidence that they
+      are not the same bet. It is not proof. Two strategies can express one
+      mechanism through different holdings and decorrelate for reasons that have
+      nothing to do with the mechanism — different rebalancing, different size
+      exposure, different sampling of the same cohort. The converse fails too:
+      high correlation can come from a market exposure neither strategy is
+      about. Sameness of mechanism and sameness of returns are different
+      questions, and the second is only ever a noisy read on the first.
+    </p>
+  </div>
+
+  <p>
+    Which leaves the honest position. Pre-declaration plus an unreadable
+    scoreboard is <em>weak</em> enforcement: it stops the two cheapest forms of
+    self-deception — retrofitting the family after the result, and tuning toward
+    a number you can see — and nothing else. It happens to be the strongest
+    enforcement available, and calling it weak is a description rather than a
+    complaint.
+  </p>
+
+  <p>
+    In that setting, "think first" is not a slogan hung over the door. It is the
+    mechanism, in the literal sense that there is no other. The abstraction
+    layer is where the compounding happens, and the only thing between a real
+    abstraction and a fluent invention is whether somebody stated in advance
+    what would prove it wrong.
+  </p>
+
+  <div class="post-nav">
+    Next: <a href="./lookahead-and-path-dependency.html">Look-Ahead Bias and Path Dependency</a> —
+    closing a backtest's structural leaks from behind.
+  </div>
+
+</article>
+
+<footer class="site">
+  <div><a href="../index.html">← all notes</a></div>
+  <div>
+    <a href="mailto:jkimak1124@gmail.com">jkimak1124@gmail.com</a> ·
+    <a href="https://github.com/ico1036" rel="noopener">GitHub</a> ·
+    <a href="https://www.linkedin.com/in/jiwoong-kim-b9934417a" rel="noopener">LinkedIn</a>
+  </div>
+</footer>
+
+</div>
+
+</body>
+</html>

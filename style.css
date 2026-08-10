@@ -1,0 +1,250 @@
+/* ============================================================
+   Black and white. No colour anywhere, deliberately — the only
+   emphasis available is weight, size, rule and space, which is
+   the constraint that keeps a research page honest.
+
+   Dark mode inverts the two values and nothing else.
+   ============================================================ */
+
+:root{
+  --ink:#111;
+  --ink-2:#555;
+  --ink-3:#888;
+  --paper:#fff;
+  --rule:#e0e0e0;
+  --rule-2:#c8c8c8;
+  --mark:#f0f0f0;
+  --measure:44rem;
+}
+
+@media (prefers-color-scheme: dark){
+  :root{
+    --ink:#e8e8e8;
+    --ink-2:#a8a8a8;
+    --ink-3:#7a7a7a;
+    --paper:#0c0c0c;
+    --rule:#262626;
+    --rule-2:#3a3a3a;
+    --mark:#1c1c1c;
+  }
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,
+              "Apple SD Gothic Neo","Noto Serif KR",serif;
+  font-size:17px;
+  line-height:1.72;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+
+.mono{
+  font-family:"SF Mono",SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+  font-variant-numeric:tabular-nums;
+}
+
+.wrap{max-width:var(--measure); margin:0 auto; padding:0 24px}
+
+/* ── masthead ─────────────────────────────────────────── */
+
+header.site{padding:56px 0 0}
+.site-name{
+  font-family:"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+  font-size:13px; font-weight:700; letter-spacing:.16em;
+  text-transform:uppercase; color:var(--ink);
+  text-decoration:none; display:inline-block;
+}
+.site-sub{
+  font-size:15px; color:var(--ink-2); margin-top:10px; max-width:34rem;
+}
+
+/* the automaton strip — see blog/index.html for what it is and why */
+.ca{
+  display:block; width:100%; height:88px; margin:30px 0 0;
+  border-top:1px solid var(--rule); border-bottom:1px solid var(--rule);
+}
+.ca-note{
+  font-family:"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+  font-size:12px; color:var(--ink-3); margin-top:8px; line-height:1.6;
+}
+
+/* ── category ─────────────────────────────────────────────
+   Posts are grouped by category so a new subject gets its own
+   heading rather than being appended to a closed set.
+   ------------------------------------------------------- */
+
+.cat{margin:46px 0 0}
+.cat-name{
+  font-family:"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+  font-size:13px; font-weight:700; letter-spacing:.14em;
+  text-transform:uppercase; margin:0 0 10px;
+}
+.cat-sub{color:var(--ink-2); font-size:16px; margin:0}
+
+/* ── index post list ──────────────────────────────────── */
+
+.list{margin:26px 0 0; list-style:none}
+.list li{
+  padding:26px 0; border-top:1px solid var(--rule);
+}
+.list li:last-child{border-bottom:1px solid var(--rule)}
+.entry-date{
+  font-family:"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+  font-size:12px; color:var(--ink-3); letter-spacing:.06em;
+}
+.entry-title{
+  display:block; margin:6px 0 8px;
+  font-size:21px; line-height:1.35; font-weight:600;
+  color:var(--ink); text-decoration:none;
+}
+.entry-title:hover{text-decoration:underline; text-underline-offset:3px}
+.entry-sub{color:var(--ink-2); font-size:16px}
+.entry-tags{
+  margin-top:10px;
+  font-family:"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+  font-size:12px; color:var(--ink-3);
+}
+
+/* ── post ─────────────────────────────────────────────── */
+
+article{margin:44px 0 0}
+.post-date{
+  font-family:"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+  font-size:12px; color:var(--ink-3); letter-spacing:.06em;
+}
+h1{
+  font-size:31px; line-height:1.24; font-weight:600;
+  letter-spacing:-.01em; margin:10px 0 14px; text-wrap:balance;
+}
+.standfirst{
+  font-size:18px; color:var(--ink-2); line-height:1.65;
+  padding-bottom:26px; border-bottom:1px solid var(--rule);
+}
+
+h2{
+  font-size:20px; font-weight:600; line-height:1.35;
+  margin:42px 0 12px; text-wrap:balance;
+}
+h3{
+  font-size:17px; font-weight:600; margin:28px 0 8px;
+}
+p{margin:0 0 18px}
+p.lede{font-size:18px}
+
+a{color:var(--ink); text-underline-offset:2px}
+
+strong{font-weight:600}
+em{font-style:italic}
+
+ul,ol{margin:0 0 18px 1.3em}
+li{margin:0 0 8px}
+
+blockquote{
+  margin:22px 0; padding:2px 0 2px 20px;
+  border-left:2px solid var(--rule-2); color:var(--ink-2);
+}
+blockquote p:last-child{margin-bottom:0}
+
+code{
+  font-family:"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+  font-size:.87em; background:var(--mark); padding:1px 5px; border-radius:3px;
+}
+pre{
+  background:var(--mark); border:1px solid var(--rule);
+  padding:14px 16px; margin:22px 0; overflow-x:auto; border-radius:4px;
+}
+pre code{background:none; padding:0; font-size:13px; line-height:1.62}
+
+table{
+  width:100%; border-collapse:collapse; margin:24px 0; font-size:15px;
+  display:block; overflow-x:auto;
+}
+th,td{
+  text-align:left; padding:9px 14px 9px 0;
+  border-bottom:1px solid var(--rule); vertical-align:top;
+}
+th{
+  font-family:"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+  font-size:12px; font-weight:600; letter-spacing:.04em;
+  text-transform:uppercase; color:var(--ink-3);
+}
+td.num{
+  font-family:"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+  font-variant-numeric:tabular-nums; white-space:nowrap;
+}
+
+hr{border:none; border-top:1px solid var(--rule); margin:38px 0}
+
+/* a claim the reader can check, set apart from the prose around it */
+.measured{
+  border:1px solid var(--rule-2); padding:16px 18px; margin:24px 0;
+  border-radius:4px;
+}
+.measured .lbl{
+  font-family:"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+  font-size:12px; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--ink-3); display:block; margin-bottom:8px;
+}
+.measured p:last-child{margin-bottom:0}
+
+/* the thing I got wrong, or the thing this does not cover */
+.caveat{
+  border-left:2px solid var(--ink); padding:2px 0 2px 18px; margin:24px 0;
+}
+.caveat .lbl{
+  font-family:"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+  font-size:12px; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--ink); font-weight:600; display:block; margin-bottom:6px;
+}
+.caveat p:last-child{margin-bottom:0}
+
+.footnotes{
+  margin-top:44px; padding-top:20px; border-top:1px solid var(--rule);
+  font-size:15px; color:var(--ink-2);
+}
+.footnotes ol{margin-left:1.2em}
+
+.post-nav{
+  margin:52px 0 0; padding-top:22px; border-top:1px solid var(--rule);
+  font-size:15px;
+}
+
+/* ── footer ───────────────────────────────────────────── */
+
+footer.site{
+  margin:64px 0 0; padding:22px 0 56px; border-top:1px solid var(--rule);
+  font-family:"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+  font-size:12px; color:var(--ink-3); line-height:2;
+}
+footer.site a{color:var(--ink-2)}
+
+/* ── mobile ───────────────────────────────────────────────
+   The floor is 14px at phone widths. Small mono type is fine
+   on a desktop and unreadable on a phone, so every class that
+   sits under 14px above is raised here.
+   ------------------------------------------------------- */
+
+@media (max-width:760px){
+  body{font-size:16px}
+  .wrap{padding:0 18px}
+  header.site{padding-top:36px}
+  h1{font-size:26px}
+  h2{font-size:19px}
+  .standfirst{font-size:17px}
+  .entry-title{font-size:19px}
+  .ca{height:64px}
+  pre code{font-size:14px}
+  table{font-size:14px}
+  .site-name,.ca-note,.entry-date,.entry-tags,.post-date,
+  .cat-name,.measured .lbl,.caveat .lbl,th,footer.site{font-size:14px}
+
+  /* `code` is .87em, which lands at 13.92px against a 16px body — under the
+     floor by eight hundredths of a pixel. Pin it rather than nudging the
+     ratio, so the value does not drift back under when the body size moves. */
+  code{font-size:14px}
+}
