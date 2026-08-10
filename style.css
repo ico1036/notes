@@ -87,6 +87,17 @@ header.site{padding:56px 0 0}
 .site-name.home{
   font-size:1.75rem; letter-spacing:.10em; line-height:1.1;
 }
+/* Below 1280px there is no left panel, so a post's only route to the
+   author page would be a link inside a hidden rail. This carries it in
+   the header instead, and steps aside where the rail takes over. */
+.hdr-about{
+  font-family:"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+  font-size:0.8125rem; letter-spacing:.16em; text-transform:uppercase;
+  color:var(--ink-3); text-decoration:none; margin-left:18px;
+}
+.hdr-about:hover{color:var(--ink)}
+@media (min-width:1280px){ .hdr-about{display:none} }
+
 /* The positioning line. Sits directly under the wordmark and reads as
    part of it, which is why it repeats the wordmark's tracking rather
    than the body's. */
@@ -138,6 +149,9 @@ header.site{padding:56px 0 0}
   padding-bottom:8px; border-bottom:1px solid var(--rule); display:block;
 }
 .board ul{list-style:none; margin:0; padding:0}
+/* a second group in the board gets air above its label, so the two read
+   as sections rather than as one list with a stray heading in it */
+.board ul + .board-lbl{margin-top:30px}
 .board li{margin:0; border-bottom:1px solid var(--rule)}
 .board a{
   display:block; padding:11px 0; text-decoration:none;
@@ -327,17 +341,25 @@ footer.site a{color:var(--ink-2)}
 .rail{display:none}
 
 @media (min-width:1280px){
+  /* A column, so that only the contents list scrolls. With the whole rail
+     scrolling, the author group fell off the bottom on any post with a
+     long table of contents — visible on a tall window, gone on a short
+     one, which is the worst of both. */
   .rail{
-    display:block; position:fixed; top:118px;
+    display:flex; flex-direction:column; position:fixed; top:118px;
     left:calc(50% - (var(--measure) / 2) - 15rem);
-    width:13rem; max-height:72vh; overflow-y:auto;
+    width:13rem; max-height:76vh;
   }
+  .rail > .rail-list:not(.rail-foot){overflow-y:auto; min-height:2.5rem}
+  .rail > .rail-lbl,
+  .rail > .rail-foot{flex:none}
   .rail-lbl{
     font-family:"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
     font-size:0.6875rem; font-weight:700; letter-spacing:.16em;
     text-transform:uppercase; color:var(--ink-3);
     display:block; padding-bottom:8px; border-bottom:1px solid var(--rule);
   }
+  .rail-lbl-2{margin-top:26px}
   .rail-list{margin:0; padding:0; list-style:none; counter-reset:rail}
   .rail-list li{margin:0; counter-increment:rail}
   .rail-list a{
@@ -352,6 +374,13 @@ footer.site a{color:var(--ink-2)}
   }
   .rail-list a:hover{color:var(--ink)}
   .rail-list a[aria-current]{color:var(--ink); font-weight:600}
+
+  /* The author group is not part of the numbered contents. These have the
+     same specificity as the .rail-list rules above, so they have to come
+     after them — placed before, the number came back. */
+  .rail-foot li{counter-increment:none}
+  .rail-foot a{padding-left:0}
+  .rail-foot a::before{content:none}
 }
 
 /* ── large screens ────────────────────────────────────────
@@ -394,7 +423,7 @@ footer.site a{color:var(--ink-2)}
   .ca{height:82px}
   pre code{font-size:14px}
   table{font-size:14px}
-  .site-name,.site-tag,.ca-note,.entry-date,.entry-tags,.post-date,
+  .site-name,.site-tag,.hdr-about,.ca-note,.entry-date,.entry-tags,.post-date,
   .board-lbl,.board .n,.measured .lbl,.caveat .lbl,th,
   figcaption,footer.site{font-size:14px}
 

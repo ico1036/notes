@@ -57,6 +57,22 @@
   rail.appendChild(label);
   rail.appendChild(list);
 
+  // The author link lives in the left panel with everything else, not in
+  // the footer where nobody scrolls to find it.
+  var footLbl = document.createElement("span");
+  footLbl.className = "rail-lbl rail-lbl-2";
+  footLbl.textContent = "Author";
+  var foot = document.createElement("ol");
+  foot.className = "rail-list rail-foot";
+  var fli = document.createElement("li");
+  var fa = document.createElement("a");
+  fa.href = "../about.html";
+  fa.textContent = "About";
+  fli.appendChild(fa);
+  foot.appendChild(fli);
+  rail.appendChild(footLbl);
+  rail.appendChild(foot);
+
   /* current section, by whichever heading was passed most recently ---- */
 
   var current = null;

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>About — JW Lab</title>
-<meta name="description" content="Jiwoong Kim. Particle physicist turned quantitative researcher, now building research systems that improve their own process.">
+<meta name="description" content="Jiwoong Kim. Particle physics, then quantitative research, now building an agentic loop for alpha search.">
 <link rel="stylesheet" href="./style.css">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%23fff'/%3E%3Crect x='2' y='2' width='4' height='4'/%3E%3Crect x='10' y='6' width='4' height='4'/%3E%3Crect x='2' y='10' width='4' height='4'/%3E%3C/svg%3E">
 </head>
@@ -21,111 +21,56 @@
   <h1>Jiwoong Kim</h1>
 
   <p class="standfirst">
-    Particle physicist turned quantitative researcher, in Seoul. I build
-    research systems that improve their own process, and then try hard to
-    establish that the improvement is real.
+    Quantitative researcher, Seoul. Physics before that.
   </p>
 
-  <h2>The same problem twice</h2>
-
-  <p class="lede">
-    My doctorate was in particle physics, at Kyungpook National University,
-    working on LHC data. The job, stated plainly, was to extract a signal from
-    data that is overwhelmingly noise — and to be certain you had not
-    manufactured it. I ended up arguing for convolutional networks on a
-    classification problem the collaboration had always solved with
-    physicist-designed variables, which improved signal efficiency by a factor
-    of 1.85 and required training distributed across a thousand compute nodes to
-    be tractable.
-  </p>
+  <h2>Before</h2>
 
   <p>
-    I now do quantitative research, and it took me a while to notice it is the
-    same problem. A market is mostly noise. The effects worth having are small,
-    they decay once known, and the failure mode is not missing them — it is
-    convincing yourself of one that was never there. Physics has decades of
-    apparatus built against exactly that: blind analysis, pre-registration,
-    look-elsewhere corrections. Finance mostly does not, and reinvents it badly,
-    one researcher at a time.
-  </p>
-
-  <p>
-    Both fields, in other words, are less about finding the answer than about
-    building the machinery that stops you believing a wrong one. Which is what I
-    actually work on.
-  </p>
-
-  <h2>Why recursive self-improvement</h2>
-
-  <p>
-    A direct attack on a hard problem buys you one answer. Building the loop
-    that produces answers buys you every subsequent one, at falling cost — and
-    if the loop also improves the process by which it improves, the returns
-    compound instead of accumulating. That is the whole of it, and I think it
-    generalises much further than the domain I happen to work in.
-  </p>
-
-  <p>
-    The uncomfortable half is that a loop like this is extremely good at
-    persuading you it is working. It generates its own evidence, writes its own
-    explanations, and grades itself on a number it can see. So most of the
-    engineering is not the loop. It is the machinery that makes the loop's
-    claims checkable by someone who does not believe them — withheld scores,
-    predictions registered before results, tests that can only fail. The
-    <a href="./index.html">notes on this site</a> are almost entirely about that
-    half.
-  </p>
-
-  <p>
-    It is also testable, which matters more than the argument. Stripping the
-    accumulated procedure off the same model and re-running its judgment blind
-    against real outcomes moves the score from roughly chance to well above it,
-    at <span class="mono">p = 0.004</span>. That measurement is in
-    <a href="./posts/fat-skill-thin-agents.html">the second note</a>, with what
-    it does and does not establish.
+    Ph.D. in particle physics, working on LHC data at CERN. The job was to pull
+    a signal out of data that is overwhelmingly noise, and to be certain you had
+    not manufactured it. I argued for convolutional networks on a classification
+    problem the collaboration had always solved with hand-designed variables:
+    1.85&times; signal efficiency, trained across a thousand compute nodes.
   </p>
 
   <h2>Now</h2>
 
   <p>
-    I lead a small team building a system that automates the research cycle
-    end to end — forming a hypothesis, writing the code that expresses it,
-    running it against sixteen years of market data, and folding the result,
-    including the failures, into what the next iteration starts from. It runs
-    unattended at roughly a thousand experiments a day.
+    Quantitative research. Built and run a live equity model, and a pipeline
+    that generates portfolios across a range of styles rather than a single one.
+    The problem turned out to be the same one as before — small effects, mostly
+    noise, and a failure mode that is believing in one that was never there.
+  </p>
+
+  <h2>Next</h2>
+
+  <p>
+    Once agents could write and run their own experiments, one thing followed:
+    <strong>any research process whose output is verifiable can be turned into a
+    loop.</strong> Alpha search qualifies. A hypothesis compiles to code, the
+    code runs against fixed history, and a number falls out that two people can
+    reproduce — so there is something for a script to check, which is the only
+    precondition that matters.
   </p>
 
   <p>
-    Before that I built and ran a live equity model, and a pipeline that
-    generates portfolios across a range of styles rather than a single one. The
-    full record, with the numbers, is on
-    <a href="https://ico1036.github.io/jiwoong-resume/" rel="noopener">my
-    résumé</a>; this page is the reasoning rather than the résumé.
+    So that is what I am building: agentic alpha search, unsupervised, with most
+    of the engineering going into making the loop's claims checkable rather than
+    into the loop. The <a href="./index.html">notes here</a> are that second
+    part.
   </p>
 
-  <h2>Elsewhere</h2>
-
-  <p>
+  <p class="post-nav">
     <a href="mailto:jkimak1124@gmail.com">jkimak1124@gmail.com</a> ·
     <a href="https://github.com/ico1036" rel="noopener">GitHub</a> ·
     <a href="https://www.linkedin.com/in/jiwoong-kim-b9934417a" rel="noopener">LinkedIn</a> ·
     <a href="https://ico1036.github.io/jiwoong-resume/" rel="noopener">Résumé</a>
   </p>
 
-  <p>
-    Corrections and disagreements are welcome, particularly on the notes. Most
-    of what is written there is one system, one domain, one author, and I have
-    tried to say so wherever it matters.
-  </p>
-
-  <div class="post-nav">
-    <a href="./index.html">← all notes</a>
-  </div>
-
 </article>
 
 <footer class="site">
-  <div><a href="./index.html">← all notes</a> · <a href="./about.html">About</a></div>
   <div>
     <a href="mailto:jkimak1124@gmail.com">jkimak1124@gmail.com</a> ·
     <a href="https://github.com/ico1036" rel="noopener">GitHub</a> ·
