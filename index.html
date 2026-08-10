@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>JW Lab</title>
-<meta name="description" content="Notes on building research systems that run themselves — where to put an agent, where not to, and how to keep the conclusions checkable. Drawn from an unsupervised search for stock-market trading strategies.">
+<title>JW Lab — Recursive Self-Improvement</title>
+<meta name="description" content="Notes on recursive self-improvement: building the loop that improves the process by which it improves. What to automate, what to leave to judgment, and how to keep the conclusions checkable — drawn from an unsupervised search for stock-market trading strategies.">
 <link rel="stylesheet" href="./style.css">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%23fff'/%3E%3Crect x='2' y='2' width='4' height='4'/%3E%3Crect x='10' y='6' width='4' height='4'/%3E%3Crect x='2' y='10' width='4' height='4'/%3E%3C/svg%3E">
 </head>
@@ -14,17 +14,26 @@
 
 <header class="site">
   <a class="site-name" href="./index.html">JW Lab</a>
+  <p class="site-tag">Recursive self-improvement</p>
+
   <p class="site-sub">
-    Working notes on research systems that run themselves. The one these are
-    drawn from searches for stock-market trading strategies unsupervised —
-    forming its own hypotheses, testing them against sixteen years of market
-    data, and writing down why each one failed. Mostly about the parts that are
-    not the model.
+    <strong>RSI</strong> is a loop that improves the process by which it
+    improves. I think most hard problems are better attacked by building that
+    loop than by going at the problem directly — the loop compounds and a direct
+    attack does not. So these are notes on building one: what to automate, what
+    to leave to judgment, and how to keep its conclusions checkable.
+  </p>
+  <p class="site-sub">
+    The loop they come from searches for stock-market trading strategies
+    unsupervised — forming its own hypotheses, testing them against sixteen
+    years of market data, and writing down why each one failed. Mostly about the
+    parts that are not the model.
   </p>
 
   <canvas class="ca" id="ca" aria-hidden="true"></canvas>
   <p class="ca-note">
-    Rule 110, seeded at random on every load. The rule is fixed; the seed is not.
+    The logistic map, fed its own output. Left to right: how hard each step
+    pushes. Reload — the seed changes, the picture does not.
   </p>
 </header>
 
@@ -128,12 +137,17 @@
 
 <script>
 /* ------------------------------------------------------------------
-   Elementary cellular automaton, rule 110, drawn one row per step.
+   Bifurcation diagram of the logistic map, x -> R*x*(1-x).
 
-   It is here instead of a picture because it is the argument of the
-   first note in one object: the transition rule is completely fixed,
-   the initial row is random, and the structure you see is the product
-   of the two. Reload and the rule is identical; the picture is not.
+   It is here because it is the canonical picture of what happens when
+   you feed a process its own output. One parameter runs left to right;
+   for each value the map is iterated, the transient is thrown away, and
+   whatever the orbit settles onto is plotted. A single point, then two,
+   then four, then a band.
+
+   The seed is random on every load and the picture does not change,
+   which is the part worth the pixels: the attractor belongs to the rule,
+   not to where you happened to start.
 
    Deliberately cheap — a 2D canvas, no animation loop, no WebGL, so
    there is nothing to fall back to on a phone.
@@ -143,8 +157,9 @@
   var cv = document.getElementById("ca");
   if (!cv || !cv.getContext) return;
 
-  var RULE = 110;
-  var CELL = 3;                     // px per cell at 1x
+  var R_MIN = 2.75, R_MAX = 3.99;   // one fixed point through to chaos
+  var SETTLE = 260;                 // iterations discarded as transient
+  var KEEP = 90;                    // iterations plotted per column
 
   function draw() {
     var dpr = window.devicePixelRatio || 1;
@@ -157,24 +172,23 @@
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, w, h);
     ctx.fillStyle = getComputedStyle(document.body).color;
+    // many faint dots rather than few hard ones: the density IS the shape
+    ctx.globalAlpha = 0.16;
 
-    var cols = Math.ceil(w / CELL);
-    var rows = Math.ceil(h / CELL);
-
-    // random seed row — sparse, so the structure has room to grow
-    var cur = new Uint8Array(cols), nxt = new Uint8Array(cols);
-    for (var i = 0; i < cols; i++) cur[i] = Math.random() < 0.18 ? 1 : 0;
-
-    for (var y = 0; y < rows; y++) {
-      for (var x = 0; x < cols; x++) {
-        if (cur[x]) ctx.fillRect(x * CELL, y * CELL, CELL - 1, CELL - 1);
+    var cols = Math.ceil(w);
+    for (var i = 0; i < cols; i++) {
+      var R = R_MIN + (R_MAX - R_MIN) * i / cols;
+      // the seed is random and the picture is not — that is the point
+      var x = 0.10 + 0.80 * Math.random();
+      for (var s = 0; s < SETTLE; s++) x = R * x * (1 - x);
+      for (var k = 0; k < KEEP; k++) {
+        x = R * x * (1 - x);
+        // the interesting band is the top half of the unit interval
+        var y = h - ((x - 0.25) / 0.75) * h;
+        if (y >= 0 && y < h) ctx.fillRect(i, y, 1, 1);
       }
-      for (var j = 0; j < cols; j++) {
-        var l = cur[(j - 1 + cols) % cols], c = cur[j], r = cur[(j + 1) % cols];
-        nxt[j] = (RULE >> ((l << 2) | (c << 1) | r)) & 1;
-      }
-      var t = cur; cur = nxt; nxt = t;
     }
+    ctx.globalAlpha = 1;
   }
 
   draw();
