@@ -14,7 +14,21 @@
   --rule:#e0e0e0;
   --rule-2:#c8c8c8;
   --mark:#f0f0f0;
+
+  /* --measure is the PROSE width. Measured, it renders 56-57 characters a
+     line, and because every type size in this file is in rem that number
+     holds from 900px to 2560px — the root grows at large viewports, the
+     column grows with it, and the line length does not move. Spare
+     viewport goes into type size, never into longer lines. */
   --measure:44rem;
+
+  /* The index is a board plus a list, so it needs its own width: the
+     list capped at its own measure, with the board sitting outside it
+     rather than eating into it. */
+  --shell:56rem;
+  --board-w:12rem;
+  --board-gap:3.25rem;
+  --list-measure:36rem;
 
   /* The drawing width every figure's viewBox is authored at: the measure
      (44rem = 704px) minus the wrap's 24px of padding each side. Changing
@@ -43,7 +57,7 @@ body{
   color:var(--ink);
   font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,
               "Apple SD Gothic Neo","Noto Serif KR",serif;
-  font-size:17px;
+  font-size:1.0625rem;
   line-height:1.72;
   -webkit-font-smoothing:antialiased;
   overflow-x:hidden;
@@ -55,18 +69,19 @@ body{
 }
 
 .wrap{max-width:var(--measure); margin:0 auto; padding:0 24px}
+.wrap.wide{max-width:var(--shell)}
 
 /* ── masthead ─────────────────────────────────────────── */
 
 header.site{padding:56px 0 0}
 .site-name{
   font-family:"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
-  font-size:13px; font-weight:700; letter-spacing:.16em;
+  font-size:0.8125rem; font-weight:700; letter-spacing:.16em;
   text-transform:uppercase; color:var(--ink);
   text-decoration:none; display:inline-block;
 }
 .site-sub{
-  font-size:15px; color:var(--ink-2); margin-top:10px; max-width:34rem;
+  font-size:0.9375rem; color:var(--ink-2); margin-top:10px; max-width:34rem;
 }
 
 /* the automaton strip — see blog/index.html for what it is and why */
@@ -76,7 +91,7 @@ header.site{padding:56px 0 0}
 }
 .ca-note{
   font-family:"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
-  font-size:12px; color:var(--ink-3); margin-top:8px; line-height:1.6;
+  font-size:0.75rem; color:var(--ink-3); margin-top:8px; line-height:1.6;
 }
 
 /* ── two-column shell ─────────────────────────────────────
@@ -84,15 +99,23 @@ header.site{padding:56px 0 0}
    Right: the posts. One column on a phone, board first.
    ------------------------------------------------------- */
 
-.shell{
-  display:grid; grid-template-columns:190px 1fr; gap:52px;
-  align-items:start; margin:40px 0 0;
-}
+/* One column by default, two only once there is room for the board AND a
+   full-measure list beside it. The board used to sit inside the prose
+   measure, which left the list at 49 characters on every desktop and then
+   snapped it to 79 at the phone breakpoint. */
+.shell{display:grid; gap:34px; align-items:start; margin:40px 0 0}
 
-.board{position:sticky; top:36px}
+@media (min-width:900px){
+  .shell{
+    grid-template-columns:var(--board-w) minmax(0,1fr);
+    gap:var(--board-gap);
+  }
+  .board{position:sticky; top:36px}
+  .list li:first-child{border-top:none; padding-top:0}
+}
 .board-lbl{
   font-family:"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
-  font-size:11px; font-weight:700; letter-spacing:.16em;
+  font-size:0.6875rem; font-weight:700; letter-spacing:.16em;
   text-transform:uppercase; color:var(--ink-3);
   padding-bottom:8px; border-bottom:1px solid var(--rule); display:block;
 }
@@ -100,37 +123,36 @@ header.site{padding:56px 0 0}
 .board li{margin:0; border-bottom:1px solid var(--rule)}
 .board a{
   display:block; padding:11px 0; text-decoration:none;
-  font-size:15px; line-height:1.4; color:var(--ink);
+  font-size:0.9375rem; line-height:1.4; color:var(--ink);
 }
 .board a:hover{text-decoration:underline; text-underline-offset:3px}
 .board .n{
   font-family:"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
-  font-size:12px; color:var(--ink-3); margin-left:6px;
+  font-size:0.75rem; color:var(--ink-3); margin-left:6px;
 }
 
 /* ── index post list ──────────────────────────────────── */
 
-.list{margin:0; list-style:none}
-.list li:first-child{border-top:none; padding-top:0}
+.list{margin:0; list-style:none; max-width:var(--list-measure)}
 .list li{
   padding:26px 0; border-top:1px solid var(--rule);
 }
 .list li:last-child{border-bottom:1px solid var(--rule)}
 .entry-date{
   font-family:"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
-  font-size:12px; color:var(--ink-3); letter-spacing:.06em;
+  font-size:0.75rem; color:var(--ink-3); letter-spacing:.06em;
 }
 .entry-title{
   display:block; margin:6px 0 8px;
-  font-size:21px; line-height:1.35; font-weight:600;
+  font-size:1.3125rem; line-height:1.35; font-weight:600;
   color:var(--ink); text-decoration:none;
 }
 .entry-title:hover{text-decoration:underline; text-underline-offset:3px}
-.entry-sub{color:var(--ink-2); font-size:16px}
+.entry-sub{color:var(--ink-2); font-size:1rem}
 .entry-tags{
   margin-top:10px;
   font-family:"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
-  font-size:12px; color:var(--ink-3);
+  font-size:0.75rem; color:var(--ink-3);
 }
 
 /* ── post ─────────────────────────────────────────────── */
@@ -138,26 +160,26 @@ header.site{padding:56px 0 0}
 article{margin:44px 0 0}
 .post-date{
   font-family:"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
-  font-size:12px; color:var(--ink-3); letter-spacing:.06em;
+  font-size:0.75rem; color:var(--ink-3); letter-spacing:.06em;
 }
 h1{
-  font-size:31px; line-height:1.24; font-weight:600;
+  font-size:1.9375rem; line-height:1.24; font-weight:600;
   letter-spacing:-.01em; margin:10px 0 14px; text-wrap:balance;
 }
 .standfirst{
-  font-size:18px; color:var(--ink-2); line-height:1.65;
+  font-size:1.125rem; color:var(--ink-2); line-height:1.65;
   padding-bottom:26px; border-bottom:1px solid var(--rule);
 }
 
 h2{
-  font-size:20px; font-weight:600; line-height:1.35;
+  font-size:1.25rem; font-weight:600; line-height:1.35;
   margin:42px 0 12px; text-wrap:balance;
 }
 h3{
-  font-size:17px; font-weight:600; margin:28px 0 8px;
+  font-size:1.0625rem; font-weight:600; margin:28px 0 8px;
 }
 p{margin:0 0 18px}
-p.lede{font-size:18px}
+p.lede{font-size:1.125rem}
 
 a{color:var(--ink); text-underline-offset:2px}
 
@@ -181,10 +203,10 @@ pre{
   background:var(--mark); border:1px solid var(--rule);
   padding:14px 16px; margin:22px 0; overflow-x:auto; border-radius:4px;
 }
-pre code{background:none; padding:0; font-size:13px; line-height:1.62}
+pre code{background:none; padding:0; font-size:0.8125rem; line-height:1.62}
 
 table{
-  width:100%; border-collapse:collapse; margin:24px 0; font-size:15px;
+  width:100%; border-collapse:collapse; margin:24px 0; font-size:0.9375rem;
   display:block; overflow-x:auto;
 }
 th,td{
@@ -193,7 +215,7 @@ th,td{
 }
 th{
   font-family:"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
-  font-size:12px; font-weight:600; letter-spacing:.04em;
+  font-size:0.75rem; font-weight:600; letter-spacing:.04em;
   text-transform:uppercase; color:var(--ink-3);
 }
 td.num{
@@ -217,10 +239,17 @@ hr{border:none; border-top:1px solid var(--rule); margin:38px 0}
 
 figure{margin:30px 0}
 .fig-scroll{overflow-x:auto; overflow-y:hidden}
-figure svg{display:block; width:var(--fig-w); height:auto; color:var(--ink)}
+/* Fixed at the authored width and centred, never stretched. Growing the
+   figure with the root would scale its labels past the body text; letting
+   it shrink is the 4.4px bug. So on a scaled-up display the figure simply
+   sits a little narrower than the prose, centred, which reads as chosen. */
+figure svg{
+  display:block; width:var(--fig-w); height:auto;
+  margin-inline:auto; color:var(--ink);
+}
 figcaption{
   font-family:"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
-  font-size:12px; color:var(--ink-3); line-height:1.6; margin-top:10px;
+  font-size:0.75rem; color:var(--ink-3); line-height:1.6; margin-top:10px;
 }
 
 /* a claim the reader can check, set apart from the prose around it */
@@ -230,7 +259,7 @@ figcaption{
 }
 .measured .lbl{
   font-family:"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
-  font-size:12px; letter-spacing:.1em; text-transform:uppercase;
+  font-size:0.75rem; letter-spacing:.1em; text-transform:uppercase;
   color:var(--ink-3); display:block; margin-bottom:8px;
 }
 .measured p:last-child{margin-bottom:0}
@@ -241,20 +270,20 @@ figcaption{
 }
 .caveat .lbl{
   font-family:"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
-  font-size:12px; letter-spacing:.1em; text-transform:uppercase;
+  font-size:0.75rem; letter-spacing:.1em; text-transform:uppercase;
   color:var(--ink); font-weight:600; display:block; margin-bottom:6px;
 }
 .caveat p:last-child{margin-bottom:0}
 
 .footnotes{
   margin-top:44px; padding-top:20px; border-top:1px solid var(--rule);
-  font-size:15px; color:var(--ink-2);
+  font-size:0.9375rem; color:var(--ink-2);
 }
 .footnotes ol{margin-left:1.2em}
 
 .post-nav{
   margin:52px 0 0; padding-top:22px; border-top:1px solid var(--rule);
-  font-size:15px;
+  font-size:0.9375rem;
 }
 
 /* ── footer ───────────────────────────────────────────── */
@@ -262,9 +291,67 @@ figcaption{
 footer.site{
   margin:64px 0 0; padding:22px 0 56px; border-top:1px solid var(--rule);
   font-family:"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
-  font-size:12px; color:var(--ink-3); line-height:2;
+  font-size:0.75rem; color:var(--ink-3); line-height:2;
 }
 footer.site a{color:var(--ink-2)}
+
+/* ── contents rail ────────────────────────────────────────
+   Hidden until there is genuinely empty margin to put it in, and then
+   fixed beside the column rather than inside it, so the prose keeps the
+   exact width and position it has at every other size — no reflow, and
+   the figures do not move.
+
+   The breakpoint is where the arithmetic stops fitting: the rail needs
+   half the viewport to exceed half the measure plus the rail, its gap
+   and a margin. Below 1280 that puts its left edge off-screen.
+   ------------------------------------------------------- */
+
+.rail{display:none}
+
+@media (min-width:1280px){
+  .rail{
+    display:block; position:fixed; top:118px;
+    left:calc(50% - (var(--measure) / 2) - 15rem);
+    width:13rem; max-height:72vh; overflow-y:auto;
+  }
+  .rail-lbl{
+    font-family:"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+    font-size:0.6875rem; font-weight:700; letter-spacing:.16em;
+    text-transform:uppercase; color:var(--ink-3);
+    display:block; padding-bottom:8px; border-bottom:1px solid var(--rule);
+  }
+  .rail-list{margin:0; padding:0; list-style:none; counter-reset:rail}
+  .rail-list li{margin:0; counter-increment:rail}
+  .rail-list a{
+    display:block; padding:7px 0 7px 22px; position:relative;
+    font-size:0.875rem; line-height:1.35;
+    color:var(--ink-3); text-decoration:none;
+  }
+  .rail-list a::before{
+    content:counter(rail); position:absolute; left:0; top:7px;
+    font-family:"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+    font-size:0.6875rem; color:var(--ink-3);
+  }
+  .rail-list a:hover{color:var(--ink)}
+  .rail-list a[aria-current]{color:var(--ink); font-weight:600}
+}
+
+/* ── large screens ────────────────────────────────────────
+   On a wide display the answer is not a longer line — 78 characters is
+   already the ceiling — it is bigger type. Every width here is in rem,
+   so raising the root grows the column and the text together and the
+   characters-per-line does not move. The page occupies a similar share
+   of a 27-inch display as of a laptop, instead of shrinking into a strip.
+
+   Must stay above the mobile block, which is required to come last.
+   ------------------------------------------------------- */
+
+/* Only the ROOT moves here. Every other size in this file is in rem, so
+   body, lede, headings and captions all follow in proportion and the
+   hierarchy holds. Restating body in this block multiplies the two: it
+   produced a body larger than its own lede at 1500px and above. */
+@media (min-width:1500px){ html{font-size:17px} }
+@media (min-width:1900px){ html{font-size:18px} }
 
 /* ── mobile ───────────────────────────────────────────────
    The floor is 14px at phone widths. Small mono type is fine
@@ -276,9 +363,10 @@ footer.site a{color:var(--ink-2)}
   body{font-size:16px}
   .wrap{padding:0 18px}
   header.site{padding-top:36px}
-  .shell{grid-template-columns:1fr; gap:34px}
-  .board{position:static}
-  .list li:first-child{border-top:1px solid var(--rule); padding-top:26px}
+  /* The single-column shell, the static board and the list's first rule
+     are now the DEFAULT rather than a phone override — the two-column
+     form only switches on above 900px. Restating them here would be
+     three rules that no longer change anything. */
   h1{font-size:26px}
   h2{font-size:19px}
   .standfirst{font-size:17px}
