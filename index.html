@@ -7,21 +7,26 @@
 <meta name="description" content="An autonomous agent research lab architecting multi-agent systems, recursive self-improvement loops, stigmergic optimization, and offline-first epistemic graphs.">
 <style>
 /* ============================================================
-   JW LAB — NEOLAB BRUTALISM × FULLSCREEN SEAMLESS BIOLUMINESCENT MANIFOLD
-   No Boxed Stages · Organic 3D Slime Mould Network in Deep Void
-   Zero Text Obstruction · 60 FPS Optimized for Mobile OLED & Desktop
+   JW LAB — NEOLAB BRUTALISM × RESTRAINED EDGE-GLOW ACCENTS
+   Resend / Linear / Raycast Aesthetic · 60 FPS Mobile & Desktop
    ============================================================ */
+@property --beam-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
 :root {
   --ink: #fcfcfd;
   --ink-2: #a1a1aa;
-  --ink-3: #52525b;
+  --ink-3: #71717a;
   --paper: #040406;
-  --card-bg: rgba(10, 10, 15, 0.78);
+  --card-bg: rgba(9, 9, 14, 0.82);
   --card-border: rgba(255, 255, 255, 0.08);
-  --card-border-hover: rgba(56, 189, 248, 0.28);
-  --rule: rgba(255, 255, 255, 0.08);
+  --card-border-hover: rgba(56, 189, 248, 0.35);
+  --rule: rgba(255, 255, 255, 0.09);
   --accent-cyan: #38bdf8;
-  --accent-glow: rgba(56, 189, 248, 0.22);
+  --accent-violet: #818cf8;
   
   --measure: 54rem;
   --font-serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
@@ -43,8 +48,7 @@ body {
 }
 
 /* ============================================================
-   FULL-SCREEN SEAMLESS 3D SLIME-MOULD CANVAS (NO BOXES, NO STAGES)
-   Lives in the deep void background behind everything
+   SEAMLESS FULLSCREEN 3D SLIME-MOULD CANVAS & AURORA BLUR
    ============================================================ */
 #bg-slime-canvas {
   position: fixed;
@@ -56,44 +60,66 @@ body {
   pointer-events: none;
 }
 
-/* Gentle Vignette & Radial Contrast Shield for Pure Text Legibility */
-.ambient-shield {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: 2;
-  pointer-events: none;
-  background: radial-gradient(circle at 50% 28%, rgba(4, 4, 6, 0.45) 0%, rgba(4, 4, 6, 0.85) 75%, rgba(4, 4, 6, 0.95) 100%);
-}
-
-/* Edge Corona */
-.edge-corona {
+/* Subtle Edge Aurora Glow (Cyan to Violet low-saturation blur) */
+.aurora-container {
   position: fixed;
   top: 0; left: 0;
   width: 100vw; height: 100vh;
   pointer-events: none;
-  z-index: 999;
-  box-shadow: inset 0 0 60px rgba(56, 189, 248, 0.04);
+  z-index: 2;
+  overflow: hidden;
+}
+.aurora-blob-1 {
+  position: absolute;
+  top: -10vh; left: -5vw;
+  width: 55vw; height: 55vw;
+  max-width: 600px; max-height: 600px;
+  background: radial-gradient(circle, rgba(56, 189, 248, 0.07) 0%, transparent 70%);
+  filter: blur(60px);
+}
+.aurora-blob-2 {
+  position: absolute;
+  top: 10vh; right: -8vw;
+  width: 50vw; height: 50vw;
+  max-width: 550px; max-height: 550px;
+  background: radial-gradient(circle, rgba(129, 140, 248, 0.06) 0%, transparent 70%);
+  filter: blur(60px);
 }
 
-/* Page Layout Wrap */
+/* Radial Vignette: Ensures Text Remains 100% Crisp & High-Contrast */
+.contrast-shield {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  z-index: 3;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 25%, rgba(4, 4, 6, 0.42) 0%, rgba(4, 4, 6, 0.88) 75%, rgba(4, 4, 6, 0.98) 100%);
+}
+
 .wrap {
   position: relative;
   z-index: 10;
   max-width: var(--measure);
   margin: 0 auto;
-  padding: calc(2.2rem + env(safe-area-inset-top)) 1.4rem calc(6rem + env(safe-area-inset-bottom));
+  padding: calc(2rem + env(safe-area-inset-top)) 1.4rem calc(6rem + env(safe-area-inset-bottom));
 }
 
 /* ============================================================
-   HEADER & MINIMAL NAVIGATION (IMMUNE TO WRAPPING)
+   HEADER & IMMUNE-TO-WRAP NAVIGATION
    ============================================================ */
 .site-header {
   border-bottom: 1px solid var(--rule);
-  padding-bottom: 1.4rem;
-  margin-bottom: 2.5rem;
+  padding-bottom: 1.25rem;
+  margin-bottom: 2.8rem;
+  position: relative;
+}
+/* Subtle Header Beam */
+.site-header::after {
+  content: "";
+  position: absolute;
+  bottom: -1px; left: 10%; right: 10%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.35), rgba(129, 140, 248, 0.25), transparent);
 }
 
 .top-bar {
@@ -117,7 +143,6 @@ body {
   letter-spacing: -0.02em;
   color: #ffffff;
   text-decoration: none;
-  display: inline-block;
   white-space: nowrap;
 }
 
@@ -136,22 +161,26 @@ body {
   display: flex;
   align-items: center;
   gap: 1.1rem;
+  white-space: nowrap;
 }
 .nav-links a {
   color: var(--ink-2);
   text-decoration: none;
   transition: color 0.15s ease;
+  padding: 0.2rem 0;
 }
-.nav-links a:hover { color: #fff; }
+.nav-links a:hover, .nav-links a:focus-visible {
+  color: #ffffff;
+}
 
 .runtime-indicator {
   font-family: var(--font-mono);
   font-size: 0.64rem;
-  color: var(--ink-2);
+  color: #cbd5e1;
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  background: rgba(16, 16, 24, 0.7);
+  background: rgba(16, 16, 24, 0.75);
   padding: 0.22rem 0.55rem;
   border: 1px solid var(--rule);
   border-radius: 4px;
@@ -168,6 +197,18 @@ body {
 @keyframes pulseDot {
   0%, 100% { opacity: 0.5; transform: scale(0.9); }
   50% { opacity: 1; transform: scale(1.3); }
+}
+
+/* Mobile Nav adjustments (reviewed at 390px) */
+@media (max-width: 680px) {
+  .site-title { font-size: 1.35rem; }
+  .lab-badge { display: none; }
+  .top-bar { flex-wrap: wrap; gap: 0.6rem; }
+  .nav-links {
+    gap: 0.85rem;
+    font-size: 0.74rem;
+  }
+  .wrap { padding: calc(1.5rem + env(safe-area-inset-top)) 1.15rem calc(5rem + env(safe-area-inset-bottom)); }
 }
 
 /* ============================================================
@@ -194,7 +235,7 @@ body {
   color: #ffffff;
   margin-bottom: 1.2rem;
   max-width: 46rem;
-  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.85);
 }
 
 .hero-manifesto {
@@ -206,52 +247,68 @@ body {
 }
 .hero-manifesto strong { color: var(--ink); font-weight: 500; }
 
-/* Interactive hint */
 .orbit-hint {
   font-family: var(--font-mono);
-  font-size: 0.68rem;
-  color: var(--ink-3);
+  font-size: 0.72rem;
+  color: #cbd5e1;
   margin-top: 1.1rem;
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
 }
 
-/* Mobile typography scaling */
 @media (max-width: 680px) {
-  .site-title { font-size: 1.35rem; }
-  .lab-badge { display: none; }
-  .nav-links a:not(:last-child) { display: none; }
-  .hero-headline { font-size: 2.1rem; line-height: 1.18; }
+  .hero-headline { font-size: 2.15rem; line-height: 1.18; }
   .hero-manifesto { font-size: 1.0rem; line-height: 1.55; }
-  .wrap { padding: calc(1.5rem + env(safe-area-inset-top)) 1.15rem calc(5rem + env(safe-area-inset-bottom)); }
 }
 
 /* ============================================================
-   CO-EVOLVING PILLARS (3 INTERACTIVE BLUEPRINTS)
+   TRAVELLING LIGHT SECTION DIVIDER
    ============================================================ */
 .section-meta {
   font-family: var(--font-mono);
   font-size: 0.72rem;
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  color: var(--ink-3);
+  color: #94a3b8;
   margin-bottom: 1.4rem;
   display: flex;
   align-items: center;
   gap: 0.75rem;
 }
-.section-meta::after {
-  content: "";
-  flex: 1;
+
+.travelling-divider {
+  position: relative;
   height: 1px;
   background: var(--rule);
+  margin-bottom: 1.6rem;
+  overflow: hidden;
+}
+.travelling-divider::after {
+  content: "";
+  position: absolute;
+  top: 0; left: -30%;
+  width: 30%; height: 100%;
+  background: linear-gradient(90deg, transparent, var(--accent-cyan), var(--accent-violet), transparent);
+  animation: travelBeam 5s ease-in-out infinite;
+}
+@keyframes travelBeam {
+  0% { left: -30%; }
+  100% { left: 100%; }
+}
+
+/* ============================================================
+   PILLAR CARDS WITH CSS CONIC-GRADIENT BORDER BEAM
+   ============================================================ */
+@keyframes rotateBeam {
+  0% { --beam-angle: 0deg; }
+  100% { --beam-angle: 360deg; }
 }
 
 .parallel-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 1.2rem;
+  gap: 1.25rem;
   margin-bottom: 3.5rem;
 }
 
@@ -260,38 +317,69 @@ body {
 }
 
 .track-card {
+  position: relative;
   background: var(--card-bg);
-  border: 1px solid var(--card-border);
   border-radius: 8px;
-  padding: 1.4rem 1.25rem;
+  padding: 1.45rem 1.3rem;
   display: flex;
   flex-direction: column;
-  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--card-border);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
-}
-.track-card:hover {
-  border-color: var(--card-border-hover);
-  transform: translateY(-2px);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.8), 0 0 25px rgba(56, 189, 248, 0.08);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.7);
+  transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
 }
 
-.track-id {
+/* Conic Gradient Border Beam */
+.track-card::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: conic-gradient(
+    from var(--beam-angle),
+    transparent 0deg,
+    transparent 70deg,
+    var(--accent-cyan) 100deg,
+    var(--accent-violet) 130deg,
+    transparent 160deg
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  animation: rotateBeam 7s linear infinite;
+  opacity: 0.65;
+  transition: opacity 0.3s ease;
+}
+
+.track-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.85), 0 0 30px rgba(56, 189, 248, 0.12);
+}
+.track-card:hover::before {
+  opacity: 1;
+}
+
+/* Card Header: Project Names Prominent */
+.track-tag {
   font-family: var(--font-mono);
   font-size: 0.68rem;
   color: var(--accent-cyan);
-  margin-bottom: 0.35rem;
+  margin-bottom: 0.25rem;
   letter-spacing: 0.05em;
+  text-transform: uppercase;
 }
 
-.track-title {
+.track-headline {
   font-family: var(--font-serif);
-  font-size: 1.35rem;
+  font-size: 1.45rem;
   font-weight: 500;
-  color: var(--ink);
+  color: #ffffff;
   margin-bottom: 0.55rem;
+  letter-spacing: -0.01em;
 }
 
 .track-desc {
@@ -299,10 +387,10 @@ body {
   color: var(--ink-2);
   line-height: 1.52;
   margin-bottom: 1.2rem;
-  min-height: 3.6rem;
+  min-height: 3.5rem;
 }
 
-/* Blueprint Boxes */
+/* Blueprint Canvas Containers */
 .blueprint-container {
   border: 1px solid var(--rule);
   background: rgba(6, 6, 10, 0.95);
@@ -318,8 +406,8 @@ body {
   padding: 0.38rem 0.65rem;
   border-bottom: 1px solid var(--rule);
   font-family: var(--font-mono);
-  font-size: 0.62rem;
-  color: var(--ink-3);
+  font-size: 0.66rem;
+  color: #94a3b8; /* Enhanced contrast */
   background: rgba(10, 10, 14, 0.7);
 }
 
@@ -333,17 +421,17 @@ body {
   padding: 0.4rem 0.65rem;
   border-top: 1px solid var(--rule);
   font-family: var(--font-mono);
-  font-size: 0.64rem;
-  color: var(--ink-2);
+  font-size: 0.66rem;
+  color: #cbd5e1; /* Enhanced contrast */
   display: flex;
   justify-content: space-between;
-  background: rgba(8, 8, 12, 0.5);
+  background: rgba(8, 8, 12, 0.6);
 }
 
 .track-tags {
   font-family: var(--font-mono);
   font-size: 0.68rem;
-  color: var(--ink-3);
+  color: #94a3b8;
   list-style: none;
   display: flex;
   flex-direction: column;
@@ -351,12 +439,12 @@ body {
 }
 .track-tags li::before {
   content: "— ";
-  color: var(--ink-3);
+  color: #64748b;
 }
 
 /* Co-evolution Banner */
 .coevolution-bar {
-  border: 1px dashed rgba(255, 255, 255, 0.15);
+  border: 1px dashed rgba(255, 255, 255, 0.16);
   background: rgba(12, 12, 18, 0.75);
   backdrop-filter: blur(16px);
   padding: 1.3rem 1.5rem;
@@ -368,59 +456,182 @@ body {
   line-height: 1.6;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
 }
-.coevolution-bar strong { color: var(--ink); font-weight: 500; }
+.coevolution-bar strong { color: #ffffff; font-weight: 500; }
 
-/* Dispatches */
+/* ============================================================
+   DISPATCHES & FEATURED NOTE WASH
+   ============================================================ */
 .dispatches {
   list-style: none;
-  background: rgba(10, 10, 14, 0.7);
+  background: rgba(10, 10, 14, 0.75);
   border: 1px solid var(--rule);
-  border-radius: 6px;
-  padding: 0 1.3rem;
-  backdrop-filter: blur(14px);
+  border-radius: 8px;
+  padding: 0 1.4rem;
+  backdrop-filter: blur(16px);
+  margin-bottom: 4.5rem;
 }
 
 .dispatch-item {
   border-bottom: 1px solid var(--rule);
-  padding: 1.6rem 0;
-  transition: padding-left 0.15s ease;
+  padding: 1.65rem 0;
+  transition: padding-left 0.2s ease, background 0.2s ease;
+  position: relative;
 }
 .dispatch-item:last-child { border-bottom: none; }
-.dispatch-item:hover { padding-left: 0.4rem; }
+.dispatch-item:hover {
+  padding-left: 0.5rem;
+}
+
+/* Featured Note Wash (Note 03) */
+.dispatch-featured {
+  background: linear-gradient(90deg, rgba(56, 189, 248, 0.04) 0%, transparent 60%);
+  border-left: 2px solid var(--accent-cyan);
+  padding-left: 0.8rem;
+  margin: 0 -0.8rem;
+}
+.featured-badge {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  color: var(--accent-cyan);
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  padding: 0.1rem 0.4rem;
+  border-radius: 3px;
+  margin-left: 0.5rem;
+  text-transform: uppercase;
+}
 
 .dispatch-meta {
   font-family: var(--font-mono);
   font-size: 0.7rem;
-  color: var(--ink-3);
+  color: #94a3b8;
   margin-bottom: 0.35rem;
+  display: flex;
+  align-items: center;
 }
 .dispatch-title {
-  font-size: 1.25rem;
+  font-size: 1.28rem;
   font-weight: 500;
   color: var(--ink);
   text-decoration: none;
   display: inline-block;
   margin-bottom: 0.4rem;
 }
-.dispatch-title:hover {
-  color: #fff;
+.dispatch-title:hover, .dispatch-title:focus-visible {
+  color: #ffffff;
   text-decoration: underline;
   text-underline-offset: 4px;
 }
 .dispatch-standfirst {
+  font-size: 0.9rem;
+  color: var(--ink-2);
+  line-height: 1.55;
+  max-width: 48rem;
+}
+
+/* ============================================================
+   FOOTER (VERIFIED PROVENANCE & CLEAR NEXT STEPS)
+   ============================================================ */
+.site-footer {
+  border-top: 1px solid var(--rule);
+  padding-top: 2.5rem;
+  margin-top: 4.5rem;
+}
+
+.footer-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 2rem;
+  margin-bottom: 2.5rem;
+}
+
+@media (max-width: 680px) {
+  .footer-grid { grid-template-columns: 1fr; gap: 1.5rem; }
+}
+
+.footer-brand {
+  font-family: var(--font-serif);
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 0.5rem;
+}
+.footer-desc {
   font-size: 0.88rem;
   color: var(--ink-2);
-  line-height: 1.52;
-  max-width: 48rem;
+  line-height: 1.55;
+  max-width: 22rem;
+}
+
+.footer-col-title {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #94a3b8;
+  margin-bottom: 0.8rem;
+}
+
+.footer-col-links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+}
+.footer-col-links a {
+  color: var(--ink-2);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+.footer-col-links a:hover, .footer-col-links a:focus-visible {
+  color: #ffffff;
+}
+
+.footer-bottom {
+  border-top: 1px solid var(--rule);
+  padding-top: 1.2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: #64748b;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+/* ============================================================
+   ACCESSIBILITY & PREFERS-REDUCED-MOTION GUARDRAILS
+   ============================================================ */
+a:focus-visible {
+  outline: 2px solid var(--accent-cyan);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .track-card::before {
+    animation: none !important;
+    background: linear-gradient(135deg, var(--accent-cyan), var(--accent-violet)) !important;
+    opacity: 0.3 !important;
+  }
 }
 </style>
 </head>
 <body>
 
-<!-- Full-screen Living 3D Slime-Mould Network (No Boxed Stages) -->
+<!-- Full-screen Living 3D Slime-Mould Network -->
 <canvas id="bg-slime-canvas"></canvas>
-<div class="ambient-shield"></div>
-<div class="edge-corona"></div>
+<div class="aurora-container">
+  <div class="aurora-blob-1"></div>
+  <div class="aurora-blob-2"></div>
+</div>
+<div class="contrast-shield"></div>
 
 <div class="wrap">
 
@@ -430,7 +641,7 @@ body {
         <a class="site-title" href="./index.html">JW Lab</a>
         <span class="lab-badge">Autonomous Agent Research</span>
       </div>
-      <nav class="nav-links">
+      <nav class="nav-links" aria-label="Main Navigation">
         <a href="#tracks">Pillars</a>
         <a href="#dispatches">Notes</a>
         <a href="./about.html">About</a>
@@ -453,20 +664,21 @@ body {
         Each of the three evolves the other two.
       </p>
       <div class="orbit-hint">
-        <span class="hud-dot"></span> 3D Spatial Physarum Manifold · Touch or Drag Background to Steer
+        <span class="hud-dot"></span> 3D Physarum Manifold · Touch or Drag to Steer
       </div>
     </section>
 
     <div class="section-meta" id="tracks">Co-Evolving Parallel Research Pillars</div>
+    <div class="travelling-divider"></div>
 
     <section class="parallel-grid">
 
       <!-- ============================================================
-           PILLAR 1: for AGENTS (Interactive Stigmergy Simulation)
+           PILLAR 1: for AGENTS (Physarum Stigmergy)
            ============================================================ -->
       <article class="track-card">
-        <div class="track-id">Pillar // 01</div>
-        <h2 class="track-title">for Agents</h2>
+        <div class="track-tag">Pillar // 01 · for Agents</div>
+        <h2 class="track-headline">Physarum Stigmergy</h2>
         <p class="track-desc">
           Dynamic optimization in non-stationary spaces. Using slime-mould stigmergy 
           to lay light, evaporating decision layers over data — prioritizing exploration 
@@ -494,13 +706,13 @@ body {
       </article>
 
       <!-- ============================================================
-           PILLAR 2: for DECISION AI (Interactive Jevwiki Crystalline Loop)
+           PILLAR 2: for DECISION AI (Jevwiki Prominent)
            ============================================================ -->
       <article class="track-card">
-        <div class="track-id">Pillar // 02</div>
-        <h2 class="track-title">for Decision AI</h2>
+        <div class="track-tag">Pillar // 02 · for Decision AI</div>
+        <h2 class="track-headline">Jevwiki</h2>
         <p class="track-desc">
-          Jevwiki: radical cost reduction for living LLM knowledge. An offline-first, 
+          Radical cost reduction for living LLM knowledge. An offline-first, 
           sub-cent personal knowledge graph operating entirely on-device without the cloud API tax.
         </p>
 
@@ -525,14 +737,14 @@ body {
       </article>
 
       <!-- ============================================================
-           PILLAR 3: for QUANT (Interactive Quant Hedge Fund Engine)
+           PILLAR 3: for QUANT (Self-Improving Quant Fund)
            ============================================================ -->
       <article class="track-card">
-        <div class="track-id">Pillar // 03</div>
-        <h2 class="track-title">for Quant</h2>
+        <div class="track-tag">Pillar // 03 · for Quant</div>
+        <h2 class="track-headline">Self-Improving Quant</h2>
         <p class="track-desc">
-          Self-improving quant hedge fund. Unattended multi-agent loops mining alpha across 
-          decades of non-stationary market regimes, verified by metamorphic testing and execution gates.
+          Autonomous multi-agent alpha loops mining edge across decades of non-stationary 
+          market regimes, verified by metamorphic testing and execution gates.
         </p>
 
         <!-- Live Technical Canvas: Self-Improving Quant Loop -->
@@ -566,10 +778,14 @@ body {
     </div>
 
     <div class="section-meta" id="dispatches">Technical Notes & Empirical Findings</div>
+    <div class="travelling-divider"></div>
 
     <ul class="dispatches">
-      <li class="dispatch-item">
-        <div class="dispatch-meta">2026-08-10 · Track: for Agents & Quant · Note 03</div>
+      <li class="dispatch-item dispatch-featured">
+        <div class="dispatch-meta">
+          <span>2026-08-10 · Track: for Agents & Quant · Note 03</span>
+          <span class="featured-badge">Featured Paper</span>
+        </div>
         <a class="dispatch-title" href="./posts/overfit-and-dynamic.html">Overfit and Dynamic</a>
         <p class="dispatch-standfirst">
           A search loop with a fixed score will fit a moving market given enough attempts. The defence I borrowed is stigmergy — a trail that evaporates. It works, and it contains the flaw the analogy itself predicts: the maze never changes shape.
@@ -611,17 +827,51 @@ body {
 
   </main>
 
+  <!-- ============================================================
+       VERIFIED PROVENANCE FOOTER
+       ============================================================ -->
+  <footer class="site-footer">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-brand">JW Lab</div>
+        <p class="footer-desc">
+          Autonomous multi-agent research laboratory. Architecting recursive self-improvement loops, 
+          stigmergic search, and verifiable decision boundaries.
+        </p>
+      </div>
+      <div>
+        <div class="footer-col-title">Navigation</div>
+        <div class="footer-col-links">
+          <a href="#tracks">Pillars</a>
+          <a href="#dispatches">Notes</a>
+          <a href="./about.html">About JW Lab</a>
+        </div>
+      </div>
+      <div>
+        <div class="footer-col-title">Provenance</div>
+        <div class="footer-col-links">
+          <a href="https://github.com/ico1036/notes" target="_blank" rel="noopener">GitHub Repository ↗</a>
+          <a href="https://github.com/ico1036" target="_blank" rel="noopener">Profile @ico1036 ↗</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>Verified Autonomous Research Loops · 2026</span>
+      <span>Zero Cloud Tax · Metamorphic Gate Integrity</span>
+    </div>
+  </footer>
+
 </div>
 
 <!-- ============================================================
-     INTERACTIVE JAVASCRIPT ENGINES
+     INTERACTIVE JAVASCRIPT ENGINES (OPTIMIZED 60 FPS)
      ============================================================ -->
 <script>
 (function() {
   const dpr = Math.min(window.devicePixelRatio || 1, 2);
 
   // ------------------------------------------------------------
-  // 1. FULLSCREEN 3D ORGANIC SLIME-MOULD NETWORK (NO BOXED STAGE)
+  // 1. FULLSCREEN 3D SLIME-MOULD NETWORK (60 FPS OPTIMIZED)
   // ------------------------------------------------------------
   const canvas = document.getElementById('bg-slime-canvas');
   const ctx = canvas.getContext('2d');
@@ -637,14 +887,13 @@ body {
   window.addEventListener('resize', resizeCanvas);
   resizeCanvas();
 
-  // 140 Organic 3D Nodes (Deep-Sea Bioluminescent Veins)
   const isMobile = window.innerWidth <= 680;
-  const NUM_NODES = isMobile ? 95 : 145;
-  const CONNECT_RADIUS = isMobile ? 85 : 105;
+  const NUM_NODES = isMobile ? 85 : 130;
+  const CONNECT_RADIUS = isMobile ? 80 : 100;
+  const CONNECT_RADIUS_SQ = CONNECT_RADIUS * CONNECT_RADIUS;
   const nodes = [];
 
   for (let i = 0; i < NUM_NODES; i++) {
-    // Toroidal / ellipsoidal organic field
     const u = Math.random();
     const v = Math.random();
     const theta = u * 2.0 * Math.PI;
@@ -655,15 +904,14 @@ body {
       x: r * Math.sin(phi) * Math.cos(theta),
       y: (r * 0.65) * Math.sin(phi) * Math.sin(theta),
       z: r * Math.cos(phi),
-      vx: (Math.random() - 0.5) * 0.28,
-      vy: (Math.random() - 0.5) * 0.28,
-      vz: (Math.random() - 0.5) * 0.28,
+      vx: (Math.random() - 0.5) * 0.25,
+      vy: (Math.random() - 0.5) * 0.25,
+      vz: (Math.random() - 0.5) * 0.25,
       pulsePhase: Math.random() * Math.PI * 2,
       pulseSpeed: 0.02 + Math.random() * 0.03
     });
   }
 
-  // Touch and Mouse Interaction across the entire page
   let rotX = 0.2, rotY = 0.0;
   let targetRotX = 0.2, targetRotY = 0.0;
   let isPointerDown = false;
@@ -684,7 +932,6 @@ body {
       startX = e.clientX;
       startY = e.clientY;
     } else {
-      // Subtle parallax on mouse move
       const nx = (e.clientX / w) - 0.5;
       const ny = (e.clientY / h) - 0.5;
       targetRotY += nx * 0.0004;
@@ -709,7 +956,7 @@ body {
 
     rotX += (targetRotX - rotX) * 0.05;
     rotY += (targetRotY - rotY) * 0.05;
-    targetRotY += 0.0012; // slow organic celestial rotation
+    targetRotY += 0.0012;
 
     const cosX = Math.cos(rotX), sinX = Math.sin(rotX);
     const cosY = Math.cos(rotY), sinY = Math.sin(rotY);
@@ -728,14 +975,14 @@ body {
       n.x += n.vx; n.y += n.vy; n.z += n.vz;
       n.pulsePhase += n.pulseSpeed;
 
-      const d = Math.hypot(n.x, n.y, n.z);
-      if (d > 110) {
+      const dSq = n.x * n.x + n.y * n.y + n.z * n.z;
+      if (dSq > 12100) { // 110^2
+        const d = Math.sqrt(dSq);
         n.vx -= (n.x / d) * 0.025;
         n.vy -= (n.y / d) * 0.025;
         n.vz -= (n.z / d) * 0.025;
       }
 
-      // 3D rotation
       let rx = n.x * cosY - n.z * sinY;
       let rz = n.x * sinY + n.z * cosY;
       let ry = n.y * cosX - rz * sinX;
@@ -751,23 +998,30 @@ body {
         y: centerY + ry * scale,
         z: rz,
         scale: scale,
-        pulse: (Math.sin(n.pulsePhase) + 1.0) * 0.5
+        pulse: (Math.sin(n.pulsePhase) + 1.0) * 0.5,
+        conns: 0
       });
     }
 
     projected.sort((a, b) => a.z - b.z);
 
-    // Draw Bioluminescent Cytoplasmic Veins
+    // Fast Filaments (avoiding Math.sqrt when out of range)
     for (let i = 0; i < projected.length; i++) {
       const p1 = projected[i];
+      if (p1.conns >= 4) continue;
       for (let j = i + 1; j < projected.length; j++) {
         const p2 = projected[j];
+        if (p2.conns >= 4) continue;
+
         const dx = p1.orig.x - p2.orig.x;
         const dy = p1.orig.y - p2.orig.y;
         const dz = p1.orig.z - p2.orig.z;
-        const dist3D = Math.hypot(dx, dy, dz);
+        const distSq = dx * dx + dy * dy + dz * dz;
 
-        if (dist3D < CONNECT_RADIUS) {
+        if (distSq < CONNECT_RADIUS_SQ) {
+          p1.conns++;
+          p2.conns++;
+          const dist3D = Math.sqrt(distSq);
           const proximity = 1.0 - (dist3D / CONNECT_RADIUS);
           const depthAlpha = Math.min(1.0, Math.max(0.15, (p1.z + 90) / 180));
           const wavePulse = (p1.pulse + p2.pulse) * 0.5;
@@ -776,27 +1030,24 @@ body {
           ctx.beginPath();
           ctx.moveTo(p1.x, p1.y);
           ctx.lineTo(p2.x, p2.y);
-          // Subtle cyan-indigo bioluminescence
           ctx.strokeStyle = `rgba(56, 189, 248, ${alpha * 0.55})`;
-          ctx.lineWidth = alpha > 0.3 ? 1.6 : 0.85;
+          ctx.lineWidth = alpha > 0.3 ? 1.5 : 0.85;
           ctx.stroke();
         }
       }
     }
 
-    // Draw Living Physarum Spores & Absorption Cores
+    // Nodes
     for (let i = 0; i < projected.length; i++) {
       const p = projected[i];
       const depthAlpha = Math.min(1.0, Math.max(0.18, (p.z + 90) / 180));
       const rCore = Math.max(1.0, p.scale * 0.2) * (0.8 + p.pulse * 0.4);
 
-      // Soft Bio Glow Halo
       ctx.beginPath();
       ctx.arc(p.x, p.y, rCore * 3.2, 0, Math.PI * 2);
       ctx.fillStyle = `rgba(56, 189, 248, ${depthAlpha * 0.16 * p.pulse})`;
       ctx.fill();
 
-      // Core Particle
       ctx.beginPath();
       ctx.arc(p.x, p.y, rCore, 0, Math.PI * 2);
       ctx.fillStyle = `rgba(225, 245, 255, ${depthAlpha * 0.85})`;
@@ -956,7 +1207,7 @@ body {
       ctx2.fillStyle = gn.color;
       ctx2.fill();
       ctx2.font = '8px monospace';
-      ctx2.fillStyle = '#8e8e98';
+      ctx2.fillStyle = '#94a3b8'; /* enhanced contrast */
       ctx2.textAlign = 'center';
       ctx2.fillText(gn.name, nx, ny + gn.r + 9);
     }
@@ -995,7 +1246,7 @@ body {
     ctx3.strokeStyle = '#323242';
     ctx3.strokeRect(startX - 22, gateY - 14, 44, 28);
     ctx3.font = '8px monospace';
-    ctx3.fillStyle = '#e2e2e8';
+    ctx3.fillStyle = '#f1f5f9';
     ctx3.textAlign = 'center';
     ctx3.fillText("Alpha Hyp", startX, gateY + 3);
 
@@ -1004,7 +1255,7 @@ body {
     ctx3.fillStyle = '#38bdf8';
     ctx3.fillText("Meta-Gate", midX, gateY + 3);
 
-    ctx3.strokeStyle = '#e2e2e8';
+    ctx3.strokeStyle = '#f1f5f9';
     ctx3.strokeRect(endX - 24, gateY - 14, 48, 28);
     ctx3.fillStyle = '#ffffff';
     ctx3.fillText("Live Fund", endX, gateY + 3);
@@ -1046,7 +1297,7 @@ body {
     ctx3.shadowBlur = 0;
 
     ctx3.font = '7.5px monospace';
-    ctx3.fillStyle = '#7a7a88';
+    ctx3.fillStyle = '#94a3b8'; /* enhanced contrast */
     ctx3.fillText("Recursive Feedback Loop: Sharpe Re-Calibration", cssW * 0.5, cssH * 0.94);
 
     ctx3.restore();
