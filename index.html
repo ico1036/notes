@@ -59,7 +59,7 @@ body {
 }
 #hero-canvas:active { cursor: grabbing; }
 
-/* The Sanctuary Mask: Guarantees reading clarity over text */
+/* The Sanctuary Mask: Guarantees 100% pure pitch-black text legibility */
 .text-sanctuary-mask {
   position: fixed;
   top: 0;
@@ -68,13 +68,25 @@ body {
   height: 100vh;
   z-index: 2;
   pointer-events: none;
-  background: radial-gradient(
-    ellipse 65% 85% at 20% 30%,
-    rgba(5, 5, 7, 0.98) 0%,
-    rgba(5, 5, 7, 0.92) 45%,
-    rgba(5, 5, 7, 0.55) 75%,
-    rgba(5, 5, 7, 0.15) 100%
+  background: linear-gradient(
+    90deg,
+    rgba(5, 5, 7, 1.0) 0%,
+    rgba(5, 5, 7, 1.0) 48%,
+    rgba(5, 5, 7, 0.85) 60%,
+    rgba(5, 5, 7, 0.0) 100%
   );
+}
+
+@media (max-width: 860px) {
+  .text-sanctuary-mask {
+    background: linear-gradient(
+      180deg,
+      rgba(5, 5, 7, 1.0) 0%,
+      rgba(5, 5, 7, 1.0) 50%,
+      rgba(5, 5, 7, 0.7) 75%,
+      rgba(5, 5, 7, 0.2) 100%
+    );
+  }
 }
 
 /* Screen Perimeter Corona */
@@ -727,8 +739,8 @@ header.site {
     heroCtx.clearRect(0, 0, width, height);
 
     // Center anchor pushed toward right on desktop
-    const centerX = width > 860 ? width * 0.72 : width * 0.5;
-    const centerY = height * 0.38;
+    const centerX = width > 860 ? width * 0.75 : width * 0.5;
+    const centerY = width > 860 ? height * 0.38 : height * 0.82;
     const fov = Math.min(width, height) * 0.85;
 
     // Project
