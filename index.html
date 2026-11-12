@@ -7,20 +7,25 @@
 <meta name="description" content="An autonomous agent research lab architecting multi-agent systems, recursive self-improvement loops, stigmergic optimization, and offline-first epistemic graphs.">
 <style>
 /* ============================================================
-   JW LAB — NEOLAB MONOCHROME × FULL-SCREEN 3D LIVING VOID
-   Ultra-High Visibility 3D Synaptic Manifold Engine
+   JW LAB — NEOLAB BRUTALISM × PRECISION INTERACTIVE ARTIFACTS
+   Zero-Clutter Sanctuary Typography · Live Interactive Canvases
+   Stigmergic Simulation · Jevwiki Graph · Quant Engine
    ============================================================ */
 :root {
-  --ink: #f4f4f6;
-  --ink-2: #a8a8b2;
-  --ink-3: #6e6e78;
-  --paper: #040406;
-  --card: rgba(12, 12, 18, 0.65);
-  --rule: #1e1e24;
-  --rule-light: #32323e;
+  --ink: #f5f5f7;
+  --ink-2: #9e9ea8;
+  --ink-3: #62626e;
+  --paper: #050507;
+  --surface: #0a0a0f;
+  --card-bg: rgba(12, 12, 18, 0.72);
+  --rule: #1b1b22;
+  --rule-light: #2c2c36;
+  --accent-cyan: #38bdf8;
+  --accent-blue: #60a5fa;
   
-  --measure: 54rem;
-  --font-serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Apple SD Gothic Neo", serif;
+  --measure: 58rem;
+  --font-serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
   --font-mono: "SF Mono", "Fira Code", Menlo, Monaco, Consolas, monospace;
 }
 
@@ -39,25 +44,23 @@ body {
 }
 
 /* ============================================================
-   FULL-SCREEN 3D CANVAS (LIVING VOID)
+   BACKGROUND: CONTROLLED 3D VOID (RIGHT MARGIN / CORONA ONLY)
+   Text Sanctuary: The text column is 100% black and legible.
    ============================================================ */
-#physarum-canvas {
+#hero-canvas {
   position: fixed;
   top: 0;
-  left: 0;
+  right: 0;
   width: 100vw;
   height: 100vh;
   z-index: 1;
-  display: block;
+  pointer-events: auto;
   cursor: grab;
-  touch-action: none;
 }
-#physarum-canvas:active {
-  cursor: grabbing;
-}
+#hero-canvas:active { cursor: grabbing; }
 
-/* Subtle Vignette (preserves high contrast for 3D network) */
-.spatial-vignette {
+/* The Sanctuary Mask: Guarantees reading clarity over text */
+.text-sanctuary-mask {
   position: fixed;
   top: 0;
   left: 0;
@@ -66,16 +69,15 @@ body {
   z-index: 2;
   pointer-events: none;
   background: radial-gradient(
-    circle at 50% 30%,
-    rgba(4, 4, 6, 0.0) 0%,
-    rgba(4, 4, 6, 0.35) 65%,
-    rgba(4, 4, 6, 0.75) 100%
+    ellipse 65% 85% at 20% 30%,
+    rgba(5, 5, 7, 0.98) 0%,
+    rgba(5, 5, 7, 0.92) 45%,
+    rgba(5, 5, 7, 0.55) 75%,
+    rgba(5, 5, 7, 0.15) 100%
   );
 }
 
-/* ============================================================
-   LUMINESCENT SCREEN PERIMETER BEZEL (ENTRANCE LIGHT)
-   ============================================================ */
+/* Screen Perimeter Corona */
 .screen-edge-corona {
   position: fixed;
   top: 0;
@@ -84,86 +86,46 @@ body {
   height: 100vh;
   pointer-events: none;
   z-index: 999;
-  box-shadow: inset 0 0 50px rgba(210, 235, 255, 0.16),
-              inset 0 0 120px rgba(140, 190, 255, 0.08);
-  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: inset 0 0 55px rgba(56, 189, 248, 0.08),
+              inset 0 0 120px rgba(14, 165, 233, 0.04);
 }
 
-.screen-edge-photon {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  pointer-events: none;
-  z-index: 998;
-  opacity: 0.85;
-  background: radial-gradient(
-    circle at var(--mouse-x, 50%) var(--mouse-y, 25%),
-    rgba(220, 245, 255, 0.18) 0%,
-    rgba(140, 190, 255, 0.05) 30%,
-    transparent 65%
-  );
-  mix-blend-mode: screen;
-}
-
-@keyframes entrancePulse {
-  0% {
-    box-shadow: inset 0 0 0px rgba(220, 235, 255, 0),
-                inset 0 0 0px rgba(180, 210, 255, 0);
-  }
-  35% {
-    box-shadow: inset 0 0 110px rgba(225, 242, 255, 0.35),
-                inset 0 0 200px rgba(160, 210, 255, 0.18);
-  }
-  100% {
-    box-shadow: inset 0 0 50px rgba(210, 235, 255, 0.16),
-                inset 0 0 120px rgba(140, 190, 255, 0.08);
-  }
-}
-
-.entrance-active {
-  animation: entrancePulse 2.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-/* Floating Telemetry Pendant */
+/* Telemetry Pendant */
 .hud-pendant {
   position: fixed;
   top: calc(1rem + env(safe-area-inset-top));
-  right: 1.4rem;
+  right: 1.5rem;
   z-index: 100;
   font-family: var(--font-mono);
   font-size: 0.7rem;
   color: var(--ink-2);
   display: flex;
   align-items: center;
-  gap: 0.9rem;
-  background: rgba(8, 8, 12, 0.78);
+  gap: 0.85rem;
+  background: rgba(10, 10, 14, 0.8);
   padding: 0.4rem 0.9rem;
   border: 1px solid var(--rule-light);
   border-radius: 4px;
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  pointer-events: none;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
 }
-
 .hud-dot {
-  width: 7px;
-  height: 7px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
-  background: #38bdf8;
-  box-shadow: 0 0 12px #38bdf8;
+  background: var(--accent-cyan);
+  box-shadow: 0 0 10px var(--accent-cyan);
   display: inline-block;
-  animation: dotPulse 2s infinite ease-in-out;
+  animation: pulseDot 2s infinite ease-in-out;
 }
-@keyframes dotPulse {
-  0%, 100% { opacity: 0.7; transform: scale(0.9); }
-  50% { opacity: 1; transform: scale(1.25); box-shadow: 0 0 16px #38bdf8; }
+@keyframes pulseDot {
+  0%, 100% { opacity: 0.6; transform: scale(0.9); }
+  50% { opacity: 1; transform: scale(1.3); }
 }
 
 /* ============================================================
-   CONTENT LAYER
+   PAGE LAYOUT
    ============================================================ */
 .wrap {
   position: relative;
@@ -171,31 +133,25 @@ body {
   max-width: var(--measure);
   margin: 0 auto;
   padding: calc(3.5rem + env(safe-area-inset-top)) 1.5rem calc(7rem + env(safe-area-inset-bottom));
-  pointer-events: none; /* Let drag pass through to 3D canvas */
-}
-
-a, button, article, nav, .interactive-box, .coevolution-bar, .dispatches {
-  pointer-events: auto;
 }
 
 /* Header */
 header.site {
   border-bottom: 1px solid var(--rule);
-  padding-bottom: 2.4rem;
-  margin-bottom: 3.5rem;
-  position: relative;
+  padding-bottom: 3rem;
+  margin-bottom: 3.8rem;
 }
 
 .top-bar {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  margin-bottom: 2rem;
+  margin-bottom: 2.4rem;
 }
 
 .site-title {
   font-family: var(--font-serif);
-  font-size: 1.65rem;
+  font-size: 1.7rem;
   font-weight: 600;
   letter-spacing: -0.02em;
   color: var(--ink);
@@ -204,74 +160,66 @@ header.site {
 
 .site-nav {
   font-family: var(--font-mono);
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   display: flex;
-  gap: 1.4rem;
+  gap: 1.5rem;
 }
 .site-nav a {
   color: var(--ink-2);
   text-decoration: none;
   transition: color 0.15s ease;
 }
-.site-nav a:hover {
-  color: #fff;
-}
+.site-nav a:hover { color: #fff; }
 
 .hero-tag {
   font-family: var(--font-mono);
   font-size: 0.72rem;
   text-transform: uppercase;
-  letter-spacing: 0.14em;
-  color: var(--ink-3);
+  letter-spacing: 0.15em;
+  color: var(--accent-cyan);
   margin-bottom: 0.9rem;
 }
 
 .hero-headline {
-  font-size: 2.5rem;
+  font-size: 2.75rem;
   font-weight: 400;
-  line-height: 1.18;
-  letter-spacing: -0.025em;
-  margin-bottom: 1.3rem;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  margin-bottom: 1.4rem;
   color: #ffffff;
-  text-shadow: 0 2px 24px rgba(0, 0, 0, 0.9);
+  max-width: 42rem;
 }
 
 .hero-manifesto {
-  font-size: 1.18rem;
+  font-size: 1.2rem;
   color: var(--ink-2);
   line-height: 1.62;
-  max-width: 48rem;
-  margin-bottom: 2.2rem;
-  text-shadow: 0 1px 14px rgba(0, 0, 0, 0.9);
+  max-width: 38rem;
+  margin-bottom: 1.8rem;
 }
+.hero-manifesto strong { color: var(--ink); font-weight: 500; }
 
-.hero-manifesto strong {
-  color: var(--ink);
-  font-weight: 500;
-}
-
-.spatial-hint-strip {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+.hero-sub-note {
   font-family: var(--font-mono);
-  font-size: 0.72rem;
+  font-size: 0.76rem;
   color: var(--ink-3);
-  padding: 0.5rem 0.8rem;
+  display: flex;
+  gap: 1.5rem;
   border-top: 1px solid var(--rule);
-  margin-top: 1.5rem;
+  padding-top: 1rem;
+  margin-top: 2rem;
 }
 
 /* ============================================================
-   PARALLEL 3-TRACK ARCHITECTURE MATRIX (GLASS CARDS)
+   PILLARS: HIGH-END INTERACTIVE BLUEPRINTS (FIG 1, 2, 3)
    ============================================================ */
 .section-meta {
   font-family: var(--font-mono);
   font-size: 0.72rem;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
   color: var(--ink-3);
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.6rem;
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -286,96 +234,105 @@ header.site {
 .parallel-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 1px;
-  background: var(--rule);
-  border: 1px solid var(--rule);
-  margin-bottom: 3.8rem;
-  border-radius: 4px;
-  overflow: hidden;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
+  gap: 1.2rem;
+  margin-bottom: 4rem;
 }
 
 .track-card {
-  background: var(--card);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  padding: 1.8rem 1.4rem 2rem;
+  background: var(--card-bg);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  padding: 1.5rem 1.3rem;
   display: flex;
   flex-direction: column;
   position: relative;
-  transition: background 0.25s ease;
-}
-.track-card::before {
-  content: "";
-  position: absolute;
-  top: 0; left: 0; right: 0; height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(220, 238, 255, 0.3), transparent);
-  opacity: 0;
-  transition: opacity 0.3s ease;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 .track-card:hover {
-  background: rgba(18, 18, 26, 0.85);
-}
-.track-card:hover::before {
-  opacity: 1;
+  border-color: var(--rule-light);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6), inset 0 0 20px rgba(56, 189, 248, 0.03);
 }
 
 .track-id {
   font-family: var(--font-mono);
-  font-size: 0.72rem;
-  color: var(--ink-3);
-  margin-bottom: 0.45rem;
+  font-size: 0.7rem;
+  color: var(--accent-cyan);
+  margin-bottom: 0.4rem;
+  letter-spacing: 0.05em;
 }
 
 .track-title {
   font-family: var(--font-serif);
-  font-size: 1.3rem;
+  font-size: 1.35rem;
   font-weight: 500;
   color: var(--ink);
-  margin-bottom: 0.7rem;
+  margin-bottom: 0.65rem;
 }
 
 .track-desc {
   font-size: 0.88rem;
   color: var(--ink-2);
   line-height: 1.52;
-  margin-bottom: 1.5rem;
-  flex-grow: 1;
-}
-
-/* Schematic Diagram Box */
-.schematic-box {
-  border: 1px solid var(--rule);
-  background: rgba(8, 8, 12, 0.85);
-  padding: 0.85rem;
-  border-radius: 2px;
   margin-bottom: 1.3rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  position: relative;
+  min-height: 3.8rem;
+}
+
+/* ============================================================
+   PRECISION INTERACTIVE BLUEPRINT BOXES
+   ============================================================ */
+.blueprint-container {
+  border: 1px solid var(--rule);
+  background: rgba(8, 8, 12, 0.92);
+  border-radius: 4px;
   overflow: hidden;
-}
-.schematic-box::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at 50% 50%, rgba(56, 189, 248, 0.05) 0%, transparent 80%);
-  pointer-events: none;
+  margin-bottom: 1.3rem;
+  position: relative;
 }
 
-.schematic-svg {
-  width: 100%;
-  height: 105px;
-  display: block;
-}
-
-.schematic-caption {
+.blueprint-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.4rem 0.65rem;
+  border-bottom: 1px solid var(--rule);
   font-family: var(--font-mono);
-  font-size: 0.66rem;
+  font-size: 0.64rem;
   color: var(--ink-3);
-  margin-top: 0.55rem;
-  text-align: center;
+  background: rgba(14, 14, 20, 0.6);
+}
+.blueprint-live-tag {
+  color: var(--accent-cyan);
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.live-pulse {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--accent-cyan);
+  display: inline-block;
+}
+
+.blueprint-canvas {
+  width: 100%;
+  height: 130px;
+  display: block;
+  cursor: crosshair;
+}
+
+.blueprint-footer {
+  padding: 0.45rem 0.65rem;
+  border-top: 1px solid var(--rule);
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--ink-2);
+  display: flex;
+  justify-content: space-between;
+  background: rgba(10, 10, 14, 0.4);
 }
 
 .track-tags {
@@ -395,29 +352,25 @@ header.site {
 /* Co-evolution Banner */
 .coevolution-bar {
   border: 1px dashed var(--rule-light);
-  background: rgba(12, 12, 16, 0.72);
-  backdrop-filter: blur(14px);
-  padding: 1.2rem 1.5rem;
+  background: rgba(12, 12, 18, 0.7);
+  backdrop-filter: blur(16px);
+  padding: 1.4rem 1.6rem;
+  border-radius: 4px;
   margin-bottom: 4.5rem;
   font-family: var(--font-mono);
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   color: var(--ink-2);
-  line-height: 1.55;
-  box-shadow: inset 0 0 25px rgba(56, 189, 248, 0.04);
+  line-height: 1.6;
 }
-.coevolution-bar strong {
-  color: var(--ink);
-  font-weight: 500;
-}
+.coevolution-bar strong { color: var(--ink); font-weight: 500; }
 
 /* Dispatches */
 .dispatches {
   list-style: none;
   background: rgba(10, 10, 14, 0.6);
-  backdrop-filter: blur(12px);
-  padding: 0 1.2rem;
   border: 1px solid var(--rule);
-  border-radius: 4px;
+  border-radius: 6px;
+  padding: 0 1.4rem;
 }
 
 .dispatch-item {
@@ -425,12 +378,8 @@ header.site {
   padding: 1.8rem 0;
   transition: padding-left 0.15s ease;
 }
-.dispatch-item:last-child {
-  border-bottom: none;
-}
-.dispatch-item:hover {
-  padding-left: 0.5rem;
-}
+.dispatch-item:last-child { border-bottom: none; }
+.dispatch-item:hover { padding-left: 0.5rem; }
 
 .dispatch-meta {
   font-family: var(--font-mono);
@@ -438,7 +387,6 @@ header.site {
   color: var(--ink-3);
   margin-bottom: 0.4rem;
 }
-
 .dispatch-title {
   font-size: 1.3rem;
   font-weight: 500;
@@ -452,51 +400,40 @@ header.site {
   text-decoration: underline;
   text-underline-offset: 4px;
 }
-
 .dispatch-standfirst {
   font-size: 0.92rem;
   color: var(--ink-2);
   line-height: 1.55;
-  max-width: 46rem;
+  max-width: 48rem;
 }
 
-/* Mobile Optimizations */
-@media (max-width: 820px) {
-  .parallel-grid {
-    grid-template-columns: 1fr;
-  }
-  .hero-headline {
-    font-size: 1.95rem;
-  }
-  .wrap {
-    padding-left: 1.1rem;
-    padding-right: 1.1rem;
-  }
-  .hud-pendant {
-    right: 1.1rem;
-  }
-  .screen-edge-corona {
-    box-shadow: inset 0 0 40px rgba(210, 235, 255, 0.2),
-                inset 0 0 90px rgba(150, 200, 255, 0.1);
+/* Mobile */
+@media (max-width: 860px) {
+  .parallel-grid { grid-template-columns: 1fr; }
+  .hero-headline { font-size: 2.1rem; }
+  .text-sanctuary-mask {
+    background: radial-gradient(
+      ellipse at 50% 20%,
+      rgba(5, 5, 7, 0.98) 0%,
+      rgba(5, 5, 7, 0.9) 60%,
+      rgba(5, 5, 7, 0.7) 100%
+    );
   }
 }
 </style>
 </head>
-<body class="entrance-active">
+<body>
 
-<!-- Full-Screen Living 3D Stigmergy Manifold Canvas -->
-<canvas id="physarum-canvas"></canvas>
-<div class="spatial-vignette"></div>
-
-<!-- Ambient Rim Corona & Traveling Specular Light -->
+<!-- Ambient 3D Manifold Canvas (Right Margin & Spatial Orbit) -->
+<canvas id="hero-canvas"></canvas>
+<!-- Sanctuary Mask: Absolute Text Legibility Protection -->
+<div class="text-sanctuary-mask"></div>
 <div class="screen-edge-corona"></div>
-<div class="screen-edge-photon" id="edge-photon"></div>
 
-<!-- Top-Right Telemetry Pendant -->
+<!-- Telemetry Pendant -->
 <div class="hud-pendant">
-  <span><span class="hud-dot"></span>3D Spatial Stigmergy</span>
+  <span><span class="hud-dot"></span>JW LAB RESEARCH RUNTIME</span>
   <span id="telemetry-fps">60 FPS</span>
-  <span id="telemetry-nodes">320 Nodes · 840 Axons</span>
 </div>
 
 <div class="wrap">
@@ -523,9 +460,9 @@ header.site {
       and an <strong>autonomous self-improving quant hedge fund</strong>. Each of the three evolves the other two.
     </p>
 
-    <div class="spatial-hint-strip">
-      <span>Drag anywhere on screen to rotate 3D manifold</span>
-      <span>Click / Tap background to emit photon shockwave</span>
+    <div class="hero-sub-note">
+      <span>● Left Sanctuary: Pure Text Legibility</span>
+      <span>● Right Horizon: 3D Autonomous Manifold (Drag to rotate)</span>
     </div>
   </header>
 
@@ -535,7 +472,7 @@ header.site {
     <section class="parallel-grid">
 
       <!-- ============================================================
-           PILLAR 1: for AGENTS (Slime Mould / Stigmergy Schematic)
+           PILLAR 1: for AGENTS (Interactive Stigmergy Simulation)
            ============================================================ -->
       <article class="track-card">
         <div class="track-id">Pillar // 01</div>
@@ -546,22 +483,17 @@ header.site {
           over brittle exploitation.
         </p>
 
-        <!-- Technical Schematic: Slime Mould Evaporating Map -->
-        <div class="schematic-box">
-          <svg class="schematic-svg" viewBox="0 0 220 105" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M 10 85 Q 60 70 110 85 T 210 80" stroke="#33333e" stroke-dasharray="3 3" stroke-width="1.2"/>
-            <path d="M 15 50 C 45 20, 75 75, 110 35 C 145 10, 175 60, 205 30" stroke="#ededed" stroke-width="1.5"/>
-            <path d="M 65 32 L 65 18 M 62 22 L 65 18 L 68 22" stroke="#6e6e72" stroke-width="1"/>
-            <path d="M 125 40 L 125 26 M 122 30 L 125 26 L 128 30" stroke="#6e6e72" stroke-width="1"/>
-            <path d="M 175 35 L 175 21 M 172 25 L 175 21 L 178 25" stroke="#6e6e72" stroke-width="1"/>
-            <circle cx="110" cy="35" r="3.2" fill="#ededed"/>
-            <line x1="110" y1="35" x2="128" y2="28" stroke="#38bdf8" stroke-width="1.2"/>
-            <line x1="110" y1="35" x2="128" y2="42" stroke="#38bdf8" stroke-width="1.2"/>
-            <text x="110" y="98" fill="#6e6e72" font-family="monospace" font-size="8.5" text-anchor="middle">Data Substrate</text>
-            <text x="145" y="18" fill="#a2a2a2" font-family="monospace" font-size="8">γ Evaporation</text>
-            <text x="25" y="24" fill="#ededed" font-family="monospace" font-size="8.5">Explore Bias</text>
-          </svg>
-          <div class="schematic-caption">Fig 1. Stigmergic Evaporating Decision Layer</div>
+        <!-- Live Technical Canvas: Dynamic Stigmergic Optimization -->
+        <div class="blueprint-container">
+          <div class="blueprint-header">
+            <span>SYS // STIGMERGY.SIM.01</span>
+            <span class="blueprint-live-tag"><span class="live-pulse"></span>ACTIVE EVAPORATION</span>
+          </div>
+          <canvas id="canvas-fig1" class="blueprint-canvas"></canvas>
+          <div class="blueprint-footer">
+            <span>γ = 0.945 (Evaporation)</span>
+            <span>Explore: Stigmergic Cone</span>
+          </div>
         </div>
 
         <ul class="track-tags">
@@ -572,7 +504,7 @@ header.site {
       </article>
 
       <!-- ============================================================
-           PILLAR 2: for DECISION AI (Jevwiki Offline Graph Schematic)
+           PILLAR 2: for DECISION AI (Interactive Jevwiki Crystalline Loop)
            ============================================================ -->
       <article class="track-card">
         <div class="track-id">Pillar // 02</div>
@@ -582,23 +514,17 @@ header.site {
           sub-cent personal knowledge graph operating entirely on-device without the cloud API tax.
         </p>
 
-        <!-- Technical Schematic: Jevwiki Local Graph Loop -->
-        <div class="schematic-box">
-          <svg class="schematic-svg" viewBox="0 0 220 105" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="15" y="8" width="190" height="88" rx="3" stroke="#33333e" stroke-width="1.2" stroke-dasharray="4 2"/>
-            <text x="24" y="20" fill="#6e6e72" font-family="monospace" font-size="8">Air-Gapped / On-Device</text>
-            <circle cx="50" cy="50" r="10" stroke="#ededed" stroke-width="1.2" fill="#14141a"/>
-            <text x="50" y="53" fill="#ededed" font-family="monospace" font-size="7.5" text-anchor="middle">Ontology</text>
-            <circle cx="110" cy="35" r="11" stroke="#38bdf8" stroke-width="1.2" fill="#14141a"/>
-            <text x="110" y="38" fill="#ededed" font-family="monospace" font-size="7.5" text-anchor="middle">Local SLM</text>
-            <circle cx="170" cy="50" r="10" stroke="#ededed" stroke-width="1.2" fill="#14141a"/>
-            <text x="170" y="53" fill="#ededed" font-family="monospace" font-size="7.5" text-anchor="middle">Decision</text>
-            <path d="M 60 48 L 99 37" stroke="#ededed" stroke-width="1.2"/>
-            <path d="M 121 37 L 160 48" stroke="#ededed" stroke-width="1.2"/>
-            <path d="M 160 56 Q 110 82 60 56" stroke="#6e6e72" stroke-width="1.2" stroke-dasharray="3 3"/>
-            <text x="110" y="78" fill="#38bdf8" font-family="monospace" font-size="8" text-anchor="middle">0$ Cloud Tax / Resident Skill</text>
-          </svg>
-          <div class="schematic-caption">Fig 2. Jevwiki Offline Epistemic Loop</div>
+        <!-- Live Technical Canvas: Jevwiki Air-Gapped Loop -->
+        <div class="blueprint-container">
+          <div class="blueprint-header">
+            <span>SYS // JEVWIKI.LOCAL.02</span>
+            <span class="blueprint-live-tag"><span class="live-pulse"></span>AIR-GAPPED 0$</span>
+          </div>
+          <canvas id="canvas-fig2" class="blueprint-canvas"></canvas>
+          <div class="blueprint-footer">
+            <span>Graph: 14 Nodes Local</span>
+            <span>Tax: 0$ Cloud Resident</span>
+          </div>
         </div>
 
         <ul class="track-tags">
@@ -609,7 +535,7 @@ header.site {
       </article>
 
       <!-- ============================================================
-           PILLAR 3: for QUANT (Self-Improving Hedge Fund Schematic)
+           PILLAR 3: for QUANT (Interactive Quant Hedge Fund Engine)
            ============================================================ -->
       <article class="track-card">
         <div class="track-id">Pillar // 03</div>
@@ -619,24 +545,17 @@ header.site {
           decades of non-stationary market regimes, verified by metamorphic testing and execution gates.
         </p>
 
-        <!-- Technical Schematic: Self-Improving Quant Loop -->
-        <div class="schematic-box">
-          <svg class="schematic-svg" viewBox="0 0 220 105" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="15" y="38" width="50" height="24" rx="2" stroke="#ededed" stroke-width="1.2" fill="#14141a"/>
-            <text x="40" y="52" fill="#ededed" font-family="monospace" font-size="7.5" text-anchor="middle">Alpha Hyp</text>
-            <path d="M 65 50 L 85 50" stroke="#ededed" stroke-width="1.2"/>
-            <polygon points="85,50 80,47 80,53" fill="#ededed"/>
-            <rect x="85" y="38" width="50" height="24" rx="2" stroke="#ededed" stroke-width="1.2" fill="#14141a"/>
-            <text x="110" y="52" fill="#ededed" font-family="monospace" font-size="7.5" text-anchor="middle">Metamorphic</text>
-            <path d="M 135 50 L 155 50" stroke="#ededed" stroke-width="1.2"/>
-            <polygon points="155,50 150,47 150,53" fill="#ededed"/>
-            <rect x="155" y="38" width="52" height="24" rx="2" stroke="#38bdf8" stroke-width="1.2" fill="#14141a"/>
-            <text x="181" y="52" fill="#ededed" font-family="monospace" font-size="7.5" text-anchor="middle">Live Fund</text>
-            <path d="M 181 62 L 181 85 L 40 85 L 40 62" stroke="#6e6e72" stroke-width="1.2" stroke-dasharray="3 3"/>
-            <polygon points="40,62 37,67 43,67" fill="#6e6e72"/>
-            <text x="110" y="81" fill="#6e6e72" font-family="monospace" font-size="7.5" text-anchor="middle">Recursive Sharpe Re-calibration</text>
-          </svg>
-          <div class="schematic-caption">Fig 3. Autonomous Quant Hedge Fund Engine</div>
+        <!-- Live Technical Canvas: Self-Improving Quant Loop -->
+        <div class="blueprint-container">
+          <div class="blueprint-header">
+            <span>SYS // QUANT.ALPHA.LOOP.03</span>
+            <span class="blueprint-live-tag"><span class="live-pulse"></span>METAMORPHIC GATE</span>
+          </div>
+          <canvas id="canvas-fig3" class="blueprint-canvas"></canvas>
+          <div class="blueprint-footer">
+            <span>Recursive Sharpe Feedback</span>
+            <span>Verified Alpha Gate</span>
+          </div>
         </div>
 
         <ul class="track-tags">
@@ -705,95 +624,54 @@ header.site {
 </div>
 
 <!-- ============================================================
-     3D SYNAPTIC STIGMERGY VOID ENGINE (RETINA-READY & LUMINOUS)
+     INTERACTIVE ENGINES: HERO 3D MANIFOLD + 3 LIVE BLUEPRINT CANVASES
      ============================================================ -->
 <script>
 (function() {
-  const canvas = document.getElementById('physarum-canvas');
-  const ctx = canvas.getContext('2d');
+  // ------------------------------------------------------------
+  // 1. HERO 3D MANIFOLD (SPATIAL HORIZON IN RIGHT MARGIN)
+  // ------------------------------------------------------------
+  const heroCanvas = document.getElementById('hero-canvas');
+  const heroCtx = heroCanvas.getContext('2d');
   const telemetryFps = document.getElementById('telemetry-fps');
-  const telemetryNodes = document.getElementById('telemetry-nodes');
 
   let width = 0, height = 0, dpr = 1;
-
-  function resize() {
+  function resizeHero() {
     dpr = Math.min(window.devicePixelRatio || 1, 2);
     width = window.innerWidth;
     height = window.innerHeight;
-    canvas.width = Math.floor(width * dpr);
-    canvas.height = Math.floor(height * dpr);
-    canvas.style.width = width + 'px';
-    canvas.style.height = height + 'px';
+    heroCanvas.width = Math.floor(width * dpr);
+    heroCanvas.height = Math.floor(height * dpr);
+    heroCanvas.style.width = width + 'px';
+    heroCanvas.style.height = height + 'px';
   }
-  window.addEventListener('resize', resize);
-  resize();
+  window.addEventListener('resize', resizeHero);
+  resizeHero();
 
-  window.addEventListener('mousemove', (e) => {
-    document.documentElement.style.setProperty('--mouse-x', `${e.clientX}px`);
-    document.documentElement.style.setProperty('--mouse-y', `${e.clientY}px`);
-  });
-
-  // 3D Synaptic Topology: 320 Active Agents clustered in dynamic lobes
-  const NUM_NODES = 320;
-  const CONNECT_RADIUS_3D = 78; // 3D connection threshold
-  const nodes = [];
-
-  // Lobe attractors for organic structure
-  const lobes = [
-    { x: -70, y: -60, z: 20 },
-    { x: 80, y: -40, z: -30 },
-    { x: -30, y: 70, z: -40 },
-    { x: 60, y: 80, z: 50 },
-    { x: 0, y: 0, z: 0 }
-  ];
-
-  for (let i = 0; i < NUM_NODES; i++) {
-    const lobe = lobes[i % lobes.length];
+  // 3D Nodes anchored primarily toward the right/horizon
+  const NUM_HERO_NODES = 160;
+  const heroNodes = [];
+  for (let i = 0; i < NUM_HERO_NODES; i++) {
     const theta = Math.random() * Math.PI * 2;
     const phi = Math.acos(2 * Math.random() - 1);
-    const rad = 25 + Math.random() * 65;
-
-    nodes.push({
-      x: lobe.x + rad * Math.sin(phi) * Math.cos(theta),
-      y: lobe.y + rad * Math.sin(phi) * Math.sin(theta),
-      z: lobe.z + rad * Math.cos(phi),
-      vx: (Math.random() - 0.5) * 0.45,
-      vy: (Math.random() - 0.5) * 0.45,
-      vz: (Math.random() - 0.5) * 0.45,
-      baseRadius: 1.6 + Math.random() * 2.2,
-      pulsePhase: Math.random() * Math.PI * 2,
-      pulseSpeed: 0.025 + Math.random() * 0.035,
-      energy: 0.8 + Math.random() * 0.8
+    const r = 40 + Math.random() * 85;
+    heroNodes.push({
+      x: r * Math.sin(phi) * Math.cos(theta),
+      y: r * Math.sin(phi) * Math.sin(theta),
+      z: r * Math.cos(phi),
+      vx: (Math.random() - 0.5) * 0.35,
+      vy: (Math.random() - 0.5) * 0.35,
+      vz: (Math.random() - 0.5) * 0.35,
+      phase: Math.random() * Math.PI * 2
     });
   }
 
-  // Action Potential Pulses traveling along edges
-  const pulses = [];
-  function spawnPulse(fromIdx, toIdx) {
-    if (pulses.length > 80) return;
-    pulses.push({
-      from: fromIdx,
-      to: toIdx,
-      progress: 0,
-      speed: 0.018 + Math.random() * 0.024
-    });
-  }
-
-  // Pre-spawn initial pulses so screen is immediately active
-  for (let i = 0; i < 28; i++) {
-    const a = Math.floor(Math.random() * NUM_NODES);
-    const b = (a + 1 + Math.floor(Math.random() * 8)) % NUM_NODES;
-    pulses.push({ from: a, to: b, progress: Math.random(), speed: 0.02 });
-  }
-
-  // Interactive 3D Camera with Smooth Inertia
-  let rotX = 0.24, rotY = 0.42;
-  let targetRotX = 0.24, targetRotY = 0.42;
+  let rotX = 0.22, rotY = 0.45;
+  let targetRotX = 0.22, targetRotY = 0.45;
   let isDragging = false;
   let lastX = 0, lastY = 0;
 
-  window.addEventListener('mousedown', (e) => {
-    if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON' || e.target.closest('a')) return;
+  heroCanvas.addEventListener('mousedown', (e) => {
     isDragging = true;
     lastX = e.clientX;
     lastY = e.clientY;
@@ -801,56 +679,34 @@ header.site {
   window.addEventListener('mouseup', () => { isDragging = false; });
   window.addEventListener('mousemove', (e) => {
     if (isDragging) {
-      targetRotY += (e.clientX - lastX) * 0.0055;
-      targetRotX += (e.clientY - lastY) * 0.0055;
+      targetRotY += (e.clientX - lastX) * 0.005;
+      targetRotX += (e.clientY - lastY) * 0.005;
       lastX = e.clientX;
       lastY = e.clientY;
-    } else {
-      targetRotY = 0.42 + (e.clientX / window.innerWidth - 0.5) * 0.35;
-      targetRotX = 0.24 + (e.clientY / window.innerHeight - 0.5) * 0.25;
     }
   });
 
-  window.addEventListener('touchstart', (e) => {
+  heroCanvas.addEventListener('touchstart', (e) => {
     if (e.touches.length === 1) {
-      if (e.target.tagName === 'A' || e.target.closest('a')) return;
       isDragging = true;
       lastX = e.touches[0].clientX;
       lastY = e.touches[0].clientY;
-      document.documentElement.style.setProperty('--mouse-x', `${lastX}px`);
-      document.documentElement.style.setProperty('--mouse-y', `${lastY}px`);
     }
   }, { passive: true });
   window.addEventListener('touchend', () => { isDragging = false; });
   window.addEventListener('touchmove', (e) => {
     if (isDragging && e.touches.length === 1) {
-      targetRotY += (e.touches[0].clientX - lastX) * 0.0075;
-      targetRotX += (e.touches[0].clientY - lastY) * 0.0075;
+      targetRotY += (e.touches[0].clientX - lastX) * 0.007;
+      targetRotX += (e.touches[0].clientY - lastY) * 0.007;
       lastX = e.touches[0].clientX;
       lastY = e.touches[0].clientY;
-      document.documentElement.style.setProperty('--mouse-x', `${lastX}px`);
-      document.documentElement.style.setProperty('--mouse-y', `${lastY}px`);
     }
   }, { passive: true });
-
-  // Tap/Click to Emit Neural Shockwave
-  window.addEventListener('click', (e) => {
-    if (e.target.tagName === 'A' || e.target.closest('a')) return;
-    // Shockwave boosts all nodes and spawns 15 pulses
-    for (let i = 0; i < nodes.length; i++) {
-      nodes[i].energy = 2.4;
-    }
-    for (let i = 0; i < 20; i++) {
-      const a = Math.floor(Math.random() * NUM_NODES);
-      const b = (a + 1 + Math.floor(Math.random() * 10)) % NUM_NODES;
-      spawnPulse(a, b);
-    }
-  });
 
   let lastTime = performance.now();
   let frameCount = 0;
 
-  function render() {
+  function renderHero() {
     frameCount++;
     const now = performance.now();
     if (now - lastTime >= 1000) {
@@ -859,45 +715,35 @@ header.site {
       lastTime = now;
     }
 
-    // Camera inertia + gentle constant orbit drift
-    rotX += (targetRotX - rotX) * 0.06;
-    rotY += (targetRotY - rotY) * 0.06;
-    targetRotY += 0.0012; // slow living rotation
+    rotX += (targetRotX - rotX) * 0.05;
+    rotY += (targetRotY - rotY) * 0.05;
+    targetRotY += 0.0008; // smooth autonomous orbit
 
     const cosX = Math.cos(rotX), sinX = Math.sin(rotX);
     const cosY = Math.cos(rotY), sinY = Math.sin(rotY);
 
-    // Dynamic Nodes Physics & Containment
-    for (let i = 0; i < NUM_NODES; i++) {
-      const n = nodes[i];
-      n.x += n.vx;
-      n.y += n.vy;
-      n.z += n.vz;
+    heroCtx.save();
+    heroCtx.scale(dpr, dpr);
+    heroCtx.clearRect(0, 0, width, height);
 
-      // Soft boundary bounce
-      const distFromCenter = Math.hypot(n.x, n.y, n.z);
-      if (distFromCenter > 140) {
-        n.vx -= (n.x / distFromCenter) * 0.035;
-        n.vy -= (n.y / distFromCenter) * 0.035;
-        n.vz -= (n.z / distFromCenter) * 0.035;
-      }
-      n.pulsePhase += n.pulseSpeed;
-      if (n.energy > 1.0) n.energy -= 0.015;
-    }
+    // Center anchor pushed toward right on desktop
+    const centerX = width > 860 ? width * 0.72 : width * 0.5;
+    const centerY = height * 0.38;
+    const fov = Math.min(width, height) * 0.85;
 
-    // Clear Canvas with DPR scaling
-    ctx.save();
-    ctx.scale(dpr, dpr);
-    ctx.clearRect(0, 0, width, height);
-
-    const fov = Math.min(width, height) * 0.88;
-    const centerX = width * 0.5;
-    const centerY = height * 0.44;
-
-    // Project 3D to 2D
+    // Project
     const projected = [];
-    for (let i = 0; i < NUM_NODES; i++) {
-      const n = nodes[i];
+    for (let i = 0; i < NUM_HERO_NODES; i++) {
+      const n = heroNodes[i];
+      n.x += n.vx; n.y += n.vy; n.z += n.vz;
+      const d = Math.hypot(n.x, n.y, n.z);
+      if (d > 120) {
+        n.vx -= (n.x / d) * 0.02;
+        n.vy -= (n.y / d) * 0.02;
+        n.vz -= (n.z / d) * 0.02;
+      }
+      n.phase += 0.02;
+
       let rx = n.x * cosY - n.z * sinY;
       let rz = n.x * sinY + n.z * cosY;
       let ry = n.y * cosX - rz * sinX;
@@ -905,122 +751,349 @@ header.site {
 
       const dist = rz + 180;
       if (dist <= 10) continue;
-
       const scale = fov / dist;
-      const sx = centerX + rx * scale;
-      const sy = centerY + ry * scale;
-
       projected.push({
-        origIdx: i,
-        x: sx,
-        y: sy,
+        x: centerX + rx * scale,
+        y: centerY + ry * scale,
         z: rz,
         scale: scale,
-        energy: n.energy,
-        radius: n.baseRadius * (1 + 0.25 * Math.sin(n.pulsePhase)) * (n.energy > 1 ? 1.5 : 1)
+        phase: n.phase
       });
     }
 
-    // Sort by depth (back to front)
     projected.sort((a, b) => a.z - b.z);
 
-    // Index mapping for fast pulse lookup
-    const origToProj = {};
-    for (let i = 0; i < projected.length; i++) {
-      origToProj[projected[i].origIdx] = projected[i];
-    }
-
-    let edgeCount = 0;
-
-    // Draw Synaptic Axons (High-Visibility 3D Network)
+    // Draw Edges (High aesthetic thin blue-white lines)
     for (let i = 0; i < projected.length; i++) {
       const p1 = projected[i];
-      const n1 = nodes[p1.origIdx];
-
       for (let j = i + 1; j < projected.length; j++) {
         const p2 = projected[j];
-        const n2 = nodes[p2.origIdx];
-
-        // 3D Euclidean distance
-        const dx = n1.x - n2.x;
-        const dy = n1.y - n2.y;
-        const dz = n1.z - n2.z;
-        const d3D = Math.hypot(dx, dy, dz);
-
-        if (d3D < CONNECT_RADIUS_3D) {
-          edgeCount++;
-          const alpha3D = (1 - d3D / CONNECT_RADIUS_3D);
-          const depthAlpha = Math.min(1.0, Math.max(0.18, (p1.z + 100) / 200));
-          const totalAlpha = alpha3D * depthAlpha * Math.min(p1.energy, 2.0);
-
-          // Glowing Edge
-          ctx.beginPath();
-          ctx.moveTo(p1.x, p1.y);
-          ctx.lineTo(p2.x, p2.y);
-          ctx.strokeStyle = `rgba(180, 220, 255, ${totalAlpha * 0.42})`;
-          ctx.lineWidth = totalAlpha > 0.4 ? 1.6 : 1.0;
-          ctx.stroke();
-
-          // Spontaneous Action Potential Trigger
-          if (Math.random() < 0.0006) {
-            spawnPulse(p1.origIdx, p2.origIdx);
-          }
+        const dx = p1.x - p2.x;
+        const dy = p1.y - p2.y;
+        const dSq = dx * dx + dy * dy;
+        if (dSq < 5500) {
+          const alpha = (1 - dSq / 5500) * 0.28 * Math.max(0.1, (p1.z + 100) / 200);
+          heroCtx.strokeStyle = `rgba(180, 220, 255, ${alpha})`;
+          heroCtx.lineWidth = 1.0;
+          heroCtx.beginPath();
+          heroCtx.moveTo(p1.x, p1.y);
+          heroCtx.lineTo(p2.x, p2.y);
+          heroCtx.stroke();
         }
       }
     }
 
-    // Draw Traveling Action Potential Pulses (Bright Photons)
-    for (let i = pulses.length - 1; i >= 0; i--) {
-      const pulse = pulses[i];
-      pulse.progress += pulse.speed;
-
-      if (pulse.progress >= 1.0) {
-        pulses.splice(i, 1);
-        continue;
-      }
-
-      const pA = origToProj[pulse.from];
-      const pB = origToProj[pulse.to];
-      if (!pA || !pB) continue;
-
-      const px = pA.x + (pB.x - pA.x) * pulse.progress;
-      const py = pA.y + (pB.y - pA.y) * pulse.progress;
-
-      // Bright white-cyan pulse core
-      ctx.beginPath();
-      ctx.arc(px, py, 2.2, 0, Math.PI * 2);
-      ctx.fillStyle = '#ffffff';
-      ctx.shadowColor = '#38bdf8';
-      ctx.shadowBlur = 10;
-      ctx.fill();
-      ctx.shadowBlur = 0; // reset
-    }
-
-    // Draw Neural Nodes (Luminous Cores + Coronas)
+    // Draw Nodes (Glowing Cores)
     for (let i = 0; i < projected.length; i++) {
       const p = projected[i];
-      const depthAlpha = Math.min(1.0, Math.max(0.25, (p.z + 100) / 200));
-      const rad = p.radius * Math.min(p.scale * 0.22, 2.8);
+      const rad = Math.max(1.0, p.scale * 0.16) * (1 + 0.2 * Math.sin(p.phase));
+      const alpha = Math.min(1.0, Math.max(0.2, (p.z + 100) / 200));
 
-      // Outer Corona Bloom
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, rad * 2.8, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(56, 189, 248, ${depthAlpha * 0.22 * p.energy})`;
-      ctx.fill();
+      heroCtx.beginPath();
+      heroCtx.arc(p.x, p.y, rad * 2.5, 0, Math.PI * 2);
+      heroCtx.fillStyle = `rgba(56, 189, 248, ${alpha * 0.25})`;
+      heroCtx.fill();
 
-      // Sharp Core Star
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, rad, 0, Math.PI * 2);
-      ctx.fillStyle = p.energy > 1.4 ? '#ffffff' : `rgba(235, 245, 255, ${depthAlpha * 0.95})`;
-      ctx.fill();
+      heroCtx.beginPath();
+      heroCtx.arc(p.x, p.y, rad, 0, Math.PI * 2);
+      heroCtx.fillStyle = `rgba(240, 248, 255, ${alpha * 0.9})`;
+      heroCtx.fill();
     }
 
-    ctx.restore();
-
-    requestAnimationFrame(render);
+    heroCtx.restore();
+    requestAnimationFrame(renderHero);
   }
+  requestAnimationFrame(renderHero);
 
-  requestAnimationFrame(render);
+  // ------------------------------------------------------------
+  // 2. BLUEPRINT 1: LIVE STIGMERGY SIMULATION (for Agents)
+  // ------------------------------------------------------------
+  const c1 = document.getElementById('canvas-fig1');
+  const ctx1 = c1.getContext('2d');
+  let w1 = c1.width = c1.offsetWidth * dpr;
+  let h1 = c1.height = c1.offsetHeight * dpr;
+
+  const trails = [];
+  let agentX = 30, agentY = 60, agentAngle = 0.2;
+
+  function renderFig1(time) {
+    w1 = c1.width = c1.offsetWidth * dpr;
+    h1 = c1.height = c1.offsetHeight * dpr;
+    ctx1.save();
+    ctx1.scale(dpr, dpr);
+    const cssW = c1.offsetWidth;
+    const cssH = c1.offsetHeight;
+
+    ctx1.clearRect(0, 0, cssW, cssH);
+
+    // Draw Substrate Grid & Moving Sine Wave (Moving Data Environment)
+    ctx1.strokeStyle = '#181824';
+    ctx1.lineWidth = 1;
+    for (let x = 0; x < cssW; x += 24) {
+      ctx1.beginPath(); ctx1.moveTo(x, 0); ctx1.lineTo(x, cssH); ctx1.stroke();
+    }
+    for (let y = 0; y < cssH; y += 24) {
+      ctx1.beginPath(); ctx1.moveTo(0, y); ctx1.lineTo(cssW, y); ctx1.stroke();
+    }
+
+    // Moving Substrate Data Wave
+    ctx1.beginPath();
+    ctx1.strokeStyle = '#2d2d3d';
+    ctx1.setLineDash([3, 3]);
+    for (let x = 0; x < cssW; x += 4) {
+      const y = cssH * 0.65 + Math.sin(x * 0.035 + time * 0.002) * 12;
+      if (x === 0) ctx1.moveTo(x, y); else ctx1.lineTo(x, y);
+    }
+    ctx1.stroke();
+    ctx1.setLineDash([]);
+
+    // Stigmergic Evaporating Trails
+    if (trails.length < 90) {
+      trails.push({ x: agentX, y: agentY, alpha: 1.0 });
+    }
+    for (let i = trails.length - 1; i >= 0; i--) {
+      const t = trails[i];
+      t.alpha *= 0.955; // gamma evaporation
+      if (t.alpha < 0.02) { trails.splice(i, 1); continue; }
+
+      ctx1.beginPath();
+      ctx1.arc(t.x, t.y, 2.5 * t.alpha, 0, Math.PI * 2);
+      ctx1.fillStyle = `rgba(56, 189, 248, ${t.alpha * 0.75})`;
+      ctx1.fill();
+    }
+
+    // Connected trail path
+    if (trails.length > 2) {
+      ctx1.beginPath();
+      ctx1.moveTo(trails[0].x, trails[0].y);
+      for (let i = 1; i < trails.length; i++) {
+        ctx1.lineTo(trails[i].x, trails[i].y);
+      }
+      ctx1.strokeStyle = 'rgba(230, 240, 255, 0.4)';
+      ctx1.lineWidth = 1.4;
+      ctx1.stroke();
+    }
+
+    // Agent Motion along wave with stigmergic oscillation
+    agentX += Math.cos(agentAngle) * 1.6;
+    agentY += Math.sin(agentAngle) * 1.6;
+    if (agentX > cssW + 10) agentX = -10;
+    const targetY = cssH * 0.42 + Math.sin(agentX * 0.04 + time * 0.003) * 22;
+    agentAngle += (targetY - agentY) * 0.005;
+
+    // Draw Agent with Sensory Cones
+    ctx1.beginPath();
+    ctx1.arc(agentX, agentY, 3.5, 0, Math.PI * 2);
+    ctx1.fillStyle = '#ffffff';
+    ctx1.shadowColor = '#38bdf8';
+    ctx1.shadowBlur = 10;
+    ctx1.fill();
+    ctx1.shadowBlur = 0;
+
+    // Sensor Ray
+    const sLen = 22;
+    ctx1.strokeStyle = 'rgba(56, 189, 248, 0.6)';
+    ctx1.beginPath();
+    ctx1.moveTo(agentX, agentY);
+    ctx1.lineTo(agentX + Math.cos(agentAngle - 0.35) * sLen, agentY + Math.sin(agentAngle - 0.35) * sLen);
+    ctx1.moveTo(agentX, agentY);
+    ctx1.lineTo(agentX + Math.cos(agentAngle + 0.35) * sLen, agentY + Math.sin(agentAngle + 0.35) * sLen);
+    ctx1.stroke();
+
+    ctx1.restore();
+    requestAnimationFrame(renderFig1);
+  }
+  requestAnimationFrame(renderFig1);
+
+  // ------------------------------------------------------------
+  // 3. BLUEPRINT 2: JEVWIKI AIR-GAPPED GRAPH (for Decision AI)
+  // ------------------------------------------------------------
+  const c2 = document.getElementById('canvas-fig2');
+  const ctx2 = c2.getContext('2d');
+  const graphNodes = [
+    { name: "Jevwiki Core", x: 0.5, y: 0.5, r: 8, color: "#38bdf8", isHub: true },
+    { name: "Local SLM", x: 0.22, y: 0.35, r: 5, color: "#ffffff" },
+    { name: "Ontology", x: 0.78, y: 0.35, r: 5, color: "#ffffff" },
+    { name: "Decision Gate", x: 0.8, y: 0.75, r: 5, color: "#a5b4fc" },
+    { name: "Fat Skill", x: 0.22, y: 0.75, r: 5, color: "#a5b4fc" },
+    { name: "AirGap 0$", x: 0.5, y: 0.82, r: 4, color: "#38bdf8" }
+  ];
+
+  function renderFig2(time) {
+    const cssW = c2.offsetWidth;
+    const cssH = c2.offsetHeight;
+    c2.width = cssW * dpr;
+    c2.height = cssH * dpr;
+
+    ctx2.save();
+    ctx2.scale(dpr, dpr);
+    ctx2.clearRect(0, 0, cssW, cssH);
+
+    // Grid
+    ctx2.strokeStyle = '#181824';
+    ctx2.lineWidth = 1;
+    for (let x = 0; x < cssW; x += 24) { ctx2.beginPath(); ctx2.moveTo(x, 0); ctx2.lineTo(x, cssH); ctx2.stroke(); }
+    for (let y = 0; y < cssH; y += 24) { ctx2.beginPath(); ctx2.moveTo(0, y); ctx2.lineTo(cssW, y); ctx2.stroke(); }
+
+    // Outer Air-Gap Boundary Ring
+    ctx2.beginPath();
+    ctx2.arc(cssW * 0.5, cssH * 0.52, cssH * 0.44, 0, Math.PI * 2);
+    ctx2.strokeStyle = 'rgba(56, 189, 248, 0.25)';
+    ctx2.setLineDash([4, 4]);
+    ctx2.stroke();
+    ctx2.setLineDash([]);
+
+    // Draw Edges
+    const hub = { x: cssW * graphNodes[0].x, y: cssH * graphNodes[0].y };
+    for (let i = 1; i < graphNodes.length; i++) {
+      const target = { x: cssW * graphNodes[i].x, y: cssH * graphNodes[i].y };
+      ctx2.beginPath();
+      ctx2.moveTo(hub.x, hub.y);
+      ctx2.lineTo(target.x, target.y);
+      ctx2.strokeStyle = 'rgba(180, 210, 255, 0.3)';
+      ctx2.lineWidth = 1.2;
+      ctx2.stroke();
+
+      // Traveling data packet
+      const prog = (time * 0.0012 + i * 0.25) % 1.0;
+      const px = hub.x + (target.x - hub.x) * prog;
+      const py = hub.y + (target.y - hub.y) * prog;
+      ctx2.beginPath();
+      ctx2.arc(px, py, 2.2, 0, Math.PI * 2);
+      ctx2.fillStyle = '#ffffff';
+      ctx2.shadowColor = '#38bdf8';
+      ctx2.shadowBlur = 8;
+      ctx2.fill();
+      ctx2.shadowBlur = 0;
+    }
+
+    // Connect outer ring
+    for (let i = 1; i < graphNodes.length; i++) {
+      const next = i === graphNodes.length - 1 ? 1 : i + 1;
+      ctx2.beginPath();
+      ctx2.moveTo(cssW * graphNodes[i].x, cssH * graphNodes[i].y);
+      ctx2.lineTo(cssW * graphNodes[next].x, cssH * graphNodes[next].y);
+      ctx2.strokeStyle = 'rgba(140, 160, 200, 0.15)';
+      ctx2.stroke();
+    }
+
+    // Draw Nodes
+    for (let i = 0; i < graphNodes.length; i++) {
+      const gn = graphNodes[i];
+      const nx = cssW * gn.x;
+      const ny = cssH * gn.y;
+
+      ctx2.beginPath();
+      ctx2.arc(nx, ny, gn.r, 0, Math.PI * 2);
+      ctx2.fillStyle = gn.color;
+      ctx2.fill();
+
+      ctx2.font = '8px monospace';
+      ctx2.fillStyle = '#8e8e98';
+      ctx2.textAlign = 'center';
+      ctx2.fillText(gn.name, nx, ny + gn.r + 9);
+    }
+
+    ctx2.restore();
+    requestAnimationFrame(renderFig2);
+  }
+  requestAnimationFrame(renderFig2);
+
+  // ------------------------------------------------------------
+  // 4. BLUEPRINT 3: QUANT SELF-IMPROVING ENGINE (for Quant)
+  // ------------------------------------------------------------
+  const c3 = document.getElementById('canvas-fig3');
+  const ctx3 = c3.getContext('2d');
+
+  function renderFig3(time) {
+    const cssW = c3.offsetWidth;
+    const cssH = c3.offsetHeight;
+    c3.width = cssW * dpr;
+    c3.height = cssH * dpr;
+
+    ctx3.save();
+    ctx3.scale(dpr, dpr);
+    ctx3.clearRect(0, 0, cssW, cssH);
+
+    // Grid
+    ctx3.strokeStyle = '#181824';
+    ctx3.lineWidth = 1;
+    for (let x = 0; x < cssW; x += 24) { ctx3.beginPath(); ctx3.moveTo(x, 0); ctx3.lineTo(x, cssH); ctx3.stroke(); }
+    for (let y = 0; y < cssH; y += 24) { ctx3.beginPath(); ctx3.moveTo(0, y); ctx3.lineTo(cssW, y); ctx3.stroke(); }
+
+    // Recursive Sharpe Calibration Loop Line
+    const startX = cssW * 0.12;
+    const midX = cssW * 0.5;
+    const endX = cssW * 0.88;
+    const gateY = cssH * 0.45;
+
+    // Stage 1: Alpha Hyp
+    ctx3.strokeStyle = '#323242';
+    ctx3.strokeRect(startX - 22, gateY - 14, 44, 28);
+    ctx3.font = '8px monospace';
+    ctx3.fillStyle = '#e2e2e8';
+    ctx3.textAlign = 'center';
+    ctx3.fillText("Alpha Hyp", startX, gateY + 3);
+
+    // Stage 2: Metamorphic Gate
+    ctx3.strokeStyle = '#38bdf8';
+    ctx3.strokeRect(midX - 28, gateY - 14, 56, 28);
+    ctx3.fillStyle = '#38bdf8';
+    ctx3.fillText("Meta-Gate", midX, gateY + 3);
+
+    // Stage 3: Live Capital
+    ctx3.strokeStyle = '#e2e2e8';
+    ctx3.strokeRect(endX - 24, gateY - 14, 48, 28);
+    ctx3.fillStyle = '#ffffff';
+    ctx3.fillText("Live Fund", endX, gateY + 3);
+
+    // Arrows
+    ctx3.strokeStyle = '#6e6e78';
+    ctx3.beginPath();
+    ctx3.moveTo(startX + 22, gateY); ctx3.lineTo(midX - 28, gateY);
+    ctx3.moveTo(midX + 28, gateY); ctx3.lineTo(endX - 24, gateY);
+    ctx3.stroke();
+
+    // Recursive Feedback Pipeline (bottom return wire)
+    ctx3.beginPath();
+    ctx3.setLineDash([3, 3]);
+    ctx3.strokeStyle = 'rgba(56, 189, 248, 0.45)';
+    ctx3.moveTo(endX, gateY + 14);
+    ctx3.lineTo(endX, cssH * 0.82);
+    ctx3.lineTo(startX, cssH * 0.82);
+    ctx3.lineTo(startX, gateY + 14);
+    ctx3.stroke();
+    ctx3.setLineDash([]);
+
+    // Traveling Sharpe optimization pulses along feedback wire
+    const feedbackProgress = (time * 0.0009) % 1.0;
+    let fx, fy;
+    if (feedbackProgress < 0.3) {
+      fx = endX;
+      fy = (gateY + 14) + (cssH * 0.82 - (gateY + 14)) * (feedbackProgress / 0.3);
+    } else if (feedbackProgress < 0.8) {
+      fx = endX - (endX - startX) * ((feedbackProgress - 0.3) / 0.5);
+      fy = cssH * 0.82;
+    } else {
+      fx = startX;
+      fy = (cssH * 0.82) - ((cssH * 0.82) - (gateY + 14)) * ((feedbackProgress - 0.8) / 0.2);
+    }
+    ctx3.beginPath();
+    ctx3.arc(fx, fy, 2.5, 0, Math.PI * 2);
+    ctx3.fillStyle = '#38bdf8';
+    ctx3.shadowColor = '#38bdf8';
+    ctx3.shadowBlur = 8;
+    ctx3.fill();
+    ctx3.shadowBlur = 0;
+
+    ctx3.font = '7.5px monospace';
+    ctx3.fillStyle = '#7a7a88';
+    ctx3.fillText("Recursive Feedback Loop: Sharpe Re-Calibration", cssW * 0.5, cssH * 0.94);
+
+    ctx3.restore();
+    requestAnimationFrame(renderFig3);
+  }
+  requestAnimationFrame(renderFig3);
 })();
 </script>
 
