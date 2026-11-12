@@ -498,6 +498,9 @@ body {
   border-radius: 3px;
   margin-left: 0.5rem;
   text-transform: uppercase;
+  white-space: nowrap;
+  display: inline-block;
+  flex-shrink: 0;
 }
 
 .dispatch-meta {
@@ -506,7 +509,9 @@ body {
   color: #94a3b8;
   margin-bottom: 0.35rem;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
+  gap: 0.4rem;
 }
 .dispatch-title {
   font-size: 1.28rem;
@@ -864,11 +869,20 @@ a:focus-visible {
 </div>
 
 <!-- ============================================================
-     INTERACTIVE JAVASCRIPT ENGINES (OPTIMIZED 60 FPS)
+     INTERACTIVE JAVASCRIPT ENGINES (OPTIMIZED 60 FPS & ACCESSIBILITY)
      ============================================================ -->
 <script>
 (function() {
   const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+  // Motion preference tracking (WCAG / Issue #2)
+  const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+  let prefersReducedMotion = motionQuery.matches;
+
+  // Track visibility of blueprint canvases to suspend offscreen execution
+  let isFig1Visible = false, isFig2Visible = false, isFig3Visible = false;
+  let fig1Running = false, fig2Running = false, fig3Running = false;
+  let isSlimeRunning = false;
 
   // ------------------------------------------------------------
   // 1. FULLSCREEN 3D SLIME-MOULD NETWORK (60 FPS OPTIMIZED)
@@ -945,18 +959,24 @@ a:focus-visible {
   let lastTime = performance.now();
   let frameCount = 0;
 
-  function renderSlime(time) {
-    frameCount++;
-    const now = performance.now();
-    if (now - lastTime >= 1000) {
-      if (fpsLabel) fpsLabel.textContent = `${Math.round((frameCount * 1000) / (now - lastTime))} FPS`;
-      frameCount = 0;
-      lastTime = now;
-    }
+  function renderSlime(time, staticOnly) {
+    if (prefersReducedMotion || staticOnly) {
+      isSlimeRunning = false;
+      if (fpsLabel) fpsLabel.textContent = 'STATIC (ACCESSIBLE)';
+      rotX = 0.2; rotY = 0.15;
+    } else {
+      frameCount++;
+      const now = performance.now();
+      if (now - lastTime >= 1000) {
+        if (fpsLabel) fpsLabel.textContent = `${Math.round((frameCount * 1000) / (now - lastTime))} FPS`;
+        frameCount = 0;
+        lastTime = now;
+      }
 
-    rotX += (targetRotX - rotX) * 0.05;
-    rotY += (targetRotY - rotY) * 0.05;
-    targetRotY += 0.0012;
+      rotX += (targetRotX - rotX) * 0.05;
+      rotY += (targetRotY - rotY) * 0.05;
+      targetRotY += 0.0012;
+    }
 
     const cosX = Math.cos(rotX), sinX = Math.sin(rotX);
     const cosY = Math.cos(rotY), sinY = Math.sin(rotY);
@@ -1055,9 +1075,10 @@ a:focus-visible {
     }
 
     ctx.restore();
-    requestAnimationFrame(renderSlime);
+    if (!prefersReducedMotion && !staticOnly) {
+      requestAnimationFrame(renderSlime);
+    }
   }
-  requestAnimationFrame(renderSlime);
 
   // ------------------------------------------------------------
   // 2. BLUEPRINT 1: LIVE STIGMERGY SIMULATION (for Agents)
@@ -1067,7 +1088,9 @@ a:focus-visible {
   const trails = [];
   let agentX = 20, agentY = 60, agentAngle = 0.2;
 
-  function renderFig1(time) {
+  function renderFig1(time, staticOnly) {
+    if (!fig1Running && !prefersReducedMotion && !staticOnly) return;
+    const nowTime = time || 1000;
     const cssW = c1.offsetWidth;
     const cssH = c1.offsetHeight;
     c1.width = cssW * dpr;
@@ -1086,37 +1109,50 @@ a:focus-visible {
     ctx1.strokeStyle = '#2d2d3d';
     ctx1.setLineDash([3, 3]);
     for (let x = 0; x < cssW; x += 4) {
-      const y = cssH * 0.65 + Math.sin(x * 0.035 + time * 0.002) * 12;
+      const y = cssH * 0.65 + Math.sin(x * 0.035 + nowTime * 0.002) * 12;
       if (x === 0) ctx1.moveTo(x, y); else ctx1.lineTo(x, y);
     }
     ctx1.stroke();
     ctx1.setLineDash([]);
 
-    if (trails.length < 70) trails.push({ x: agentX, y: agentY, alpha: 1.0 });
-    for (let i = trails.length - 1; i >= 0; i--) {
-      const t = trails[i];
-      t.alpha *= 0.955;
-      if (t.alpha < 0.02) { trails.splice(i, 1); continue; }
-      ctx1.beginPath();
-      ctx1.arc(t.x, t.y, 2.5 * t.alpha, 0, Math.PI * 2);
-      ctx1.fillStyle = `rgba(56, 189, 248, ${t.alpha * 0.75})`;
-      ctx1.fill();
-    }
+    if (!prefersReducedMotion && !staticOnly) {
+      if (trails.length < 70) trails.push({ x: agentX, y: agentY, alpha: 1.0 });
+      for (let i = trails.length - 1; i >= 0; i--) {
+        const t = trails[i];
+        t.alpha *= 0.955;
+        if (t.alpha < 0.02) { trails.splice(i, 1); continue; }
+        ctx1.beginPath();
+        ctx1.arc(t.x, t.y, 2.5 * t.alpha, 0, Math.PI * 2);
+        ctx1.fillStyle = `rgba(56, 189, 248, ${t.alpha * 0.75})`;
+        ctx1.fill();
+      }
 
-    if (trails.length > 2) {
+      if (trails.length > 2) {
+        ctx1.beginPath();
+        ctx1.moveTo(trails[0].x, trails[0].y);
+        for (let i = 1; i < trails.length; i++) ctx1.lineTo(trails[i].x, trails[i].y);
+        ctx1.strokeStyle = 'rgba(230, 240, 255, 0.4)';
+        ctx1.lineWidth = 1.3;
+        ctx1.stroke();
+      }
+
+      agentX += Math.cos(agentAngle) * 1.5;
+      agentY += Math.sin(agentAngle) * 1.5;
+      if (agentX > cssW + 10) agentX = -10;
+      const targetY = cssH * 0.42 + Math.sin(agentX * 0.04 + nowTime * 0.003) * 22;
+      agentAngle += (targetY - agentY) * 0.006;
+    } else {
+      // Static representative path
       ctx1.beginPath();
-      ctx1.moveTo(trails[0].x, trails[0].y);
-      for (let i = 1; i < trails.length; i++) ctx1.lineTo(trails[i].x, trails[i].y);
-      ctx1.strokeStyle = 'rgba(230, 240, 255, 0.4)';
-      ctx1.lineWidth = 1.3;
+      ctx1.moveTo(20, cssH * 0.5);
+      ctx1.bezierCurveTo(cssW * 0.35, cssH * 0.25, cssW * 0.65, cssH * 0.75, cssW - 20, cssH * 0.45);
+      ctx1.strokeStyle = 'rgba(56, 189, 248, 0.5)';
+      ctx1.lineWidth = 1.5;
       ctx1.stroke();
+      agentX = cssW * 0.6;
+      agentY = cssH * 0.55;
+      agentAngle = 0.35;
     }
-
-    agentX += Math.cos(agentAngle) * 1.5;
-    agentY += Math.sin(agentAngle) * 1.5;
-    if (agentX > cssW + 10) agentX = -10;
-    const targetY = cssH * 0.42 + Math.sin(agentX * 0.04 + time * 0.003) * 22;
-    agentAngle += (targetY - agentY) * 0.006;
 
     ctx1.beginPath();
     ctx1.arc(agentX, agentY, 3.2, 0, Math.PI * 2);
@@ -1136,9 +1172,12 @@ a:focus-visible {
     ctx1.stroke();
 
     ctx1.restore();
-    requestAnimationFrame(renderFig1);
+    if (!prefersReducedMotion && !staticOnly && isFig1Visible) {
+      requestAnimationFrame(renderFig1);
+    } else {
+      fig1Running = false;
+    }
   }
-  requestAnimationFrame(renderFig1);
 
   // ------------------------------------------------------------
   // 3. BLUEPRINT 2: JEVWIKI AIR-GAPPED GRAPH (for Decision AI)
@@ -1154,7 +1193,9 @@ a:focus-visible {
     { name: "AirGap 0$", x: 0.5, y: 0.82, r: 4, color: "#38bdf8" }
   ];
 
-  function renderFig2(time) {
+  function renderFig2(time, staticOnly) {
+    if (!fig2Running && !prefersReducedMotion && !staticOnly) return;
+    const nowTime = time || 1000;
     const cssW = c2.offsetWidth;
     const cssH = c2.offsetHeight;
     c2.width = cssW * dpr;
@@ -1186,7 +1227,7 @@ a:focus-visible {
       ctx2.lineWidth = 1.1;
       ctx2.stroke();
 
-      const prog = (time * 0.0012 + i * 0.25) % 1.0;
+      const prog = (!prefersReducedMotion && !staticOnly) ? ((nowTime * 0.0012 + i * 0.25) % 1.0) : 0.5;
       const px = hub.x + (target.x - hub.x) * prog;
       const py = hub.y + (target.y - hub.y) * prog;
       ctx2.beginPath();
@@ -1206,16 +1247,19 @@ a:focus-visible {
       ctx2.arc(nx, ny, gn.r, 0, Math.PI * 2);
       ctx2.fillStyle = gn.color;
       ctx2.fill();
-      ctx2.font = '8px monospace';
-      ctx2.fillStyle = '#94a3b8'; /* enhanced contrast */
+      ctx2.font = '9.5px monospace';
+      ctx2.fillStyle = '#cbd5e1'; /* high contrast 9.5px */
       ctx2.textAlign = 'center';
-      ctx2.fillText(gn.name, nx, ny + gn.r + 9);
+      ctx2.fillText(gn.name, nx, ny + gn.r + 11);
     }
 
     ctx2.restore();
-    requestAnimationFrame(renderFig2);
+    if (!prefersReducedMotion && !staticOnly && isFig2Visible) {
+      requestAnimationFrame(renderFig2);
+    } else {
+      fig2Running = false;
+    }
   }
-  requestAnimationFrame(renderFig2);
 
   // ------------------------------------------------------------
   // 4. BLUEPRINT 3: QUANT SELF-IMPROVING ENGINE (for Quant)
@@ -1223,7 +1267,9 @@ a:focus-visible {
   const c3 = document.getElementById('canvas-fig3');
   const ctx3 = c3.getContext('2d');
 
-  function renderFig3(time) {
+  function renderFig3(time, staticOnly) {
+    if (!fig3Running && !prefersReducedMotion && !staticOnly) return;
+    const nowTime = time || 1000;
     const cssW = c3.offsetWidth;
     const cssH = c3.offsetHeight;
     c3.width = cssW * dpr;
@@ -1245,8 +1291,8 @@ a:focus-visible {
 
     ctx3.strokeStyle = '#323242';
     ctx3.strokeRect(startX - 22, gateY - 14, 44, 28);
-    ctx3.font = '8px monospace';
-    ctx3.fillStyle = '#f1f5f9';
+    ctx3.font = '9px monospace';
+    ctx3.fillStyle = '#f8fafc';
     ctx3.textAlign = 'center';
     ctx3.fillText("Alpha Hyp", startX, gateY + 3);
 
@@ -1276,7 +1322,7 @@ a:focus-visible {
     ctx3.stroke();
     ctx3.setLineDash([]);
 
-    const feedbackProgress = (time * 0.0009) % 1.0;
+    const feedbackProgress = (!prefersReducedMotion && !staticOnly) ? ((nowTime * 0.0009) % 1.0) : 0.5;
     let fx, fy;
     if (feedbackProgress < 0.3) {
       fx = endX;
@@ -1296,14 +1342,110 @@ a:focus-visible {
     ctx3.fill();
     ctx3.shadowBlur = 0;
 
-    ctx3.font = '7.5px monospace';
-    ctx3.fillStyle = '#94a3b8'; /* enhanced contrast */
+    ctx3.font = '8.5px monospace';
+    ctx3.fillStyle = '#cbd5e1'; /* high contrast & readable font size */
     ctx3.fillText("Recursive Feedback Loop: Sharpe Re-Calibration", cssW * 0.5, cssH * 0.94);
 
     ctx3.restore();
-    requestAnimationFrame(renderFig3);
+    if (!prefersReducedMotion && !staticOnly && isFig3Visible) {
+      requestAnimationFrame(renderFig3);
+    } else {
+      fig3Running = false;
+    }
   }
-  requestAnimationFrame(renderFig3);
+
+  // ------------------------------------------------------------
+  // 5. OBSERVER & ACCESSIBILITY ORCHESTRATION
+  // ------------------------------------------------------------
+  if ('IntersectionObserver' in window) {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.target === c1) {
+          isFig1Visible = entry.isIntersecting;
+          if (isFig1Visible && !fig1Running && !prefersReducedMotion) {
+            fig1Running = true;
+            requestAnimationFrame(renderFig1);
+          } else if (!isFig1Visible) {
+            fig1Running = false;
+          }
+        } else if (entry.target === c2) {
+          isFig2Visible = entry.isIntersecting;
+          if (isFig2Visible && !fig2Running && !prefersReducedMotion) {
+            fig2Running = true;
+            requestAnimationFrame(renderFig2);
+          } else if (!isFig2Visible) {
+            fig2Running = false;
+          }
+        } else if (entry.target === c3) {
+          isFig3Visible = entry.isIntersecting;
+          if (isFig3Visible && !fig3Running && !prefersReducedMotion) {
+            fig3Running = true;
+            requestAnimationFrame(renderFig3);
+          } else if (!isFig3Visible) {
+            fig3Running = false;
+          }
+        }
+      });
+    }, { rootMargin: '80px' });
+    if (c1) observer.observe(c1);
+    if (c2) observer.observe(c2);
+    if (c3) observer.observe(c3);
+  } else {
+    isFig1Visible = true; isFig2Visible = true; isFig3Visible = true;
+  }
+
+  function handleMotionChange(e) {
+    prefersReducedMotion = e.matches;
+    if (prefersReducedMotion) {
+      fig1Running = false;
+      fig2Running = false;
+      fig3Running = false;
+      isSlimeRunning = false;
+      if (fpsLabel) fpsLabel.textContent = 'STATIC (ACCESSIBLE)';
+      renderSlime(0, true);
+      renderFig1(0, true);
+      renderFig2(0, true);
+      renderFig3(0, true);
+    } else {
+      if (!isSlimeRunning) {
+        isSlimeRunning = true;
+        requestAnimationFrame(renderSlime);
+      }
+      if (isFig1Visible && !fig1Running) {
+        fig1Running = true;
+        requestAnimationFrame(renderFig1);
+      }
+      if (isFig2Visible && !fig2Running) {
+        fig2Running = true;
+        requestAnimationFrame(renderFig2);
+      }
+      if (isFig3Visible && !fig3Running) {
+        fig3Running = true;
+        requestAnimationFrame(renderFig3);
+      }
+    }
+  }
+
+  if (motionQuery.addEventListener) {
+    motionQuery.addEventListener('change', handleMotionChange);
+  } else if (motionQuery.addListener) {
+    motionQuery.addListener(handleMotionChange);
+  }
+
+  // Initial Boot
+  if (prefersReducedMotion) {
+    if (fpsLabel) fpsLabel.textContent = 'STATIC (ACCESSIBLE)';
+    renderSlime(0, true);
+    renderFig1(0, true);
+    renderFig2(0, true);
+    renderFig3(0, true);
+  } else {
+    isSlimeRunning = true;
+    requestAnimationFrame(renderSlime);
+    if (isFig1Visible) { fig1Running = true; requestAnimationFrame(renderFig1); }
+    if (isFig2Visible) { fig2Running = true; requestAnimationFrame(renderFig2); }
+    if (isFig3Visible) { fig3Running = true; requestAnimationFrame(renderFig3); }
+  }
 })();
 </script>
 
